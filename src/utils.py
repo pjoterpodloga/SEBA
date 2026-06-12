@@ -51,6 +51,12 @@ class TextFormat:
     def green(cls, string):
         return AnsiCode.text_green+string+AnsiCode.text_default
     @classmethod
+    def blue(cls, string):
+        return AnsiCode.text_blue+string+AnsiCode.text_blue
+    @classmethod
+    def yellow(cls, string):
+        return AnsiCode.text_yellow+string+AnsiCode.text_yellow
+    @classmethod
     def format(cls, string, fmt):
         
         for it, f in enumerate(fmt):
@@ -63,16 +69,25 @@ class TextFormat:
             if f == "g":
                 string = cls.green(string)
                 continue
+            if f == "b":
+                string = cls.blue(string)
+                continue
+            if f == "y":
+                string = cls.yellow(string)
+                continue
         return string
-    
+
+class DefaultFile:
+    def __init__(self, name, content):
+        self.name = name
+        self.content = content
 
 class FolderTree:
     def __init__(self, name, branches):
         self.name = name
         self.branches = branches
 
-    def resolve_tree_string(self, depth=1, eot=False):
-        
+    def resolve_tree_list(self, depth=1, eot=False):
         joint = "├"
         horiz = "─"
         vert = "│"
@@ -87,7 +102,7 @@ class FolderTree:
                 next_eot = True
 
             if (type(br) == FolderTree):
-                lines = br.resolve_tree_string(depth=depth+1, eot=next_eot)
+                lines = br.resolve_tree_list(depth=depth+1, eot=next_eot)
                 for it_l, l in enumerate(lines):
                     if it_l == 0 and not next_eot:
                         result.append(f"{joint}{horiz} {l}")
@@ -97,21 +112,30 @@ class FolderTree:
                         result.append(f"{vert}  {l}")
                     elif it_l != 0 and next_eot:
                         result.append(f"   {l}")
-            elif (it_br == len(self.branches)-1):
-                result.append(f"{knee}{horiz} {br}")
+            elif (type(br) == DefaultFile):
+                if (it_br == len(self.branches)-1):
+                    result.append(f"{knee}{horiz} {br.name}")
+                else:
+                    result.append(f"{joint}{horiz} {br.name}")
             else:
-                result.append(f"{joint}{horiz} {br}")
-
-        if depth == 1:
-            tmp = ""
-            for r in result:
-                tmp = tmp + "\t" + r + "\n"
-            result = tmp
+                if (it_br == len(self.branches)-1):
+                    result.append(f"{knee}{horiz} {br}")
+                else:
+                    result.append(f"{joint}{horiz} {br}")
 
         return result
     
-    def resolve_tree(self):
+    def resolve_tree_string(self):
+        result = self.resolve_tree_list()
 
+        tmp = ""
+        for r in result:
+            tmp = tmp + "\t" + r + "\n"
+        result = tmp
+
+        return result
+
+    def resolve_tree(self):
         result = []
 
         found_subdir = False
@@ -129,9 +153,33 @@ class FolderTree:
             result = [self.name]
 
         return result
+    
+    def resolve_default_files(self, depth=1):
+        result = []
+
+        found_default_file = False
+        found_subdir = True
+
+        for br in self.branches:
+            if (type(br) == FolderTree):
+                found_subdir = True
+                ret = br.resolve_default_files(depth=depth+1)
+
+                for r in ret:
+                    result.append([self.name + "/" + r[0], r[1]])
+            
+            elif (type(br) == DefaultFile):
+                found_default_file = True
+                result.append([self.name + "/" + br.name, br.content])
+
+        if (not found_default_file or not found_subdir) and depth != 1:
+            result = [[self.name + "/" + "__placeholder__", ""]]
+
+        return result
 
     def insert_branch(self, branch):
         self.branches.append(branch)
 
     def replace_branches(self, branches):
         self.branches = branches
+

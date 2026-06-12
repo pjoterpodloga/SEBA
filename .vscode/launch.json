@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": "-s tmp/test_repo"
+            "args": "--setup_force tmp/test_repo --debug"
         }
     ]
 }
