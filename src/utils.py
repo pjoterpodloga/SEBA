@@ -111,7 +111,24 @@ class FolderTree:
         return result
     
     def resolve_tree(self):
-        pass
+
+        result = []
+
+        found_subdir = False
+
+        for br in self.branches:
+
+            if (type(br) == FolderTree):
+                found_subdir = True
+                ret = br.resolve_tree()
+
+                for r in ret:
+                    result.append(self.name + "/" + r)
+
+        if found_subdir == False:
+            result = [self.name]
+
+        return result
 
     def insert_branch(self, branch):
         self.branches.append(branch)

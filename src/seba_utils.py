@@ -11,7 +11,7 @@ class Seba:
     def run():
         pass
 
-seba_folder = FolderTree("seba", ["<config>", "<seba_files.seba>"])
+seba_folder = FolderTree("seba", ["config", "<seba_files.seba>"])
 spfiles_folder = FolderTree("spfiles", ["<control.spice>"])
 tb_folder = FolderTree("tb", ["<testbench.spice>"])
 circuit_folder = FolderTree("circuit", ["<circuit.sch>", "<circuit.sym>"])
@@ -137,18 +137,12 @@ class SebaSetupTool:
 
         subprocess.run(["git", "init", repo_path])
 
-        os.mkdir(f"{repo_path}/seba")
-        os.mkdir(f"{repo_path}/spfiles")
-        os.mkdir(f"{repo_path}/tb")
-        os.mkdir(f"{repo_path}/circuit")
-        os.mkdir(f"{repo_path}/layout")
-        os.mkdir(f"{repo_path}/corners")
-        os.mkdir(f"{repo_path}/pex")
-        os.mkdir(f"{repo_path}/scripts")
-        os.mkdir(f"{repo_path}/reports")
-        os.mkdir(f"{repo_path}/logs")
-        os.mkdir(f"{repo_path}/tmp")
-        os.mkdir(f"{repo_path}/backup")
+        dir_to_create = root_tree.resolve_tree()
+
+        for dtc in dir_to_create:
+            dtc_path = dtc.replace("<repo_name>", repo_path)
+            os.mkdir(dtc_path)
+            subprocess.run(["touch", f"{dtc_path}/__placeholder__"])
 
         
 
