@@ -8,8 +8,18 @@ from src.utils import *
 from src.constants import *
 from src.logger import *
 
-seba_config = DefaultFile("config.seba", "#Configuration file for SEBA repository")
-seba_folder = FolderTree("seba", [seba_config, "<seba_files.seba>"])
+gitignore_file_content =    "# Default SEBA .gitignore file\n\n"\
+                            "tmp/\n"\
+                            "logs/\n"\
+                            "backup/\n"\
+                            "pex/\n"
+
+seba_config_file_content =  "# Example of configuration for SEBA file"\
+                            ""
+
+seba_config_file = DefaultFile("config.seba", seba_config_file_content)
+gitignore_file = DefaultFile(".gitignore", gitignore_file_content)
+seba_folder = FolderTree("seba", [seba_config_file])
 spfiles_folder = FolderTree("spfiles", ["<control.spice>"])
 tb_folder = FolderTree("tb", ["<testbench.spice>"])
 circuit_folder = FolderTree("circuit", ["<circuit.sch>", "<circuit.sym>"])
@@ -19,17 +29,24 @@ pex_folder = FolderTree("pex", ["<circuit.pex.spice>"])
 scripts_folder = FolderTree("scripts", ["<script.py>"])
 reports_folder = FolderTree("reports", ["<index.html>"])
 logs_folder = FolderTree("logs", ["<seba.log>"])
-tmp_folder = FolderTree("tmp", ["<layout.flatten.gds>", "<layout.lvs>", "<layout.drc>", "<pex.tmp>"])
+simulation_folder = FolderTree("simulations", ["sim_1_tb", "...", "sim_n_tb"])
+layout_flatten_gds_folder = FolderTree("layout_flatten_gds", [])
+layout_lvs_folder = FolderTree("layout_lvs", [])
+layout_drc_folder = FolderTree("layout_drc", [])
+pex_tmp_folder = FolderTree("pex_tmp", [])
+tmp_folder = FolderTree("tmp", [simulation_folder, layout_flatten_gds_folder, layout_lvs_folder, layout_drc_folder, pex_tmp_folder])
 backup_folder = FolderTree("backup", ["<backup.zip>"])
 root_tree = FolderTree("<repo_name>", [seba_folder, spfiles_folder, tb_folder, circuit_folder,
                                        layout_folder, corners_folder, pex_folder, scripts_folder,
-                                       reports_folder, logs_folder, tmp_folder, backup_folder])
+                                       reports_folder, logs_folder, tmp_folder, backup_folder,
+                                       gitignore_file])
 
 class SebaArguments:
     isDebugOn=False
     isShowHelpOn = False
     isSetupOn = False
     isSetupForceOn = False
+    isShowGitInitOn = False
     repoPath = ""
 
     @classmethod
@@ -73,11 +90,10 @@ class SebaArguments:
     @classmethod
     def print_config(cls):
         AsyncLogger.debug(f"SEBA configuration:")
-        AsyncLogger.debug(f"\tIS_DEBUG = {cls.isDebugOn}")
         AsyncLogger.debug(f"\tIS_SHOW_HELP_ON = {cls.isShowHelpOn}")
         AsyncLogger.debug(f"\tIS_SETUP_ON = {cls.isSetupOn}")
         AsyncLogger.debug(f"\tREPO_PATH = {cls.repoPath}")
-        AsyncLogger.debug(f"\tDEBUG_ON = {cls.isDebugOn}")
+        AsyncLogger.debug(f"\tIS_DEBUG_ON = {cls.isDebugOn}")
 
     @classmethod
     def show_help(cls):
@@ -143,13 +159,14 @@ class SebaSetupTool:
         AsyncLogger.info(f"Setting up repository")
         subprocess.run(["mkdir", repo_path])
 
-        subprocess.run(["git", "init", repo_path])
+        subprocess.run(["git", "init", repo_path], stdout=subprocess.DEVNULL)
+        SebaArguments.isShowGitInitOn = True
 
         dir_to_create = root_tree.resolve_tree()
 
         for dtc in dir_to_create:
             dtc_path = dtc.replace("<repo_name>", repo_path)
-            subprocess.run(["mkdir", dtc_path])
+            subprocess.run(["mkdir", "-p", dtc_path])
 
         default_files_to_create = root_tree.resolve_default_files()
 

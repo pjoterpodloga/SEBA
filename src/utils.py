@@ -52,10 +52,10 @@ class TextFormat:
         return AnsiCode.text_green+string+AnsiCode.text_default
     @classmethod
     def blue(cls, string):
-        return AnsiCode.text_blue+string+AnsiCode.text_blue
+        return AnsiCode.text_blue+string+AnsiCode.text_default
     @classmethod
     def yellow(cls, string):
-        return AnsiCode.text_yellow+string+AnsiCode.text_yellow
+        return AnsiCode.text_yellow+string+AnsiCode.text_default
     @classmethod
     def format(cls, string, fmt):
         
@@ -78,7 +78,7 @@ class TextFormat:
         return string
 
 class DefaultFile:
-    def __init__(self, name, content):
+    def __init__(self, name, content=""):
         self.name = name
         self.content = content
 
@@ -150,7 +150,7 @@ class FolderTree:
                     result.append(self.name + "/" + r)
 
         if found_subdir == False:
-            result = [self.name]
+            result.append(self.name)
 
         return result
     
@@ -158,7 +158,7 @@ class FolderTree:
         result = []
 
         found_default_file = False
-        found_subdir = True
+        found_subdir = False
 
         for br in self.branches:
             if (type(br) == FolderTree):
@@ -173,7 +173,7 @@ class FolderTree:
                 result.append([self.name + "/" + br.name, br.content])
 
         if (not found_default_file or not found_subdir) and depth != 1:
-            result = [[self.name + "/" + "__placeholder__", ""]]
+            result.append([self.name + "/" + "__placeholder__", ""])
 
         return result
 

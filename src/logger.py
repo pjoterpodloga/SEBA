@@ -59,17 +59,17 @@ class AsyncLogger:
         record_logfile = f"[{ts}] [{level}] {msg}"
 
         if level == "DEBUG":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Bb")}  {msg}"
+            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Bg")}\t{msg}"
         if level == "INFO":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Bg")}  {msg}"
+            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Bb")}\t{msg}"
         if level == "WARNING":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="By")}  {msg}"
+            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="By")}\t{msg}"
         if level == "ERROR":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Br")}  {msg}"
+            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Br")}\t{msg}"
 
         try:
-            AsyncLogger._queue_console.put_nowait(record_logfile)
-            AsyncLogger._queue_logfile.put_nowait(record_console)
+            AsyncLogger._queue_console.put_nowait(record_console)
+            AsyncLogger._queue_logfile.put_nowait(record_logfile)
         except asyncio.QueueFull:
             pass
 
