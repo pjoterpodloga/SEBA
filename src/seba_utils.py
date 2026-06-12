@@ -122,7 +122,6 @@ class SebaSetupTool:
         
         if not repoExists and not force:
             print(f"Setting up new repository: {repo_path}")
-            os.mkdir(repo_path)
 
         if force:
             print(f"Removing existing {repo_path} repository or path and replacing it.")
@@ -133,7 +132,7 @@ class SebaSetupTool:
     @classmethod
     def __setup_new_directory__(cls, repo_path):
         print(f"Setting up repository")
-        os.mkdir(repo_path)
+        subprocess.run(["mkdir", repo_path])
 
         subprocess.run(["git", "init", repo_path])
 
@@ -144,7 +143,4 @@ class SebaSetupTool:
             os.mkdir(dtc_path)
             subprocess.run(["touch", f"{dtc_path}/__placeholder__"])
 
-        
-
-        
-
+    

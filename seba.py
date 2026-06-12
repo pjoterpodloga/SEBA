@@ -14,4 +14,4 @@ if __name__ == "__main__":
 
     SebaArguments.print_config()
 
-    SebaSetupTool.setup_repository("tmp", True)
+    SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
