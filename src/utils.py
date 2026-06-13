@@ -176,6 +176,22 @@ class FolderTree:
             result.append([self.name + "/" + "__placeholder__", ""])
 
         return result
+    
+    def resolve_tree_directory(self, folder_tree):
+        result = []
+        
+        for br in self.branches:
+            
+            if (type(br) == FolderTree):
+                if (br.name == folder_tree.name):
+                    result.append(self.name + "/" + folder_tree.name)
+
+                ret = br.resolve_tree_directory(folder_tree)
+
+                for r in ret:
+                    result.append(self.name + "/" + r)
+
+        return result
 
     def insert_branch(self, branch):
         self.branches.append(branch)

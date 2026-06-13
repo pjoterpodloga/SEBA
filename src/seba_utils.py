@@ -8,45 +8,11 @@ from src.utils import *
 from src.constants import *
 from src.logger import *
 
-gitignore_file_content =    "# Default SEBA .gitignore file\n\n"\
-                            "tmp/\n"\
-                            "logs/\n"\
-                            "backup/\n"\
-                            "pex/\n"
-
-seba_config_file_content =  "# Example of configuration for SEBA file"\
-                            ""
-
-seba_config_file = DefaultFile("config.seba", seba_config_file_content)
-gitignore_file = DefaultFile(".gitignore", gitignore_file_content)
-seba_folder = FolderTree("seba", [seba_config_file])
-spfiles_folder = FolderTree("spfiles", ["<control.spice>"])
-tb_folder = FolderTree("tb", ["<testbench.spice>"])
-circuit_folder = FolderTree("circuit", ["<circuit.sch>", "<circuit.sym>"])
-layout_folder = FolderTree("layout", ["<layout.gds>"])
-corners_folder = FolderTree("corners", ["<corner.gen>", "<corner.list>"])
-pex_folder = FolderTree("pex", ["<circuit.pex.spice>"])
-scripts_folder = FolderTree("scripts", ["<script.py>"])
-reports_folder = FolderTree("reports", ["<index.html>"])
-logs_folder = FolderTree("logs", ["<seba.log>"])
-simulation_folder = FolderTree("simulations", ["sim_1_tb", "...", "sim_n_tb"])
-layout_flatten_gds_folder = FolderTree("layout_flatten_gds", [])
-layout_lvs_folder = FolderTree("layout_lvs", [])
-layout_drc_folder = FolderTree("layout_drc", [])
-pex_tmp_folder = FolderTree("pex_tmp", [])
-tmp_folder = FolderTree("tmp", [simulation_folder, layout_flatten_gds_folder, layout_lvs_folder, layout_drc_folder, pex_tmp_folder])
-backup_folder = FolderTree("backup", ["<backup.zip>"])
-root_tree = FolderTree("<repo_name>", [seba_folder, spfiles_folder, tb_folder, circuit_folder,
-                                       layout_folder, corners_folder, pex_folder, scripts_folder,
-                                       reports_folder, logs_folder, tmp_folder, backup_folder,
-                                       gitignore_file])
-
 class SebaArguments:
     isDebugOn=False
     isShowHelpOn = False
     isSetupOn = False
     isSetupForceOn = False
-    isShowGitInitOn = False
     repoPath = ""
 
     @classmethod
@@ -78,7 +44,7 @@ class SebaArguments:
 
             if sys.argv[it] == SebaInputArguments.l_setup_force:
                 cls.isSetupForceOn = True
-                cls.repoPath = sys.argv[it+1] 
+                cls.repoPath = sys.argv[it+1]
                 it = it + 2
                 continue
 
@@ -113,8 +79,17 @@ class SebaArguments:
 
         AsyncLogger.info(f"")
         AsyncLogger.info(f"SEBA directory setup template:")
-        for rtl in root_tree.resolve_tree_list():
+        for rtl in SebaDirectoryTemplate.root_tree.resolve_tree_list():
             AsyncLogger.info(rtl)
+        AsyncLogger.info(f"")
+        for scfc in SebaDirectoryTemplate.seba_config_file_content.split("\n"):
+            AsyncLogger.info(scfc)
+        AsyncLogger.info(f"")
+        for cgfc in SebaDirectoryTemplate.corner_gen_file_content.split("\n"):
+            AsyncLogger.info(cgfc)
+        AsyncLogger.info(f"")
+        for pfc in SebaDirectoryTemplate.plot_file_content.split("\n"):
+            AsyncLogger.info(pfc)
         AsyncLogger.info(f"")
 
 class SebaSetupTool:
@@ -160,28 +135,198 @@ class SebaSetupTool:
         subprocess.run(["mkdir", repo_path])
 
         subprocess.run(["git", "init", repo_path], stdout=subprocess.DEVNULL)
-        SebaArguments.isShowGitInitOn = True
 
-        dir_to_create = root_tree.resolve_tree()
+        dir_to_create = SebaDirectoryTemplate.root_tree.resolve_tree()
 
         for dtc in dir_to_create:
             dtc_path = dtc.replace("<repo_name>", repo_path)
             subprocess.run(["mkdir", "-p", dtc_path])
 
-        default_files_to_create = root_tree.resolve_default_files()
+        default_files_to_create = SebaDirectoryTemplate.root_tree.resolve_default_files()
 
         for dftc in default_files_to_create:
             dftc_path = dftc[0].replace("<repo_name>", repo_path)
             dftc_content = dftc[1]
             with open(dftc_path, "w") as f:
                 f.write(dftc_content)
+
+class SebaCornerGeneration:
+
+    class Corner:
+        def __init__(self, corner_type, corner_name):
+            self.type = corner_type
+            self.name = corner_name
+
+    class CornerGenerator:
+        def __init__(self, corners, values, grouping):
+            self.corners = corners
+            self.values = values
             
+            total_number_of_corners = 1
+            current_group = -1
+
+            for it, v in enumerate(self.values):
+                if current_group == grouping[it]:
+                    continue
+                total_number_of_corners = total_number_of_corners * len(v)
+                current_group = grouping[it]
+
+            self.tnoc = total_number_of_corners
+
+            self.resolve()
+
+
+        def resolve(self, return_list=True, return_spice=True):
+            index_list = [0]*len(self.corners)
+
+            it_gen = 0
+            current_group = -1
+
+            while it_gen < self.tnoc:
+                for it_c in range(self.corners-1, -1, -1):
+                    pass
+                
+                
+            return 
+
+    @classmethod
+    def get_corners_generators(cls, corner_gen):
+        
+        corner_gen_copy = corner_gen.copy()
+
+        error_encountered = False
+        
+        for it_cgc in range(len(corner_gen_copy)):
+            corner_gen_copy[it_cgc] = f"{it_cgc+1}$"+corner_gen_copy[it_cgc].split("#")[0]+"#"
+
+        parsed_corner = []
+
+        for it_cgc, cg in enumerate(corner_gen_copy):
+            
+            substring_start = -1
+            substring_stop = -1
+
+            substrings = []
+
+            for it_ch, ch in enumerate(cg):
+
+                is_delimiter = (ch == " ") or (ch == "\t") or (ch == "#") or (ch == "$")
+                is_substring_start = not is_delimiter and substring_start == -1
+                is_substring_stop = is_delimiter and substring_start != -1 and substring_stop == -1
+
+                if is_substring_start:
+                    substring_start = it_ch
+                
+                if is_substring_stop:
+                    substring_stop = it_ch
+
+                substring_found = substring_start != -1 and substring_stop != -1
+
+                if substring_found:
+                    substrings.append(cg[substring_start : substring_stop])
+                    substring_start = -1
+                    substring_stop = -1
+
+            parsed_corner.append(substrings)
+        
+        found_lib_param = True
+        
+        corners = []
+
+        for it_pc, pc in enumerate(parsed_corner):
+            c_type = None
+            c_name = None
+
+            if len(pc) <= 1:
+                continue
+
+            if pc[1] == "lib" or pc[1] == "param":
+                c_type = pc[1]
+                found_lib_param = True
+            elif found_lib_param:
+                break
+            else:
+                AsyncLogger.error(f"Wrong placement or missing corner type in line {pc[0]}")
+                error_encountered = True
+            
+            if c_type != None and len(pc) != 3:
+                AsyncLogger.error(f"Wrong number of parameters after corner type in line {pc[0]}")
+                error_encountered = True
+
+            c_name = pc[2]
+
+            corners.append(SebaCornerGeneration.Corner(c_type, c_name))
+
+        found_corner_gen = False
+
+        corner_generators = []
+        it_pc = 0
+
+        for it_pc, pc in enumerate(parsed_corner):
+            
+            pc_copy = pc.copy()
+
+            for it_pc_split in range(len(pc_copy)-1, -1, -1):
+                split = pc_copy[it_pc_split].split("==")
+                if len(split) != 1:
+                    pc_copy.insert(it_pc_split, split)
+
+            if len(pc_copy) <= 1:
+                continue
+
+            if pc_copy[1] == "corner_gen":
+                found_corner_gen = True
+            elif found_corner_gen:
+                break
+            else:
+                continue
+
+            if len(pc_copy) - 2 != len(corners):
+                AsyncLogger.error(f"Wrong number of corners in corner_gen in line {pc[0]}")
+                error_encountered = True
+                break
+
+            values = []
+            grouping = []
+            it_g = 0
+
+            for v in pc[2:]:
+                corr_v = v.split("==")
+
+                ref_l = len(corr_v[0].split(","))
+
+                for cv in corr_v:
+                    if len(cv.split(",")) != ref_l:
+                        AsyncLogger.error(f"Wrong number of paired corners in line {pc[0]}")
+                        error_encountered = True
+                        break
+                    grouping.append(it_g)
+                    values.append(cv.split(","))
+
+                it_g = it_g + 1
+
+            corner_generators.append(SebaCornerGeneration.CornerGenerator(corners, values, grouping))
+
+        return corner_generators
+
+            
+                
+            
+
+        
+
+
+
+
+
 
 class Seba:
     @classmethod
     async def run(cls):
 
         await AsyncLogger.start("tmp/SEBA.log", to_console=True)
+
+        SebaCornerGeneration.get_corners_generators(SebaDirectoryTemplate.corner_gen_file_content.split("\n"))
 
         if(len(sys.argv) == 1):
             SebaArguments.show_help()
