@@ -2,6 +2,7 @@ import asyncio
 import sys
 from datetime import datetime
 from typing import Optional
+import subprocess
 
 from src.utils import TextFormat
 
@@ -18,9 +19,18 @@ class AsyncLogger:
         return AsyncLogger()
 
     @staticmethod
-    async def start(logfile="SEBA.log", to_console=True):
+    async def start(logfile="SEBA_$ts.log", to_console=True, directory="logs"):
         if AsyncLogger._started:
             return
+
+        ts = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+
+        subprocess.run(["mkdir", "-p", directory], stdout=subprocess.DEVNULL)
+
+        if directory.endswith("/"):
+            directory = directory[0:-2]
+
+        logfile = directory + "/" +logfile.replace("$ts", ts)
 
         AsyncLogger._file = open(logfile, "a") if logfile else None
         AsyncLogger._to_console = to_console

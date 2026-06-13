@@ -1,5 +1,8 @@
 # .gitignore file
 
+*.log
+
+/logs
 /tmp
 /src/__pycache__
 /debug

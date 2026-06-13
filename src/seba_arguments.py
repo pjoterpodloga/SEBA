@@ -1,5 +1,5 @@
-from src.logger import *
 from src.constants import *
+from src.logger import *
 
 class SebaArguments:
     isDebugOn=False
@@ -45,6 +45,8 @@ class SebaArguments:
                 cls.isDebugOn = True
                 it = it + 1
                 continue
+
+            ### TODO: Add handling unknown argument
     
     @classmethod
     def print_config(cls):
@@ -83,4 +85,7 @@ class SebaArguments:
         AsyncLogger.info(f"")
         for pfc in SebaDirectoryTemplate.plot_file_content.split("\n"):
             AsyncLogger.info(pfc)
+        AsyncLogger.info(f"")
+        for gfc in SebaDirectoryTemplate.gitignore_file_content.split("\n"):
+            AsyncLogger.info(gfc)
         AsyncLogger.info(f"")
