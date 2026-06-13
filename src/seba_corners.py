@@ -128,6 +128,7 @@ class SebaCornerGeneration:
             raise Exception("Error occured while creating generators or corner generator file was not provided.")
         return cls.__corner_generators__
 
+    ### TODO: Write better corner_gen parser with proper space handling
     @classmethod
     def __create_corners_generators__(cls):
         

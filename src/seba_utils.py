@@ -7,8 +7,10 @@ import asyncio
 from src.constants import *
 from src.utils import *
 from src.logger import *
+from src.seba_directory import *
 from src.seba_arguments import *
 from src.seba_setup import *
+from src.seba_parser import *
 from src.seba_corners import *
 
 
@@ -32,6 +34,8 @@ class Seba:
 
         if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
             SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
+
+        SebaParser.parse(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}")
 
         try:
             cgf = SebaDirectoryTemplate.corner_gen_file_content.split("\n")

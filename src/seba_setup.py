@@ -4,6 +4,7 @@ import shutil
 
 from src.constants import *
 from src.logger import *
+from src.seba_directory import *
 
 class SebaSetupTool:
     pathExists = None
@@ -45,7 +46,7 @@ class SebaSetupTool:
     @classmethod
     def __setup_new_directory__(cls, repo_path):
         AsyncLogger.info(f"Setting up repository")
-        subprocess.run(["mkdir", repo_path])
+        subprocess.run(["mkdir", "-p", repo_path])
 
         subprocess.run(["git", "init", repo_path], stdout=subprocess.DEVNULL)
 
@@ -62,3 +63,6 @@ class SebaSetupTool:
             dftc_content = dftc[1]
             with open(dftc_path, "w") as f:
                 f.write(dftc_content)
+        
+        ### TODO: Add creating mock files for debug purpose
+        ### TODO: Add git init basic routine for connecting remote repo

@@ -1,5 +1,6 @@
 from src.constants import *
 from src.logger import *
+from src.seba_directory import *
 
 class SebaArguments:
     isDebugOn=False
@@ -43,6 +44,7 @@ class SebaArguments:
 
             if sys.argv[it] == SebaInputArguments.s_debug or sys.argv[it] == SebaInputArguments.l_debug:
                 cls.isDebugOn = True
+                DEBUG = True
                 it = it + 1
                 continue
 
