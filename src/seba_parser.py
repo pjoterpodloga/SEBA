@@ -23,66 +23,21 @@ class SebaConfig:
         SebaConfig.meas = meas
         SebaConfig.extraction = extraction
 
+class Token:
+    DEFAULT_ID = 1
+
+    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n"]
+
+    TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
+
+    def __init__(self, type=None, value=None, line=None, column=None):
+        self.type = type
+        self.value = value
+        self.line = line
+        self.column = column
+
 class SebaParser:
 
-    class Token:
-        COMMENT_CH  = "#"
-        SPACE_CH    = " "
-        TAB_CH      = "\t"
-        INDEX_CH    = "$"
-        EXTEND_CH   = "\\"
-        CORR_CH     = "="
-        LIST_BEG_CH = "["
-        LIST_END_CH = "]"
-        COMMA_CH    = ","
-        ENDLINE_CH  = "\n"
-
-        STRING_ID   = 1
-        COMMENT_ID  = 2
-        SPACE_ID    = 3
-        TAB_ID      = 4
-        INDEX_ID    = 5
-        EXTEND_ID   = 6
-        CORR_ID     = 7
-        LIST_BEG_ID = 8
-        LIST_END_ID = 9
-        COMMA_ID    = 10
-        ENDLINE_ID  = 11
-
-        TOKEN_DICT = {
-            COMMENT_CH  : COMMENT_ID,
-            SPACE_CH    : SPACE_ID,
-            TAB_CH      : TAB_ID,
-            INDEX_CH    : INDEX_ID,
-            EXTEND_CH   : EXTEND_ID,
-            CORR_CH     : CORR_ID,
-            LIST_BEG_CH : LIST_BEG_ID,
-            LIST_END_CH : LIST_END_CH,
-            COMMA_CH    : COMMA_ID,
-            ENDLINE_CH  : ENDLINE_ID
-        }
-
-    class PreState(Enum):
-        NONE        = 0
-        INDEX       = 1
-        CONT_INDEX  = 2
-        COMMAND     = 3
-        ARRAY       = 4
-        COMMENT     = 5
-        ENDLINE     = 6
-
-    class CommandState(Enum):
-        NONE        = 0
-        NAME        = 1
-        CONTROL     = 2
-        TESTBENCH   = 3
-        CORNERS     = 4
-        SCRIPT      = 5
-        MEAS        = 6
-        PLOT        = 7
-        EXTRACTION  = 8
-
-    __filename__ = None
     __file_content__ = None
     
     __seba_name__ = None
@@ -95,213 +50,241 @@ class SebaParser:
     __extraction_names__ = None
 
     @classmethod
-    def parse(cls, filename):
-        cls.__filename__ = filename
-
-        with open(cls.__filename__, "r") as f:
-            cls.__file_content__ = f.readlines()
-
-        ### TODO: extract parser to function
-        ### TODO: copy and adjust parser to corner_gen file
-
+    def __prepare_file__(cls, file_content: list[str]) -> str:
         file_content_copy = cls.__file_content__.copy()
         file_content_copy.append("\n")
 
-        for it_fcc in range(len(file_content_copy)):
-            file_content_copy[it_fcc] = f"${it_fcc} " + file_content_copy[it_fcc]
-
         file_content_copy_merged = "".join(file_content_copy)
 
-        token_dict = SebaParser.Token.TOKEN_DICT
+        return file_content_copy_merged
 
-        token_type = [0]*len(file_content_copy_merged)
+    @classmethod
+    def __define_tokens_type__(cls, file_content: str) -> list[Token]:
+        token_dict = Token.TOKEN_DICT
+
+        token = [Token(0)]*len(file_content)
         token_keys = token_dict.keys()
 
-        for it_fccm, fccm in enumerate(file_content_copy_merged):
-            if fccm in token_keys:
-                token_type[it_fccm] = token_dict[fccm]
+        row = 1
+        col = 1
+
+        for it_fc, fc in enumerate(file_content):
+            if fc in token_keys:
+                token[it_fc] = Token(token_dict[fc], fc, row, col)
             else:
-                token_type[it_fccm] = SebaParser.Token.STRING_ID
+                token[it_fc] = Token(Token.DEFAULT_ID, fc, row, col)
 
-        extracted_value = []
+            col = col + 1
 
-        extract_start = -1
-        extract_stop = -1
+            if fc == "\n":
+                row = row + 1
+                col = 1
 
-        ignore_endline = False
-        index_extracted = False
+        return token
 
-        current_state = SebaParser.PreState.NONE
-        next_state = SebaParser.PreState.NONE
+    @classmethod
+    def __change_token_type__(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
 
-        substrings_v = []
-        substrings_t = []
-
-        for it_tt, tt in enumerate(token_type):
-            
-            if tt == SebaParser.Token.INDEX_ID:
-                if ignore_endline:
-                    next_state = SebaParser.PreState.CONT_INDEX
-                    ignore_endline = False
-                else:
-                    next_state = SebaParser.PreState.INDEX
-
-            if tt == SebaParser.Token.STRING_ID:
-                if extract_start == -1:
-                    extract_start = it_tt
-                    extract_stop = -1
-
-                if index_extracted and current_state == SebaParser.PreState.INDEX:
-                    next_state = SebaParser.PreState.COMMAND
-
-            if tt == SebaParser.Token.SPACE_ID:
-                extract_stop = it_tt
-
-            if tt == SebaParser.Token.TAB_ID:
-                extract_stop = it_tt
-
-            if tt == SebaParser.Token.COMMENT_ID:
-                next_state = SebaParser.PreState.COMMENT
-
-            if tt == SebaParser.Token.EXTEND_ID:
-                ignore_endline = True
-
-            if tt == SebaParser.Token.ENDLINE_ID:
-                if not ignore_endline:
-                    next_state = SebaParser.PreState.ENDLINE
-                    index_extracted = False
-                    extract_stop = it_tt
-
-            if extract_start != -1 and extract_stop != -1:
-                substring = file_content_copy_merged[extract_start : extract_stop].replace("\n", "").replace("\\", "")
-                substrings_v.append(substring)
-                substrings_t.append(current_state.value)
-
-                if next_state == SebaParser.PreState.ENDLINE:
-                    substrings_v.append("")
-                    substrings_t.append(next_state.value)
-
-                if current_state == SebaParser.PreState.INDEX or current_state == SebaParser.PreState.CONT_INDEX:
-                    index_extracted = True
-
-                extract_start = -1
-                extract_stop = -1
-
-            current_state = next_state
-            
-        for it_ss in range(len(substrings_t)-1, -1, -1):
-            is_comment = substrings_t[it_ss] == SebaParser.PreState.COMMENT.value
-            is_endline = substrings_t[it_ss] == SebaParser.PreState.ENDLINE.value
-            if is_comment or is_endline:
-                substrings_t.pop(it_ss)
-                substrings_v.pop(it_ss)
-
-        extract_start = -1
-        extract_stop = -1
-
-        current_state = SebaParser.CommandState.NONE
-        next_state = SebaParser.CommandState.NONE
-
-        commands = []
-        commands_t = []
-        line_idx = -1
-
-        for it_ss in range(len(substrings_t)):
-            ssv = substrings_v[it_ss]
-            sst = substrings_t[it_ss]
-
-            if ssv == "NAME":
-                next_state = SebaParser.CommandState.NAME
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "CONTROL":
-                next_state = SebaParser.CommandState.CONTROL
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "TESTBENCH":
-                next_state = SebaParser.CommandState.TESTBENCH
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "CORNERS":
-                next_state = SebaParser.CommandState.CORNERS
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "SCRIPT":
-                next_state = SebaParser.CommandState.SCRIPT
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "MEAS":
-                next_state = SebaParser.CommandState.MEAS
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "PLOT":
-                next_state = SebaParser.CommandState.PLOT
-                extract_start = it_ss
-                extract_stop = -1
-            if ssv == "EXTRACTION":
-                next_state = SebaParser.CommandState.EXTRACTION
-                extract_start = it_ss
-                extract_stop = -1
-            if sst == SebaParser.PreState.INDEX.value:
-                line_idx = ssv
-                extract_stop = it_ss
-
-            if extract_start != -1 and extract_stop != -1:
-                cmd = [line_idx, next_state ,substrings_v[extract_start : extract_stop]]
-                commands.append(cmd)
-
-                extract_start = -1
-                extract_stop = -1
-
-            current_state = next_state
-
-        for it_c in range(len(commands)):
-            tmp = commands[it_c]
-
-            line_idx = tmp[0]
-            cmd_t = tmp[1]
-            cmd_v = tmp[2]
-
-            if cmd_t == SebaParser.CommandState.NAME:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__seba_name__ = cmd_v[1]
-
-            if cmd_t == SebaParser.CommandState.CONTROL:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__control_file_name__ = cmd_v[1]
-
-            if cmd_t == SebaParser.CommandState.TESTBENCH:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__testbench_file_name__ = cmd_v[1]
-
-            if cmd_t == SebaParser.CommandState.CORNERS:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__corners_gen_file_name__ = cmd_v[1]
-
-            if cmd_t == SebaParser.CommandState.SCRIPT:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__script_file_name__ = cmd_v[1]
-
-            if cmd_t == SebaParser.CommandState.MEAS:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__meas_file_name__ = cmd_v[1]
-
-            if cmd_t == SebaParser.CommandState.PLOT:
-                if len(cmd_v) != 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__plot_file_name__ = cmd_v[1]
-                        
-            if cmd_t == SebaParser.CommandState.EXTRACTION:
-                if len(cmd_v) < 2:
-                    raise Exception(f"Wrong number of arguments in line {line_idx}")
-                cls.__extraction_names__ = cmd_v[1:]
+        if (target == None):
+            raise Exception("\"Target\" token is \"None\"")
+        if (type(target) != list):
+            raise Exception("\"Tagert\" token is not \"list()\"")
         
+        if (until == None):
+            raise Exception("\"Until\" token is \"None\"")
+        if (type(until) != list):
+            raise Exception("\"Until\" token is not \"list()\"")
+
+        current_target = 0
+        t_found = False
+
+        for it_t, t in enumerate(tokens):
+            
+            tt = t.type
+
+            if tt in target:
+                current_target = tt
+                t_found = True
+                continue
+            
+            if tt in until:
+                current_target = 0
+                t_found = False
+                continue
+            
+            if t_found:
+                tokens[it_t].type = current_target
+
+        return tokens
+
+    @classmethod
+    def __delete_token_type__(cls, tokens: list[Token], target: list[int]) -> list[Token]:
+
+        for it_t in range(len(tokens)-1, -1, -1):
+            tt = tokens[it_t].type
+
+            if tt in target:
+                tokens.pop(it_t)
+
+        return tokens
+    
+    @classmethod
+    def __group_token_type__(cls, tokens: list[Token], target: list[int]) -> list[Token]:
+        
+        found_target = False
+        current_target = -1
+
+        grouped_value = ""
+
+        grouped_token = Token()
+
+        poped_token = Token()
+
+        for it_t in range(len(tokens)-1, -1, -1):
+            
+            tt = tokens[it_t].type
+            tv = tokens[it_t].value
+
+            if tt != current_target and found_target:
+                grouped_token = poped_token
+                grouped_token.value = grouped_value
+                tokens.insert(it_t+1, grouped_token)
+                found_target = False
+                continue
+
+            if tt in target and not found_target:
+                grouped_value = ""
+                current_target = tt
+                found_target = True
+
+            if found_target:
+                grouped_value = tv + grouped_value
+                poped_token = tokens.pop(it_t)
+        
+        return tokens
+    
+    @classmethod
+    def __split_tokens__(cls, tokens: list[Token], target: int) -> list[list[Token]]:
+        
+        result = []
+        tmp_group = []
+        
+        for t in tokens:
+            tt = t.type
+
+            if tt in target and len(tmp_group) == 0:
+                continue
+
+            if tt in target:
+                result.append(tmp_group)
+                tmp_group = []
+                continue
+
+            tmp_group.append(t)
+
+        return result
+
+    @classmethod
+    def __delete_after_token_type__(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+
+        target_found = False
+        last_target_it = -1
+
+        for it_t in range(len(tokens)-1, -1, -1):
+            tt = tokens[it_t].type
+
+            if tt in until and target_found:
+
+                for it_d in range(last_target_it, it_t-1, -1):
+                    tokens.pop(it_d)
+
+                target_found = False
+                
+            if tt in target:
+                target_found = True
+                last_target_it = it_t
+
+        return tokens
+
+    @classmethod
+    def __prepare_seba_tokens__(cls, file_content: list[str]):
+        
+        file_content_copy_merged = cls.__prepare_file__(file_content)
+        tokens = cls.__define_tokens_type__(file_content_copy_merged)
+        tokens = cls.__change_token_type__(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
+        tokens = cls.__delete_token_type__(tokens, [Token.TOKEN_DICT["#"]])
+        tokens = cls.__group_token_type__(tokens, [Token.DEFAULT_ID])
+        tokens = cls.__delete_token_type__(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"]])
+        tokens = cls.__delete_after_token_type__(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
+        tokens = cls.__split_tokens__(tokens, [Token.TOKEN_DICT["\n"]])
+
+        return tokens
+    
+    @classmethod
+    def parse_corner_gen(cls, file_content: list[str]):
+        pass
+
+    @classmethod
+    def parse_seba(cls, file_content: list[str]):
+
+        cls.__file_content__ = file_content.copy()
+
+        ### TODO: copy and adjust parser to corner_gen file
+
+        tokens = cls.__prepare_seba_tokens__(cls.__file_content__)
+        
+        pm_too_short_cmd = lambda tl, fc:   f"Wrong number of arguments in row: {tl.line}, col: {tl.column}\n"\
+                                            f"{fc[tl.line-1]}"\
+                                            f"{"^"*(len(fc[tl.line-1])-1)}"
+
+        for it_tl, tl in enumerate(tokens):
+
+            if len(tl) == 1:
+                raise Exception(pm_too_short_cmd(tl[0], file_content))
+
+            cmd = [x.value for x in tl]
+
+            if cmd[0].upper() == "NAME":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__seba_name__ = cmd[1]
+
+            if cmd[0].upper() == "CONTROL":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__control_file_name__ = cmd[1]
+
+            if cmd[0].upper() == "TESTBENCH":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__testbench_file_name__ = cmd[1]
+
+            if cmd[0].upper() == "CORNERS":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__corners_gen_file_name__ = cmd[1]
+
+            if cmd[0].upper() == "SCRIPT":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__script_file_name__ = cmd[1]
+
+            if cmd[0].upper() == "MEAS":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__meas_file_name__ = cmd[1]
+
+            if cmd[0].upper() == "PLOT":
+                if len(tl) != 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__plot_file_name__ = cmd[1]
+
+            if cmd[0].upper() == "EXTRACTION":
+                if len(tl) < 2:
+                    raise Exception(pm_too_short_cmd(tl[0], file_content))
+                cls.__extraction_names__ = cmd[1:]
+                
+
         SebaConfig.name = cls.__seba_name__
         SebaConfig.control = cls.__control_file_name__
         SebaConfig.tb = cls.__testbench_file_name__

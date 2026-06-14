@@ -35,7 +35,11 @@ class Seba:
         if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
             SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
 
-        SebaParser.parse(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}")
+        file_content = []
+        with open(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}", "r") as f:
+            file_content = f.readlines()
+
+        SebaParser.parse_seba(file_content)
         
         ### TODO: Write file reader
 
