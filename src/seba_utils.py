@@ -36,6 +36,8 @@ class Seba:
             SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
 
         SebaParser.parse(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}")
+        
+        ### TODO: Write file reader
 
         try:
             cgf = SebaDirectoryTemplate.corner_gen_file_content.split("\n")

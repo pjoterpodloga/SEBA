@@ -85,7 +85,7 @@ class SebaArguments:
         for cgfc in SebaDirectoryTemplate.corner_gen_file_content.split("\n"):
             AsyncLogger.info(cgfc)
         AsyncLogger.info(f"")
-        for pfc in SebaDirectoryTemplate.plot_file_content.split("\n"):
+        for pfc in SebaDirectoryTemplate.meas_file_content.split("\n"):
             AsyncLogger.info(pfc)
         AsyncLogger.info(f"")
         for gfc in SebaDirectoryTemplate.gitignore_file_content.split("\n"):
