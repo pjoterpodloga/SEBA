@@ -1,28 +1,64 @@
-from src.constants import AnsiCode
+from src.constants import AnsiCode as ac
 
 ### TODO: Add all posible text formating
 class TextFormat:
     @classmethod
     def bold(cls, string):
-        return AnsiCode.bold_on+string+AnsiCode.bold_off
+        return ac.bold_on+string+ac.bold_off
+    @classmethod
+    def underline(cls, string):
+        return ac.underline_on+string+ac.underline_off
+    @classmethod
+    def slow_blink(cls, string):
+        return ac.slow_blink_on+string+ac.blink_off
+    @classmethod
+    def rapid_blink(cls, string):
+        return ac.rapid_blink_on+string+ac.blink_off
+    @classmethod
+    def italic(cls, string):
+        return ac.italic_on+string+ac.italic_off
+    @classmethod
+    def crossed_out(cls, string):
+        return ac.crossed_out_on+string+ac.crossed_out_off
+    @classmethod
+    def black(cls, string):
+        return ac.text_black+string+ac.text_default
     @classmethod
     def red(cls, string):
-        return AnsiCode.text_red+string+AnsiCode.text_default
+        return ac.text_red+string+ac.text_default
     @classmethod
     def green(cls, string):
-        return AnsiCode.text_green+string+AnsiCode.text_default
+        return ac.text_green+string+ac.text_default
     @classmethod
     def blue(cls, string):
-        return AnsiCode.text_blue+string+AnsiCode.text_default
+        return ac.text_blue+string+ac.text_default
     @classmethod
     def yellow(cls, string):
-        return AnsiCode.text_yellow+string+AnsiCode.text_default
+        return ac.text_yellow+string+ac.text_default
+    @classmethod
+    def magenta(cls, string):
+        return ac.text_magenta+string+ac.text_default
+    @classmethod
+    def cyan(cls, string):
+        return ac.text_cyan+string+ac.text_default
+    @classmethod
+    def white(cls, string):
+        return ac.text_white+string+ac.text_default
     @classmethod
     def format(cls, string, fmt):
         
         for it, f in enumerate(fmt):
             if f == "B":
                 string = cls.bold(string)
+                continue
+            if f == "I":
+                string = cls.italic(string)
+                continue
+            if f == "U":
+                string = cls.underline(string)
+                continue
+            if f == "C":
+                string = cls.crossed_out(string)
                 continue
             if f == "r":
                 string = cls.red(string)
@@ -36,7 +72,17 @@ class TextFormat:
             if f == "y":
                 string = cls.yellow(string)
                 continue
+            if f == "w":
+                string = cls.white(string)
+                continue
+            if f == "m":
+                string = cls.magenta(string)
+                continue
+            if f == "c":
+                string = cls.cyan(string)
         return string
+
+
 
 class DefaultFile:
     def __init__(self, name, content=""):
@@ -201,19 +247,13 @@ class Folder:
     def replace_branches(self, branches):
         self.branches = branches
 
-    def generate_gitignore(self):
+    def generate_gitignore(self, header="# .gitignore file"):
         result = ""
         
         tmp_file_pattern = self.resolve_temporary_file_pattern()
         tmp_folder_name = self.resolve_temporary_tree_directory()
 
-        for it_tfp in range(len(tmp_file_pattern)):
-            tmp_file_pattern[it_tfp] = tmp_file_pattern[it_tfp].replace("<repo_name>/", "")
-        
-        for it_tfn in range(len(tmp_folder_name)):
-            tmp_folder_name[it_tfn] = tmp_folder_name[it_tfn].replace("<repo_name>/", "")
-
-        result = "# Default SEBA .gitignore file\n"
+        result = header + "\n"
         
         for tfn in tmp_folder_name:
             result = result + tfn + "/\n"

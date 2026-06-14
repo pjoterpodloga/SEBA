@@ -69,7 +69,7 @@ class SebaDirectoryTemplate:
                                             result_gen_folder, reports_folder, logs_folder, tmp_folder,
                                             backup_folder])
     
-    gitignore_file_content = root_tree.generate_gitignore()
+    gitignore_file_content = "".join(gfc.replace("<repo_name>/", "")+"\n" for gfc in root_tree.generate_gitignore(header="# Default SEBA .gitignore file\n").split("\n"))
     gitignore_file = DefaultFile(".gitignore", gitignore_file_content)
     root_tree.insert_branch(gitignore_file)
     
