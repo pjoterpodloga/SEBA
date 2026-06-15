@@ -13,7 +13,6 @@ from src.seba_setup import *
 from src.seba_parser import *
 from src.seba_corners import *
 
-
 class Seba:
     @classmethod
     async def run(cls):
@@ -24,30 +23,33 @@ class Seba:
             SebaArguments.show_help()
             await cls.terminate(1)
 
-        SebaArguments.parse()
+        argument_parser = SebaArguments()
+        argument_parser.parse()
 
-        if SebaArguments.isShowHelpOn:
-            SebaArguments.show_help()
+        if argument_parser.isShowHelpOn:
+            argument_parser.show_help()
 
-        if SebaArguments.isDebugOn:
-            SebaArguments.print_config()
+        if argument_parser.isDebugOn:
+            argument_parser.print_config()
 
-        if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
-            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
+        if argument_parser.isSetupOn or argument_parser.isSetupForceOn:
+            SebaSetupTool.setup_repository(argument_parser.repoPath, argument_parser.isSetupForceOn)
 
         file_content = []
-        with open(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}", "r") as f:
+        with open(f"{argument_parser.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}", "r") as f:
             file_content = f.readlines()
 
-        SebaParser.parse_seba(file_content)
-        
-        ### TODO: Write file reader
+        seba_parser_config = SebaParser(file_content)
+        seba_config = seba_parser_config.parse_seba_config()
+    
+        seba_parser_corners = SebaParser([SebaDirectoryTemplate.corner_gen_file_content])
+        seba_corners = seba_parser_corners.parse_corner_gen()
+        #sc  = seba_parser_corners.generate_spice_corners()
+        #cl  = seba_parser_corners.generate_corner_list()
 
         try:
-            cgf = SebaDirectoryTemplate.corner_gen_file_content.split("\n")
-            SebaCornerGeneration.set_corner_gen_file(cgf)
-            sc  = SebaCornerGeneration.generate_spice_corners()
-            cl  = SebaCornerGeneration.generate_corner_list()
+            print(sc)
+            print(cl)
         except Exception as ex:
             AsyncLogger.error(ex)
 

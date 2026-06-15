@@ -1,27 +1,20 @@
 from enum import Enum
 
 from src.logger import *
+from src.seba_corners import *
 
 class SebaConfig:
-    name = None
-    control = None
-    tb = None
-    corners = None
-    script = None
-    plot = None
-    meas = None
-    extraction = None
 
     def __init__(self, name=None, control=None, tb=None, corners=None, 
                  script=None, plot=None, meas=None, extraction=None):
-        SebaConfig.name = name
-        SebaConfig.control = control
-        SebaConfig.tb = tb
-        SebaConfig.corners = corners
-        SebaConfig.script = script
-        SebaConfig.plot = plot
-        SebaConfig.meas = meas
-        SebaConfig.extraction = extraction
+        self.name = name
+        self.control = control
+        self.tb = tb
+        self.corners = corners
+        self.script = script
+        self.plot = plot
+        self.meas = meas
+        self.extraction = extraction
 
 class Token:
     DEFAULT_ID = 1
@@ -38,28 +31,18 @@ class Token:
 
 class SebaParser:
 
-    __file_content__ = None
-    
-    __seba_name__ = None
-    __control_file_name__ = None
-    __testbench_file_name__ = None
-    __corners_gen_file_name__ = None
-    __script_file_name__ = None
-    __meas_file_name__ = None
-    __plot_file_name__ = None
-    __extraction_names__ = None
+    def __init__(self, file_content):
+        self.file_content = file_content
 
-    @classmethod
-    def __prepare_file__(cls, file_content: list[str]) -> str:
-        file_content_copy = cls.__file_content__.copy()
+    def __prepare_file__(self, file_content: list[str]) -> str:
+        file_content_copy = self.file_content.copy()
         file_content_copy.append("\n")
 
         file_content_copy_merged = "".join(file_content_copy)
 
         return file_content_copy_merged
 
-    @classmethod
-    def __define_tokens_type__(cls, file_content: str) -> list[Token]:
+    def __define_tokens_type__(self, file_content: str) -> list[Token]:
         token_dict = Token.TOKEN_DICT
 
         token = [Token(0)]*len(file_content)
@@ -82,8 +65,7 @@ class SebaParser:
 
         return token
 
-    @classmethod
-    def __change_token_type__(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+    def __change_token_type__(self, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
 
         if (target == None):
             raise Exception("\"Target\" token is \"None\"")
@@ -117,8 +99,7 @@ class SebaParser:
 
         return tokens
 
-    @classmethod
-    def __delete_token_type__(cls, tokens: list[Token], target: list[int]) -> list[Token]:
+    def __delete_token_type__(self, tokens: list[Token], target: list[int]) -> list[Token]:
 
         for it_t in range(len(tokens)-1, -1, -1):
             tt = tokens[it_t].type
@@ -128,8 +109,7 @@ class SebaParser:
 
         return tokens
     
-    @classmethod
-    def __group_token_type__(cls, tokens: list[Token], target: list[int]) -> list[Token]:
+    def __group_token_type__(self, tokens: list[Token], target: list[int]) -> list[Token]:
         
         found_target = False
         current_target = -1
@@ -163,8 +143,7 @@ class SebaParser:
         
         return tokens
     
-    @classmethod
-    def __split_tokens__(cls, tokens: list[Token], target: int) -> list[list[Token]]:
+    def __split_tokens__(self, tokens: list[Token], target: int) -> list[list[Token]]:
         
         result = []
         tmp_group = []
@@ -184,8 +163,7 @@ class SebaParser:
 
         return result
 
-    @classmethod
-    def __delete_after_token_type__(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+    def __delete_after_token_type__(self, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
 
         target_found = False
         last_target_it = -1
@@ -206,92 +184,99 @@ class SebaParser:
 
         return tokens
 
-    @classmethod
-    def __prepare_seba_tokens__(cls, file_content: list[str]):
+    def __prepare_seba_config__(self, file_content: list[str]) -> list[list[Token]]:
         
-        file_content_copy_merged = cls.__prepare_file__(file_content)
-        tokens = cls.__define_tokens_type__(file_content_copy_merged)
-        tokens = cls.__change_token_type__(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
-        tokens = cls.__delete_token_type__(tokens, [Token.TOKEN_DICT["#"]])
-        tokens = cls.__group_token_type__(tokens, [Token.DEFAULT_ID])
-        tokens = cls.__delete_token_type__(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"]])
-        tokens = cls.__delete_after_token_type__(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
-        tokens = cls.__split_tokens__(tokens, [Token.TOKEN_DICT["\n"]])
+        file_content_copy_merged = self.__prepare_file__(file_content)
+        tokens = self.__define_tokens_type__(file_content_copy_merged)
+        tokens = self.__change_token_type__(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
+        tokens = self.__delete_token_type__(tokens, [Token.TOKEN_DICT["#"]])
+        tokens = self.__group_token_type__(tokens, [Token.DEFAULT_ID])
+        tokens = self.__delete_token_type__(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"]])
+        tokens = self.__delete_after_token_type__(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
+        tokens = self.__split_tokens__(tokens, [Token.TOKEN_DICT["\n"]])
 
         return tokens
     
-    @classmethod
-    def parse_corner_gen(cls, file_content: list[str]):
-        pass
+    def __prepare_corner_gen__(self, file_content: list[str]):
+        
+        file_content_copy_merged = self.__prepare_file__(file_content)
+        tokens = self.__define_tokens_type__(file_content_copy_merged)
+        tokens = self.__change_token_type__(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
+        tokens = self.__delete_token_type__(tokens, [Token.TOKEN_DICT["#"]])
+        tokens = self.__group_token_type__(tokens, [Token.DEFAULT_ID, Token.TOKEN_DICT["="]])
+        tokens = self.__delete_token_type__(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
+        tokens = self.__delete_after_token_type__(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])  
+        tokens = self.__split_tokens__(tokens, [Token.TOKEN_DICT["\n"]])
 
-    @classmethod
-    def parse_seba(cls, file_content: list[str]):
+        for tl in tokens:
+            for t in tl:
+                print(t.value)
 
-        cls.__file_content__ = file_content.copy()
+        return tokens
+
+    
+    def parse_corner_gen(self) -> list[SebaCorner]:
+        
+        tokens = self.__prepare_corner_gen__(self.parse_corner_gen)
+
+
+    def parse_seba_config(self) -> SebaConfig:
 
         ### TODO: copy and adjust parser to corner_gen file
 
-        tokens = cls.__prepare_seba_tokens__(cls.__file_content__)
+        tokens = self.__prepare_seba_config__(self.file_content)
         
         pm_too_short_cmd = lambda tl, fc:   f"Wrong number of arguments in row: {tl.line}, col: {tl.column}\n"\
                                             f"{fc[tl.line-1]}"\
                                             f"{"^"*(len(fc[tl.line-1])-1)}"
 
+        seba_config = SebaConfig()
+
         for it_tl, tl in enumerate(tokens):
 
             if len(tl) == 1:
-                raise Exception(pm_too_short_cmd(tl[0], file_content))
+                raise Exception(pm_too_short_cmd(tl[0], self.file_content))
 
             cmd = [x.value for x in tl]
 
             if cmd[0].upper() == "NAME":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__seba_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.name = cmd[1]
 
             if cmd[0].upper() == "CONTROL":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__control_file_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.control = cmd[1]
 
             if cmd[0].upper() == "TESTBENCH":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__testbench_file_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.tb = cmd[1]
 
             if cmd[0].upper() == "CORNERS":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__corners_gen_file_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.corners = cmd[1]
 
             if cmd[0].upper() == "SCRIPT":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__script_file_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.script = cmd[1]
 
             if cmd[0].upper() == "MEAS":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__meas_file_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.meas = cmd[1]
 
             if cmd[0].upper() == "PLOT":
                 if len(tl) != 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__plot_file_name__ = cmd[1]
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.plot = cmd[1]
 
             if cmd[0].upper() == "EXTRACTION":
                 if len(tl) < 2:
-                    raise Exception(pm_too_short_cmd(tl[0], file_content))
-                cls.__extraction_names__ = cmd[1:]
-                
+                    raise Exception(pm_too_short_cmd(tl[0], self.file_content))
+                seba_config.extraction = cmd[1:]
 
-        SebaConfig.name = cls.__seba_name__
-        SebaConfig.control = cls.__control_file_name__
-        SebaConfig.tb = cls.__testbench_file_name__
-        SebaConfig.corners = cls.__corners_gen_file_name__
-        SebaConfig.script = cls.__script_file_name__
-        SebaConfig.meas = cls.__meas_file_name__
-        SebaConfig.plot = cls.__plot_file_name__
-        SebaConfig.extraction = cls.__extraction_names__
-
-        return
+        return seba_config

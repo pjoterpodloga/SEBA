@@ -3,14 +3,15 @@ from src.logger import *
 from src.seba_directory import *
 
 class SebaArguments:
-    isDebugOn=False
-    isShowHelpOn = False
-    isSetupOn = False
-    isSetupForceOn = False
-    repoPath = ""
 
-    @classmethod
-    def parse(cls):
+    def __init__(self):
+        self.isDebugOn=False
+        self.isShowHelpOn = False
+        self.isSetupOn = False
+        self.isSetupForceOn = False
+        self.repoPath = ""
+
+    def parse(self):
 
         AsyncLogger.info(f"Parsing input arguments")
 
@@ -26,37 +27,35 @@ class SebaArguments:
                 continue
             
             if sys.argv[it] == SebaInputArguments.s_help or sys.argv[it] == SebaInputArguments.l_help:
-                cls.isShowHelpOn = True
+                self.isShowHelpOn = True
                 it = it + 1
                 continue
 
             if sys.argv[it] == SebaInputArguments.s_setup or sys.argv[it] == SebaInputArguments.l_setup:
-                cls.isSetupOn = True
-                cls.repoPath = sys.argv[it+1]
+                self.isSetupOn = True
+                self.repoPath = sys.argv[it+1]
                 it = it + 2
                 continue
 
             if sys.argv[it] == SebaInputArguments.l_setup_force:
-                cls.isSetupForceOn = True
-                cls.repoPath = sys.argv[it+1]
+                self.isSetupForceOn = True
+                self.repoPath = sys.argv[it+1]
                 it = it + 2
                 continue
 
             if sys.argv[it] == SebaInputArguments.s_debug or sys.argv[it] == SebaInputArguments.l_debug:
-                cls.isDebugOn = True
-                DEBUG = True
+                self.isDebugOn = True
                 it = it + 1
                 continue
 
             ### TODO: Add handling unknown argument
     
-    @classmethod
-    def print_config(cls):
+    def print_config(self):
         AsyncLogger.debug(f"SEBA configuration:")
-        AsyncLogger.debug(f"\tIS_SHOW_HELP_ON = {cls.isShowHelpOn}")
-        AsyncLogger.debug(f"\tIS_SETUP_ON = {cls.isSetupOn}")
-        AsyncLogger.debug(f"\tREPO_PATH = {cls.repoPath}")
-        AsyncLogger.debug(f"\tIS_DEBUG_ON = {cls.isDebugOn}")
+        AsyncLogger.debug(f"\tIS_SHOW_HELP_ON = {self.isShowHelpOn}")
+        AsyncLogger.debug(f"\tIS_SETUP_ON = {self.isSetupOn}")
+        AsyncLogger.debug(f"\tREPO_PATH = {self.repoPath}")
+        AsyncLogger.debug(f"\tIS_DEBUG_ON = {self.isDebugOn}")
 
     @classmethod
     def show_help(cls):
