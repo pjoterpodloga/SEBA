@@ -41,15 +41,22 @@ class Seba:
 
         seba_parser_config = SebaParser(file_content)
         seba_config = seba_parser_config.parse_seba_config()
-    
-        seba_parser_corners = SebaParser([SebaDirectoryTemplate.corner_gen_file_content])
+
+        ### TODO: Write file reader from parsed config file
+
+        with open(f"{argument_parser.repoPath}/corners/{SebaDirectoryTemplate.corner_gen_file.name}", "r") as f:
+            file_content = f.readlines()
+
+        seba_parser_corners = SebaParser(file_content)
         seba_corners = seba_parser_corners.parse_corner_gen()
-        #sc  = seba_parser_corners.generate_spice_corners()
-        #cl  = seba_parser_corners.generate_corner_list()
+        sc  = seba_corners.generate_spice_corners()
+        cl  = seba_corners.generate_corner_list()
 
         try:
-            print(sc)
-            print(cl)
+            for x in sc:
+                print(x)
+            for x in cl:
+                print(x)
         except Exception as ex:
             AsyncLogger.error(ex)
 

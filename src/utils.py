@@ -82,7 +82,7 @@ class TextFormat:
                 string = cls.cyan(string)
         return string
 
-
+### TODO: Add ID generation to folders and default files for fast search and easy caching
 
 class DefaultFile:
     def __init__(self, name, content=""):
