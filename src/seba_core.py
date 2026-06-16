@@ -133,3 +133,212 @@ class CornerGenerator:
             result.append(self.corner_line(it_tnoc))
 
         return result
+    
+class Parser:
+
+    @classmethod
+    def prepare_file(cls, file_content: list[str]) -> str:
+        file_content_copy = file_content.copy()
+        file_content_copy.append("\n")
+
+        file_content_copy_merged = "".join(file_content_copy)
+
+        return file_content_copy_merged
+
+    @classmethod
+    def define_tokens(cls, file_content: str) -> list[Token]:
+        token_dict = Token.TOKEN_DICT
+
+        token = [Token(0)]*len(file_content)
+        token_keys = token_dict.keys()
+
+        row = 1
+        col = 1
+
+        for it_fc, fc in enumerate(file_content):
+            if fc in token_keys:
+                token[it_fc] = Token(token_dict[fc], fc, row, col)
+            else:
+                token[it_fc] = Token(Token.DEFAULT_ID, fc, row, col)
+
+            col = col + 1
+
+            if fc == "\n":
+                row = row + 1
+                col = 1
+
+        return token
+
+    @classmethod
+    def change_tokens(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+
+        if (target == None):
+            raise Exception("\"Target\" token is \"None\"")
+        if (type(target) != list):
+            raise Exception("\"Tagert\" token is not \"list()\"")
+        
+        if (until == None):
+            raise Exception("\"Until\" token is \"None\"")
+        if (type(until) != list):
+            raise Exception("\"Until\" token is not \"list()\"")
+
+        current_target = 0
+        t_found = False
+
+        for it_t, t in enumerate(tokens):
+            
+            tt = t.type
+
+            if tt in target:
+                current_target = tt
+                t_found = True
+                continue
+            
+            if tt in until:
+                current_target = 0
+                t_found = False
+                continue
+            
+            if t_found:
+                tokens[it_t].type = current_target
+
+        return tokens
+
+    @classmethod
+    def delete_tokens(cls, tokens: list[Token], target: list[int]) -> list[Token]:
+
+        for it_t in range(len(tokens)-1, -1, -1):
+            tt = tokens[it_t].type
+
+            if tt in target:
+                tokens.pop(it_t)
+
+        return tokens
+    
+    @classmethod
+    def group_tokens(cls, tokens: list[Token], target: list[int]) -> list[Token]:
+        
+        found_target = False
+        current_target = -1
+
+        grouped_value = ""
+
+        grouped_token = Token()
+
+        popped_token = Token()
+
+        for it_t in range(len(tokens)-1, -1, -1):
+            
+            tt = tokens[it_t].type
+            tv = tokens[it_t].value
+
+            if tt != current_target and found_target:
+                grouped_token = popped_token
+                grouped_token.value = grouped_value
+                tokens.insert(it_t+1, grouped_token)
+                found_target = False
+
+            if tt in target and not found_target:
+                grouped_value = ""
+                current_target = tt
+                found_target = True
+
+            if found_target:
+                grouped_value = tv + grouped_value
+                popped_token = tokens.pop(it_t)
+        
+        return tokens
+  
+    @classmethod  
+    def split_tokens(cls, tokens: list[Token], target: int) -> list[list[Token]]:
+        
+        result = []
+        tmp_group = []
+        
+        for t in tokens:
+            tt = t.type
+
+            if tt in target and len(tmp_group) == 0:
+                continue
+
+            if tt in target:
+                result.append(tmp_group)
+                tmp_group = []
+                continue
+
+            tmp_group.append(t)
+
+        if len(tmp_group) != 0:
+            result.append(tmp_group)
+
+        return result
+
+    @classmethod
+    def delete_after_tokens(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+
+        target_found = False
+        last_target_it = -1
+
+        for it_t in range(len(tokens)-1, -1, -1):
+            tt = tokens[it_t].type
+
+            if tt in until and target_found:
+
+                for it_d in range(last_target_it, it_t-1, -1):
+                    tokens.pop(it_d)
+
+                target_found = False
+                
+            if tt in target:
+                target_found = True
+                last_target_it = it_t
+
+        return tokens
+    
+    @classmethod
+    def bound_by_token(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+
+        until_found = False
+
+        pm_second_character_found = lambda t1, t2, fc:  f"Found second \"{t2.value}\" token; row: {t2.line}, col: {t2.column}\n"\
+                                                        f"{fc[t2.line-1]}"\
+                                                        f"{"~"*(t2.column-1)}^{"~"*((t1.column)-(t2.column)-1)}^"
+        
+        last_ut_token = None
+
+        grouped_tokens = []
+        popped_token = None
+        for it_t in range(len(tokens)-1, -1, -1):
+
+            tt = tokens[it_t].type
+
+            if tt in target and until_found:
+                last_ut_token = tokens[it_t]
+                until_found = False
+                tokens.insert(it_t, Token(popped_token.type, grouped_tokens, popped_token.line, popped_token.column))
+                grouped_tokens = []
+                continue
+
+            if tt in target and not until_found:
+                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], self.file_content))
+                
+
+            if tt in until and not until_found:
+                until_found = True
+                last_ut_token = tokens[it_t]
+                continue
+
+            if tt in until and until_found:
+                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], self.file_content))
+
+            if until_found:
+                popped_token = tokens.pop(it_t)
+                grouped_tokens.append(popped_token.value)
+
+        return tokens
+    
+    @classmethod
+    def check_surrounding_token(cls, tokens: list[Token], target: list[int], legal_surrounding: list[int]):
+        pass
+
+        return tokens
