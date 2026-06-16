@@ -1,25 +1,4 @@
-class Token:
-    DEFAULT_ID = 1
-
-    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n"]
-
-    TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
-
-    def __init__(self, type=None, value=None, line=None, column=None):
-        self.type = type
-        self.value = value
-        self.line = line
-        self.column = column
-
-class TokenCorner(Token):
-    def __init__(self, type=None, value=None, line=None, column=None):
-        super().__init__(type, value, line, column)
-        self.group = -1
-
-    @classmethod
-    def from_token(cls, token: Token):
-        return cls(type=token.type, value=token.value, line=token.line, column=token.column)
-    
+   
 class Corner:
     def __init__(self, corner_type, corner_name, corner_value=None):
         self.type = corner_type
@@ -133,8 +112,34 @@ class CornerGenerator:
             result.append(self.corner_line(it_tnoc))
 
         return result
-    
+
+class Token:
+    DEFAULT_ID = 1
+
+    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n"]
+
+    TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
+
+    def __init__(self, id=None, type=None, value=None, line=None, column=None):
+        self.id = id
+        self.type = type
+        self.value = value
+        self.line = line
+        self.column = column
+
+class TokenCorner(Token):
+    def __init__(self,file_id=None, type=None, value=None, line=None, column=None):
+        super().__init__(file_id, type, value, line, column)
+        self.group = -1
+
+    @classmethod
+    def from_token(cls, token: Token):
+        return cls(id=token.id, type=token.type, value=token.value, line=token.line, column=token.column)
+
 class Parser:
+
+    __last_file_id__ = 0
+    __file_content__ = []
 
     @classmethod
     def prepare_file(cls, file_content: list[str]) -> str:
@@ -149,7 +154,11 @@ class Parser:
     def define_tokens(cls, file_content: str) -> list[Token]:
         token_dict = Token.TOKEN_DICT
 
-        token = [Token(0)]*len(file_content)
+        cls.__file_content__.append(file_content)
+
+        token = [Token(id=cls.__last_file_id__, type=0,)]*len(file_content)
+        token_id = cls.__last_file_id__
+        cls.__last_file_id__ = cls.__last_file_id__ + 1
         token_keys = token_dict.keys()
 
         row = 1
@@ -157,9 +166,9 @@ class Parser:
 
         for it_fc, fc in enumerate(file_content):
             if fc in token_keys:
-                token[it_fc] = Token(token_dict[fc], fc, row, col)
+                token[it_fc] = Token(id=token_id, type=token_dict[fc], value=fc, line=row, column=col)
             else:
-                token[it_fc] = Token(Token.DEFAULT_ID, fc, row, col)
+                token[it_fc] = Token(id=token_id, type=Token.DEFAULT_ID, value=fc, line=row, column=col)
 
             col = col + 1
 
@@ -223,9 +232,9 @@ class Parser:
 
         grouped_value = ""
 
-        grouped_token = Token()
+        grouped_token = None
 
-        popped_token = Token()
+        popped_token = None
 
         for it_t in range(len(tokens)-1, -1, -1):
             
@@ -303,24 +312,25 @@ class Parser:
         pm_second_character_found = lambda t1, t2, fc:  f"Found second \"{t2.value}\" token; row: {t2.line}, col: {t2.column}\n"\
                                                         f"{fc[t2.line-1]}"\
                                                         f"{"~"*(t2.column-1)}^{"~"*((t1.column)-(t2.column)-1)}^"
-        
+
         last_ut_token = None
 
         grouped_tokens = []
         popped_token = None
         for it_t in range(len(tokens)-1, -1, -1):
 
-            tt = tokens[it_t].type
+            tt  = tokens[it_t].type
+            tid = tokens[it_t].id
 
             if tt in target and until_found:
                 last_ut_token = tokens[it_t]
                 until_found = False
-                tokens.insert(it_t, Token(popped_token.type, grouped_tokens, popped_token.line, popped_token.column))
+                tokens.insert(it_t, Token(id=popped_token.id, type=popped_token.type, value=grouped_tokens, line=popped_token.line, column=popped_token.column))
                 grouped_tokens = []
                 continue
 
             if tt in target and not until_found:
-                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], self.file_content))
+                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], cls.__file_content__[tid]))
                 
 
             if tt in until and not until_found:
@@ -329,7 +339,7 @@ class Parser:
                 continue
 
             if tt in until and until_found:
-                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], self.file_content))
+                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], cls.__file_content__[tid]))
 
             if until_found:
                 popped_token = tokens.pop(it_t)
