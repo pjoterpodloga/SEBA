@@ -6,3 +6,11 @@
 /tmp
 /src/__pycache__
 /debug
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+venv/
+.venv/
+env/

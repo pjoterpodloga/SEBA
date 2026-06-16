@@ -1,4 +1,4 @@
-from src.seba_config import *
+from seba.config import *
 
 class SebaReader:
     def __init__(self, config: SebaConfig):

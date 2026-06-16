@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 import subprocess
 
-from src.utils import TextFormat
+from seba.utils import TextFormat
 
 
 class AsyncLogger:

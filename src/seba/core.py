@@ -4,14 +4,12 @@ import shutil
 import subprocess
 import asyncio
 
-from src.constants import *
-from src.utils import *
-from src.logger import *
-from src.seba_directory import *
-from src.seba_arguments import *
-from src.seba_setup import *
-from src.seba_parser import *
-from src.seba_corners import *
+from seba.logger import AsyncLogger
+from seba.directory import SebaDirectoryTemplate
+from seba.arguments import SebaArguments
+from seba.setup import SebaSetupTool
+from seba.parser import SebaParser
+from seba.corners import SebaCorner
 
 class Seba:
     @classmethod
@@ -21,9 +19,9 @@ class Seba:
 
         if(len(sys.argv) == 1):
             SebaArguments.show_help()
-            await cls.terminate(1)
+            await cls.__terminate__(1)
 
-        argument_parser = SebaArguments()
+        argument_parser = SebaArguments(sys.argv)
         argument_parser.parse()
 
         if argument_parser.isShowHelpOn:
@@ -60,12 +58,15 @@ class Seba:
         except Exception as ex:
             AsyncLogger.error(ex)
 
-        await cls.terminate()
+        await cls.__terminate__()
 
 
     @classmethod
-    async def terminate(cls, code=0):
+    async def __terminate__(cls, code=0):
         AsyncLogger.info("Script terminated")
         await asyncio.sleep(1)
         await AsyncLogger.stop()
         exit(code)
+
+def run():
+    asyncio.run(Seba.run())

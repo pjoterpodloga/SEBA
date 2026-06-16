@@ -2,9 +2,9 @@ import os
 import subprocess
 import shutil
 
-from src.constants import *
-from src.logger import *
-from src.seba_directory import *
+from seba.constants import *
+from seba.logger import *
+from seba.directory import *
 
 class SebaSetupTool:
     pathExists = None

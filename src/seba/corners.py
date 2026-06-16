@@ -1,4 +1,4 @@
-from src.seba_core import CornerGenerator, Corner
+from seba.utils import CornerGenerator, Corner
 
 class SebaCorner:
 

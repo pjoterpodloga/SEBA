@@ -1,10 +1,14 @@
-from src.constants import *
-from src.logger import *
-from src.seba_directory import *
+from seba.constants import SebaInputArguments
+from seba.logger import AsyncLogger
+from seba.directory import SebaDirectoryTemplate
+from seba.utils import UnknownArgumentError, MissingArgumentError
+from seba.utils import TextFormat
 
 class SebaArguments:
 
-    def __init__(self):
+    def __init__(self, args: list[str]):
+        self.args = args
+
         self.isDebugOn=False
         self.isShowHelpOn = False
         self.isSetupOn = False
@@ -19,36 +23,40 @@ class SebaArguments:
 
         while True:
             
-            if it == len(sys.argv):
+            if it == len(self.args):
                 break
 
             if it == 0:
                 it = it + 1
                 continue
             
-            if sys.argv[it] == SebaInputArguments.s_help or sys.argv[it] == SebaInputArguments.l_help:
+            if self.args[it] == SebaInputArguments.s_help or self.args[it] == SebaInputArguments.l_help:
                 self.isShowHelpOn = True
                 it = it + 1
-                continue
+                break
 
-            if sys.argv[it] == SebaInputArguments.s_setup or sys.argv[it] == SebaInputArguments.l_setup:
+            if self.args[it] == SebaInputArguments.s_setup or self.args[it] == SebaInputArguments.l_setup:
                 self.isSetupOn = True
-                self.repoPath = sys.argv[it+1]
+                if len(self.args)-1 == it:
+                    raise MissingArgumentError(f"Missing argument for {self.args[it]}")
+                self.repoPath = self.args[it+1]
                 it = it + 2
                 continue
 
-            if sys.argv[it] == SebaInputArguments.l_setup_force:
+            if self.args[it] == SebaInputArguments.l_setup_force:
                 self.isSetupForceOn = True
-                self.repoPath = sys.argv[it+1]
+                if len(self.args)-1 == it:
+                    raise MissingArgumentError(f"Missing argument for {self.args[it]}")
+                self.repoPath = self.args[it+1]
                 it = it + 2
                 continue
 
-            if sys.argv[it] == SebaInputArguments.s_debug or sys.argv[it] == SebaInputArguments.l_debug:
+            if self.args[it] == SebaInputArguments.s_debug or self.args[it] == SebaInputArguments.l_debug:
                 self.isDebugOn = True
                 it = it + 1
                 continue
 
-            ### TODO: Add handling unknown argument
+            raise UnknownArgumentError(f"Unknown argument: {self.args[it]}")
     
     def print_config(self):
         AsyncLogger.debug(f"SEBA configuration:")
@@ -68,7 +76,6 @@ class SebaArguments:
         AsyncLogger.info(f"\t{SebaInputArguments.m_setup_force}")
         AsyncLogger.info(f"\t{SebaInputArguments.m_debug}")
         cls.__print_dir_template__()
-
 
     @classmethod
     def __print_dir_template__(cls):

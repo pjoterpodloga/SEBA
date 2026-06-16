@@ -1,9 +1,9 @@
 from enum import Enum
 
-from src.logger import *
-from src.seba_config import *
-from src.seba_corners import *
-from src.seba_core import CornerGenerator, Corner, Token, TokenCorner, Parser
+from seba.logger import *
+from seba.config import *
+from seba.corners import *
+from seba.utils import CornerGenerator, Corner, Token, TokenCorner, Parser
 
 class SebaParser:
 
