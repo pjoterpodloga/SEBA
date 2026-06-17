@@ -2,6 +2,7 @@ from seba.arguments import SebaArguments
 from seba.utils import UnknownArgumentError, MissingArgumentError
 from seba.utils import TextFormat
 
+test_seba_argument_parse_pass_desc = "Checks if argment parser works with valid input arguments"
 def test_seba_argument_parse_pass() -> bool:
     mock_repo_name = "<repo_name>"
     mock_unknown_argument = "<unknown_argument>"
@@ -54,6 +55,7 @@ def test_seba_argument_parse_pass() -> bool:
 
     return True
 
+test_seba_argument_parse_fail_desc = "Checks if argment parser works with invalid input arguments and catch all exceptions"
 def test_seba_argument_parse_fail() -> bool:
     mock_repo_name = "<repo_name>"
     mock_unknown_argument = "<unknown_argument>"
