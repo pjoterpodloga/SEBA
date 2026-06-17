@@ -23,7 +23,6 @@ class SebaDirectoryTemplate:
                                 "param  xtemp\n"\
                                 "param  xvbg\n"\
                                 "param  xfreq\n"\
-                                "#          ! DONT USE SPACES INSIDE BRACKETS !\n"\
                                 "corner_gen [mos_tt]==[mos_tt] [3.3] [25] [0.8] [100e6]\n"\
                                 "corner_gen [mos_ss,mos_sf,mos_fs,mos_ff]==[mos_ss,mos_sf,mos_fs,mos_ff] [2.97,3.6] [-50,125] [0.79,0.81] [100e6]\n"\
                                 "corner_gen [mos_tt]==[mos_tt] [3.3] [25] [0.8] [200e6]\n"\
@@ -55,7 +54,7 @@ class SebaDirectoryTemplate:
     pex_folder = TemporaryFolder("pex", ["<circuit.pex.spice>"])
     scripts_folder = Folder("scripts", ["<script.py>"])
     result_gen_folder = Folder("result_gen", [meas_file, "<meas.meas>", plot_file, "<plot.plt>",])
-    reports_folder = Folder("reports", ["<index.html>"])
+    result_folder = Folder("results", ["<index.html>"])
     logs_folder = TemporaryFolder("logs", ["<seba.log>"])
     simulations_folder = TemporaryFolder("simulations", ["sim_1_tb", "...", "sim_n_tb"])
     layout_flatten_gds_folder = TemporaryFolder("layout_flatten_gds", [])
@@ -66,7 +65,7 @@ class SebaDirectoryTemplate:
     backup_folder = TemporaryFolder("backup", ["<backup.zip>"])
     root_tree = Folder("<repo_name>", [seba_repo_file, seba_folder, spfiles_folder, tb_folder, circuit_folder,
                                             layout_folder, corners_folder, pex_folder, scripts_folder,
-                                            result_gen_folder, reports_folder, logs_folder, tmp_folder,
+                                            result_gen_folder, result_folder, logs_folder, tmp_folder,
                                             backup_folder])
     
     gitignore_file_content = "".join(gfc.replace("<repo_name>/", "")+"\n" for gfc in root_tree.generate_gitignore(header="# Default SEBA .gitignore file\n").split("\n"))

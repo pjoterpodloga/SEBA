@@ -7,7 +7,7 @@ class SebaCorner:
 
     def __get_corners_generators__(self) -> list[CornerGenerator]:
         if self.__corner_generators__ == None:
-            raise Exception("Error occured while creating generators or corner generator file was not provided.")
+            raise Exception("Corner generator is \"None\"")
         return self.__corner_generators__
     
     def generate_spice_corners(self) -> list[str]:

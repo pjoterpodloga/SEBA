@@ -294,11 +294,20 @@ class Corner:
         self.value= corner_value
 
 class CornerGenerator:
-    def __init__(self, corners, values, grouping):
+    def __init__(self, corners: list[Corner], values: list[list[str]], grouping: list[int]):
         self.corners = corners
         self.values = values
         self.grouping = grouping
-            
+
+        if  len(corners) != len(values) or\
+            len(corners) != len(grouping) or\
+            len(values) != len(grouping):
+
+            raise Exception("Number of corners, value or/and grouping are not the same.")
+
+        for c in corners:
+            pass
+
         total_number_of_corners = 1
         current_group = -1
 
@@ -400,6 +409,34 @@ class CornerGenerator:
             result.append(self.corner_line(it_tnoc))
 
         return result
+
+class WrongCornerDefinition(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class MissingCorner(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class DefinitionAfterCornerGen(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class CornerDuplication(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class EmptyCornerArray(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class MissingCornerValue(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class UnknownCornerCommand(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
 
 class Token:
     DEFAULT_ID = 1
@@ -597,9 +634,10 @@ class Parser:
 
         until_found = False
 
-        pm_second_character_found = lambda t1, t2, fc:  f"Found second \"{t2.value}\" token; row: {t2.line}, col: {t2.column}\n"\
-                                                        f"{fc[t2.line-1]}"\
-                                                        f"{"~"*(t2.column-1)}^{"~"*((t1.column)-(t2.column)-1)}^"
+        pm_second_character_found = lambda t1, t2, fc:\
+            f"Found second \"{t2.value}\" token; row: {t2.line}, col: {t2.column}\n"\
+            f"{fc[t1.line-1]}"\
+            f"{"~"*(t1.column-1)}^{"~"*((t2.column)-(t1.column)-1)}^"
 
         last_ut_token = None
 
@@ -613,12 +651,12 @@ class Parser:
             if tt in target and until_found:
                 last_ut_token = tokens[it_t]
                 until_found = False
-                tokens.insert(it_t, Token(file_id=popped_token.file_id, type=popped_token.type, value=grouped_tokens, line=popped_token.line, column=popped_token.column))
+                tokens.insert(it_t+1, type(popped_token)(file_id=popped_token.file_id, type=popped_token.type, value=grouped_tokens, line=popped_token.line, column=popped_token.column))
                 grouped_tokens = []
                 continue
 
             if tt in target and not until_found:
-                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], cls.__file_content__[tid]))
+                raise SecondCharacterError(pm_second_character_found(tokens[it_t], last_ut_token, cls.__file_content__[tid]))
                 
 
             if tt in until and not until_found:
@@ -627,17 +665,17 @@ class Parser:
                 continue
 
             if tt in until and until_found:
-                raise Exception(pm_second_character_found(last_ut_token, tokens[it_t], cls.__file_content__[tid]))
+                raise SecondCharacterError(pm_second_character_found(last_ut_token, tokens[it_t], cls.__file_content__[tid]))
 
             if until_found:
                 popped_token = tokens.pop(it_t)
-                grouped_tokens.append(popped_token.value)
+                grouped_tokens.insert(0, popped_token.value)
 
         return tokens
     
     @classmethod
     def check_surrounding_token(cls, tokens: list[Token], target: list[int], legal_surrounding: list[int]):
-        pass
+        ### TODO: Write body of check surrounding of tokens function
 
         return tokens
     
@@ -647,5 +685,9 @@ class UnknownArgumentError(Exception):
         super().__init__(*args)
 
 class MissingArgumentError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class SecondCharacterError(Exception):
     def __init__(self, *args):
         super().__init__(*args)
