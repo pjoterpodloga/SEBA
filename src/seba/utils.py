@@ -561,8 +561,15 @@ class Parser:
 
         popped_token = None
 
-        for it_t in range(len(tokens)-1, -1, -1):
+        for it_t in range(len(tokens)-1, -2, -1):
             
+            if it_t == -1:
+                if found_target:
+                    grouped_token = popped_token
+                    grouped_token.value = grouped_value
+                    tokens.insert(it_t+1, grouped_token)
+                break
+
             tt = tokens[it_t].type
             tv = tokens[it_t].value
 

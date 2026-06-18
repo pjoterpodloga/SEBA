@@ -1,7 +1,7 @@
 from seba.utils import Corner, CornerGenerator
 from seba.utils import TextFormat
 
-test_corner_generator_pass_desc = "Checks if corner generators are working properly with valid input."
+test_corner_generator_pass_desc = "Valid corners generator"
 def test_corner_generator_pass():
 
     corners_test = []
@@ -148,18 +148,10 @@ def test_corner_generator_pass():
 
     return True
 
-test_corner_generator_fail_desc = "Checks if corner generators catch all exceptions."
-def test_corner_generator_fail():
-    return True
-
 if __name__ == "__main__":
     
     if test_corner_generator_pass():
-        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} Valid corners generation")
+        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} {test_corner_generator_pass_desc}")
     else:
-        print(f"{TextFormat.format("[FAILED]", fmt="Br")} Valid corners generation")
-
-    if test_corner_generator_fail():
-        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} Invalid corners generation")
-    else:
-        print(f"{TextFormat.format("[FAILED]", fmt="Br")} Invalid corners generation")
+        print(f"{TextFormat.format("[FAILED]", fmt="Br")} {test_corner_generator_pass_desc}")
+    

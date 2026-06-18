@@ -10,8 +10,12 @@ from seba.utils import CornerDuplication
 
 class SebaParser:
 
-    def __init__(self, file_content):
-        self.file_content = file_content
+    def __init__(self, file_content: list[str]):
+
+        if type(file_content) == str:
+            self.file_content = [f"{fc}\n" for fc in file_content.split("\n")]
+        else:
+            self.file_content = file_content
             
     def __prepare_seba_config__(self) -> list[list[Token]]:
         
@@ -162,6 +166,9 @@ class SebaParser:
 
             else:
                 raise UnknownCornerCommand(pm_unknown_corner_command(tl[0], self.file_content))
+
+        if len(corners_gen) == 0:
+            raise Exception("Corner generator line not found")
 
         seba_corner = SebaCorner(corners_gen)
 

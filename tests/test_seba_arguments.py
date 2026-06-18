@@ -2,7 +2,7 @@ from seba.arguments import SebaArguments
 from seba.utils import UnknownArgumentError, MissingArgumentError
 from seba.utils import TextFormat
 
-test_seba_argument_parse_pass_desc = "Checks if argment parser works with valid input arguments"
+test_seba_argument_parse_pass_desc = "Valid arguments parsing"
 def test_seba_argument_parse_pass() -> bool:
     mock_repo_name = "<repo_name>"
     mock_unknown_argument = "<unknown_argument>"
@@ -55,7 +55,7 @@ def test_seba_argument_parse_pass() -> bool:
 
     return True
 
-test_seba_argument_parse_fail_desc = "Checks if argment parser works with invalid input arguments and catch all exceptions"
+test_seba_argument_parse_fail_desc = "Invalid arguments parsing"
 def test_seba_argument_parse_fail() -> bool:
     mock_repo_name = "<repo_name>"
     mock_unknown_argument = "<unknown_argument>"
@@ -65,15 +65,37 @@ def test_seba_argument_parse_fail() -> bool:
     ["/", "help"],
     ["/", mock_unknown_argument, "-h"],
     ["/", mock_unknown_argument, "--h"],
+
     ["/", "-s"],
     ["/", "--setup"],
     ["/", "s"],
     ["/", "setup"],
+
     ["/", "s", mock_repo_name],
     ["/", "setup", mock_repo_name],
     ["/", "d"],
     ["/", "-d", mock_repo_name],
+
     ["/", "debug"]
+    ]
+
+    mock_arguments_fail_checks = [
+        UnknownArgumentError,
+        UnknownArgumentError,
+        UnknownArgumentError,
+        UnknownArgumentError,
+
+        MissingArgumentError,
+        MissingArgumentError,
+        UnknownArgumentError,
+        UnknownArgumentError,
+
+        UnknownArgumentError,
+        UnknownArgumentError,
+        UnknownArgumentError,
+        UnknownArgumentError,
+
+        UnknownArgumentError
     ]
 
     for it_arg in range(len(mock_arguments_fail)):
@@ -83,18 +105,18 @@ def test_seba_argument_parse_fail() -> bool:
             
             return False
         except Exception as ex:
-            assert UnknownArgumentError == type(ex) or MissingArgumentError == type(ex)
+            assert type(ex) == mock_arguments_fail_checks[it_arg]
 
     return True
     
 
 if __name__ == "__main__":
     if test_seba_argument_parse_pass():
-        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} Valid argument parsing")
+        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} {test_seba_argument_parse_pass_desc}")
     else:
-        print(f"{TextFormat.format("[FAILED]", fmt="Br")} Valid argument parsing")
+        print(f"{TextFormat.format("[FAILED]", fmt="Br")} {test_seba_argument_parse_pass_desc}")
 
     if test_seba_argument_parse_fail():
-        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} Invalid argument parsing")
+        print(f"{TextFormat.format("[PASSED]", fmt="Bg")} {test_seba_argument_parse_fail_desc}")
     else:
-        print(f"{TextFormat.format("[FAILED]", fmt="Br")} Invalid argument parsing")
+        print(f"{TextFormat.format("[FAILED]", fmt="Br")} {test_seba_argument_parse_fail_desc}")
