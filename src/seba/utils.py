@@ -360,39 +360,6 @@ class CornerGenerator:
 
             resolved_corners.append(corner)
 
-        ### TODO: fix corner modulo indexing
-        return resolved_corners
-    
-        while it_gen < self.tnoc:
-            it_mod = 0
-            it_grp = 0
-            current_group = -1
-            mod_value = 0
-            for it_c in range(len(self.corners)-1, -1, -1):
-                grp = self.grouping[it_c]
-                if current_group != grp:
-                    mod_value = mod_value + 1 - len(self.values[it_c])
-                    current_group = grp
-                    it_mod = (it_gen-mod_value)
-                    if it_mod < 0:
-                        it_mod = 0
-                    it_mod = it_mod % len(self.values[it_c])
-                    if len(self.values[it_c]) != 1:
-                        it_grp = it_grp + 1
-
-                index_list[it_c] = it_mod
-
-            corner = []
-            for it_il, il in enumerate(index_list):
-                t = self.corners[it_il].type
-                n = self.corners[it_il].name
-                v = self.values[it_il][il]
-                corner.append(Corner(t, n, v))
-
-            resolved_corners.append(corner)
-
-            it_gen = it_gen + 1
-
         return resolved_corners
         
     def corner_list_header(self) -> list[str]:
