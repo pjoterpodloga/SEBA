@@ -11,7 +11,7 @@ class SebaSetupTool:
     repoExists = None
 
     @classmethod
-    def check_if_repo_exist(cls, repo_path):
+    def check_if_repo_exists(cls, repo_path):
 
         if os.path.exists(repo_path):
             cls.pathExists = True
@@ -24,11 +24,17 @@ class SebaSetupTool:
             AsyncLogger.warning(f"Path already exists but repository setup in there.")
 
         return cls.pathExists
+    
+    @classmethod
+    def check_if_config_exists(cls):
+
+        if os.path.isfile(".seba"):
+            pass
 
     @classmethod
     def setup_repository(cls, repo_path, force=False):
 
-        repoExists = cls.check_if_repo_exist(repo_path)
+        repoExists = cls.check_if_repo_exists(repo_path)
 
         if repoExists and not force:
             AsyncLogger.error(f"To remove existing path pass --setup_force <repo_path> argument.")
@@ -63,6 +69,60 @@ class SebaSetupTool:
             dftc_content = dftc[1]
             with open(dftc_path, "w") as f:
                 f.write(dftc_content)
-        
+
+
+        ### TODO: Resolve searching directories from default dir
         ### TODO: Add creating mock files for debug purpose
+        if DEBUG:
+            AsyncLogger.debug("Creating mock files.")
+            with open(repo_path+"/config/"+"config.debug.seba", "w") as f:
+                f.write("# Mock SEBA config file\n")
+                f.write("NAME\t\tdebug_tb\n")
+                f.write("CONTROL\t\tcontrol.debug.spice\n")
+                f.write("TESTBENCH\tdebug_tb.debug.spice\n")
+                f.write("CORNERS\t\tcorner.debug.gen\n")
+                f.write("SCRIPT\t\tscript.debug.py\n")
+                f.write("MEAS\t\tmeasure.debug.meas\n")
+                f.write("PLOT\t\tplot.debug.plt\n")
+
+            with open(repo_path+"/control/"+"control.debug.spice", "w") as f:
+                f.write("* Title: Debug mock control file\n")
+                f.write(".control\n")
+                f.write("run\n")
+                f.write("save all\n")
+                f.write("set filetype=ascii\n")
+                f.write("write debug_tb.raw all\n")
+                f.write(".endc\n")
+            
+            with open(repo_path+"/testbench/"+"debug_tb.debug.spice", "w") as f:
+                f.write("* Title: Debug mock testbench file\n")
+                f.write("V1 net1 0 1\n")
+                f.write("R1 net1 0 'xres'\n")
+                f.write(".param xres1=1\n")
+                f.write(".param xres2=1\n")
+                f.write(".dc v1 0 1 0.01\n")
+                f.write(".end\n")
+
+            with open(repo_path+"/corners/"+"corner.debug.gen", "w") as f:
+                f.write("# Mock corner_gen file\n")
+                f.write("param xres1\n")
+                f.write("param xres2\n")
+                f.write("corner_gen [1, 2, 3, 4, 5] [1, 2, 3, 4, 5]\n")
+
+            ### TODO: Add empty debug files
+            with open(repo_path+"/scripts/"+"script.debug.py", "w") as f:
+                f.write("# Mock python script file\n")
+
+            with open(repo_path+"/result_gen/"+"plot.debug.plt", "w") as f:
+                f.write("# Mock plot file\n")
+
+            with open(repo_path+"/result_gen/"+"measure.debug.meas", "w") as f:
+                f.write("# Mock measure file\n")
+
+            with open(repo_path+"/pex/"+"debug.debug.pex.spice", "w") as f:
+                f.write("* Title: Debug mock pex spice file\n")
+
+
+            
+
         ### TODO: Add git init basic routine for connecting remote repo

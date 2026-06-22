@@ -37,7 +37,7 @@ class SebaDirectoryTemplate:
     plot_file_content =         "# Example of plot file\n"\
                                 "\n"
 
-    seba_repo_file = DefaultFile(".seba", "")
+    seba_repo_file = DefaultFile(".seba", "# Template of SEBA main config file")
     seba_config_file = DefaultFile("config.template.seba", seba_config_file_content)
     corner_gen_file = DefaultFile("croner.template.gen", corner_gen_file_content)
     corner_list_file = TemporaryFile("<corner.list>", "", pattern="*.list")
@@ -45,9 +45,9 @@ class SebaDirectoryTemplate:
     seba_log_folder = TemporaryFolder("logs", [seba_log_file])
     meas_file = DefaultFile("meas.template.meas", meas_file_content)
     plot_file = DefaultFile("plot.template.plt", plot_file_content)
-    seba_folder = Folder("seba", [seba_config_file, seba_log_folder])
+    config_folder = Folder("config", [seba_repo_file, seba_config_file, seba_log_folder])
     spfiles_folder = Folder("control", ["<control.spice>"])
-    tb_folder = Folder("tb", ["<testbench.sch>"])
+    tb_folder = Folder("testbench", ["<testbench.sch>"])
     circuit_folder = Folder("circuit", ["<circuit.sch>", "<circuit.sym>"])
     layout_folder = Folder("layout", ["<layout.gds>"])
     corners_folder = Folder("corners", [corner_gen_file, "<corner.gen>", corner_list_file])
@@ -63,7 +63,7 @@ class SebaDirectoryTemplate:
     pex_tmp_folder = TemporaryFolder("pex_tmp", [])
     tmp_folder = TemporaryFolder("tmp", [simulations_folder, layout_flatten_gds_folder, layout_lvs_folder, layout_drc_folder, pex_tmp_folder])
     backup_folder = TemporaryFolder("backup", ["<backup.zip>"])
-    root_tree = Folder("<repo_name>", [seba_repo_file, seba_folder, spfiles_folder, tb_folder, circuit_folder,
+    root_tree = Folder("<repo_name>", [config_folder, spfiles_folder, tb_folder, circuit_folder,
                                             layout_folder, corners_folder, pex_folder, scripts_folder,
                                             result_gen_folder, result_folder, logs_folder, tmp_folder,
                                             backup_folder])

@@ -4,11 +4,13 @@ import shutil
 import subprocess
 import asyncio
 
+from seba.constants import DEBUG
 from seba.logger import AsyncLogger
 from seba.directory import SebaDirectoryTemplate
 from seba.arguments import SebaArguments
 from seba.setup import SebaSetupTool
 from seba.parser import SebaParser
+from seba.reader import SebaReader
 from seba.corners import SebaCorner
 
 class Seba:
@@ -21,20 +23,26 @@ class Seba:
 
         if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
             SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
+            cls.__terminate__()
+
+        debug_repo_path = None
+
+        if DEBUG:
+            SebaArguments.repoPath = "tmp/test_repo"
+            debug_repo_path = SebaArguments.repoPath+"/"+SebaDirectoryTemplate.config_folder.name
+            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
+            os.chdir(debug_repo_path)
+            AsyncLogger.debug(f"Root direcotry changed to: \"{debug_repo_path}\"")
 
         file_content = []
-        with open(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}", "r") as f:
+        with open(f"config.debug.seba", "r") as f:
             file_content = f.readlines()
 
         seba_parser_config = SebaParser(file_content)
         seba_config = seba_parser_config.parse_seba_config()
+        seba_reader = SebaReader(seba_config)
 
-        ### TODO: Write file reader from parsed config file
-
-        with open(f"{SebaArguments.repoPath}/corners/{SebaDirectoryTemplate.corner_gen_file.name}", "r") as f:
-            file_content = f.readlines()
-
-        seba_parser_corners = SebaParser(file_content)
+        seba_parser_corners = SebaParser(seba_reader.corners_file)
         seba_corners = seba_parser_corners.parse_corner_gen()
         sc  = seba_corners.generate_spice_corners()
         cl  = seba_corners.generate_corner_list()

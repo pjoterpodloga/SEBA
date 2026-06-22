@@ -215,7 +215,7 @@ class SebaParser:
             elif cmd[0].upper() == "TESTBENCH":
                 if len(tl) != 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
-                seba_config.tb = cmd[1]
+                seba_config.testbench = cmd[1]
 
             elif cmd[0].upper() == "CORNERS":
                 if len(tl) != 2:

@@ -1,4 +1,4 @@
-from seba.constants import SebaInputArguments
+from seba.constants import DEBUG, SebaInputArguments
 from seba.logger import AsyncLogger
 from seba.directory import SebaDirectoryTemplate
 from seba.utils import UnknownArgumentError, MissingArgumentError
@@ -10,7 +10,8 @@ class SebaArguments:
     isShowHelpOn = False
     isSetupOn = False
     isSetupForceOn = False
-    repoPath = ""
+    sebaFile = None
+    repoPath = None
     args = None
 
     def __init__(self, args: list[str]):
@@ -65,13 +66,25 @@ class SebaArguments:
                 it = it + 1
                 continue
 
+            if it == 1:
+                cls.sebaFile = cls.args[it]
+                it = it + 1
+                continue
+
             raise UnknownArgumentError(f"Unknown argument: {cls.args[it]}")
+        
+        if cls.isSetupOn or cls.isSetupForceOn:
+            AsyncLogger.warning("Due to setup or force setup flag set, reseting rest of flags.")
+            
+            if not DEBUG:
+                cls.sebaFile = None
     
     @classmethod
     def print_config(cls):
         AsyncLogger.debug(f"SEBA configuration:")
         AsyncLogger.debug(f"IS_SHOW_HELP_ON = {cls.isShowHelpOn}")
         AsyncLogger.debug(f"IS_SETUP_ON = {cls.isSetupOn}")
+        AsyncLogger.debug(f"SEBA_FILE = {cls.sebaFile}")
         AsyncLogger.debug(f"REPO_PATH = {cls.repoPath}")
         AsyncLogger.debug(f"IS_DEBUG_ON = {cls.isDebugOn}")
 

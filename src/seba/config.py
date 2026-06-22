@@ -6,7 +6,7 @@ class SebaConfig:
                  script=None, plot=None, meas=None, extraction=None):
         self.name = name
         self.control = control
-        self.tb = tb
+        self.testbench = tb
         self.corners = corners
         self.script = script
         self.plot = plot
@@ -21,4 +21,7 @@ class SebaConfig:
         AsyncLogger.debug(f"SCRIPT = {self.script}")
         AsyncLogger.debug(f"MEAS = {self.meas}")
         AsyncLogger.debug(f"PLOT = {self.plot}")
-        AsyncLogger.debug(f"EXTRACTION = {", ".join(self.extraction)}")
+        if self.extraction != None:
+            AsyncLogger.debug(f"EXTRACTION = {", ".join(self.extraction)}")
+        else:
+            AsyncLogger.debug(f"EXTRACTION = {self.extraction}")
