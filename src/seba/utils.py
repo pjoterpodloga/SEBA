@@ -311,11 +311,21 @@ class CornerGenerator:
         total_number_of_corners = 1
         current_group = -1
 
-        for it, v in enumerate(self.values):
-            if current_group == self.grouping[it]:
-                continue
-            total_number_of_corners = total_number_of_corners * len(v)
-            current_group = self.grouping[it]
+        self.mod_values = [0]*len(self.values)
+        last_mod_value = 1
+
+        for it in range(len(self.values)-1, -1, -1):
+            v = self.values[it]
+
+            if current_group != self.grouping[it]:
+                last_mod_value = total_number_of_corners
+                total_number_of_corners = total_number_of_corners * len(v)
+                current_group = self.grouping[it]
+
+            if len(v) == 1:
+                self.mod_values[it] = 0
+            else:
+                self.mod_values[it] = last_mod_value 
 
         self.tnoc = total_number_of_corners
 
@@ -328,16 +338,45 @@ class CornerGenerator:
         current_group = -1
 
         resolved_corners = []
+        
+        mod_index = [0]*len(self.corners)
 
+        while it_gen < self.tnoc:
+            
+            for it_mv, mv in enumerate(self.mod_values):
+                if (mv == 0) or (it_gen == 0):
+                    continue
+                if (it_gen % mv) == 0:
+                    mod_index[it_mv] = (mod_index[it_mv] + 1) % len(self.values[it_mv])
+
+            corner = []
+            for it_mv, mv in enumerate(mod_index):
+                t = self.corners[it_mv].type
+                n = self.corners[it_mv].name
+                v = self.values[it_mv][mod_index[it_mv]]
+                corner.append(Corner(t, n, v))
+
+            it_gen = it_gen + 1
+
+            resolved_corners.append(corner)
+
+        ### TODO: fix corner modulo indexing
+        return resolved_corners
+    
         while it_gen < self.tnoc:
             it_mod = 0
             it_grp = 0
             current_group = -1
+            mod_value = 0
             for it_c in range(len(self.corners)-1, -1, -1):
                 grp = self.grouping[it_c]
                 if current_group != grp:
+                    mod_value = mod_value + 1 - len(self.values[it_c])
                     current_group = grp
-                    it_mod = (it_gen >> it_grp) % len(self.values[it_c])
+                    it_mod = (it_gen-mod_value)
+                    if it_mod < 0:
+                        it_mod = 0
+                    it_mod = it_mod % len(self.values[it_c])
                     if len(self.values[it_c]) != 1:
                         it_grp = it_grp + 1
 

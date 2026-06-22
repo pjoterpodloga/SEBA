@@ -83,7 +83,7 @@ def test_corner_generator_pass():
                      ["value4"]]
     values_test.append(values_test_4)
     
-    grouping_test_4 = [1, 1, 3, 4]
+    grouping_test_4 = [1, 1, 2, 3]
     grouping_test.append(grouping_test_4)
 
     result_test_4 = ["value1.1 value2.1 value3 value4",
@@ -131,6 +131,31 @@ def test_corner_generator_pass():
     result_test_5 = ["value1.1 value2.1 value3.1 value4.1",
                      "value1.2 value2.2 value3.2 value4.2",]
     result_test.append(result_test_5)
+
+
+    corners_test_6 = []
+    corners_test_6.append(Corner("param", "xname1"))
+    corners_test_6.append(Corner("param", "xname2"))
+    corners_test.append(corners_test_6)
+
+    values_test_6 = [["value1.1", "value1.2", "value1.3"],
+                     ["value2.1", "value2.2", "value2.3"]]
+    values_test.append(values_test_6)
+
+    grouping_test_6 = [1, 2]
+    grouping_test.append(grouping_test_6)
+
+    result_test_6 = ["value1.1 value2.1",
+                     "value1.1 value2.2",
+                     "value1.1 value2.3",
+                     "value1.2 value2.1",
+                     "value1.2 value2.2",
+                     "value1.2 value2.3",
+                     "value1.3 value2.1",
+                     "value1.3 value2.2",
+                     "value1.3 value2.3"]
+    result_test.append(result_test_6)
+    
 
     for it_t in range(len(corners_test)):
         c = corners_test[it_t]
