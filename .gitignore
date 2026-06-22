@@ -5,6 +5,7 @@
 /logs
 /tmp
 /src/__pycache__
+/src/seba.egg-info
 /debug
 
 __pycache__/

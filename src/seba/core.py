@@ -17,24 +17,13 @@ class Seba:
 
         await AsyncLogger.start("SEBA_$ts.log", to_console=True, directory="logs")
 
-        if(len(sys.argv) == 1):
-            SebaArguments.show_help()
-            await cls.__terminate__(1)
+        SebaArguments(sys.argv)
 
-        argument_parser = SebaArguments(sys.argv)
-        argument_parser.parse()
-
-        if argument_parser.isShowHelpOn:
-            argument_parser.show_help()
-
-        if argument_parser.isDebugOn:
-            argument_parser.print_config()
-
-        if argument_parser.isSetupOn or argument_parser.isSetupForceOn:
-            SebaSetupTool.setup_repository(argument_parser.repoPath, argument_parser.isSetupForceOn)
+        if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
+            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
 
         file_content = []
-        with open(f"{argument_parser.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}", "r") as f:
+        with open(f"{SebaArguments.repoPath}/seba/{SebaDirectoryTemplate.seba_config_file.name}", "r") as f:
             file_content = f.readlines()
 
         seba_parser_config = SebaParser(file_content)
@@ -42,7 +31,7 @@ class Seba:
 
         ### TODO: Write file reader from parsed config file
 
-        with open(f"{argument_parser.repoPath}/corners/{SebaDirectoryTemplate.corner_gen_file.name}", "r") as f:
+        with open(f"{SebaArguments.repoPath}/corners/{SebaDirectoryTemplate.corner_gen_file.name}", "r") as f:
             file_content = f.readlines()
 
         seba_parser_corners = SebaParser(file_content)

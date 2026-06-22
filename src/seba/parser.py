@@ -1,9 +1,12 @@
 from enum import Enum
 
+from seba.constants import *
 from seba.logger import *
+from seba.arguments import *
 from seba.config import *
 from seba.corners import *
 from seba.utils import CornerGenerator, Corner, Token, TokenCorner, Parser
+from seba.utils import WrongNumberConfigCommands, UnknownConfigCommand, MissingNameConfig
 from seba.utils import MissingCorner, DefinitionAfterCornerGen, WrongCornerDefinition
 from seba.utils import EmptyCornerArray, MissingCornerValue, UnknownCornerCommand
 from seba.utils import CornerDuplication
@@ -195,51 +198,58 @@ class SebaParser:
         for it_tl, tl in enumerate(tokens):
 
             if len(tl) == 1:
-                raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
 
             cmd = [x.value for x in tl]
 
             if cmd[0].upper() == "NAME":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.name = cmd[1]
 
             elif cmd[0].upper() == "CONTROL":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.control = cmd[1]
 
             elif cmd[0].upper() == "TESTBENCH":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.tb = cmd[1]
 
             elif cmd[0].upper() == "CORNERS":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.corners = cmd[1]
 
             elif cmd[0].upper() == "SCRIPT":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.script = cmd[1]
 
             elif cmd[0].upper() == "MEAS":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.meas = cmd[1]
 
             elif cmd[0].upper() == "PLOT":
                 if len(tl) != 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.plot = cmd[1]
 
             elif cmd[0].upper() == "EXTRACTION":
                 if len(tl) < 2:
-                    raise Exception(pm_wrong_num_cmd(tl[0], self.file_content))
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.extraction = cmd[1:]
 
             else:
-                raise Exception(pm_unknown_cmd(tl[0], self.file_content))
+                raise UnknownConfigCommand(pm_unknown_cmd(tl[0], self.file_content))
+
+        if seba_config.name == None:
+            raise MissingNameConfig(f"Cannot find \"NAME\" directive in configuration file.")
+
+        if SebaArguments.isDebugOn or DEBUG:
+            seba_config.print_config()
+
 
         return seba_config

@@ -410,6 +410,18 @@ class CornerGenerator:
 
         return result
 
+class WrongNumberConfigCommands(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class UnknownConfigCommand(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+class MissingNameConfig(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
 class WrongCornerDefinition(Exception):
     def __init__(self, *args):
         super().__init__(*args)
@@ -441,7 +453,7 @@ class UnknownCornerCommand(Exception):
 class Token:
     DEFAULT_ID = 1
 
-    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n"]
+    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n", ":"]
 
     TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
 
@@ -698,3 +710,5 @@ class MissingArgumentError(Exception):
 class SecondCharacterError(Exception):
     def __init__(self, *args):
         super().__init__(*args)
+
+        

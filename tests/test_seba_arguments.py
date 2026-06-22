@@ -42,7 +42,7 @@ def test_seba_argument_parse_pass() -> bool:
     try:
         for it_arg in range(len(mock_arguments_pass)):
             seba_arguments = SebaArguments(mock_arguments_pass[it_arg])
-            seba_arguments.parse()
+            seba_arguments.__parse__()
 
             assert seba_arguments.isDebugOn == mock_arguments_pass_checks[it_arg][0]
             assert seba_arguments.isShowHelpOn == mock_arguments_pass_checks[it_arg][1]
@@ -101,7 +101,7 @@ def test_seba_argument_parse_fail() -> bool:
     for it_arg in range(len(mock_arguments_fail)):
         try:
             seba_arguments = SebaArguments(mock_arguments_fail[it_arg])
-            seba_arguments.parse()
+            seba_arguments.__parse__()
             
             return False
         except Exception as ex:

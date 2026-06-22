@@ -6,16 +6,25 @@ from seba.utils import TextFormat
 
 class SebaArguments:
 
+    isDebugOn=False
+    isShowHelpOn = False
+    isSetupOn = False
+    isSetupForceOn = False
+    repoPath = ""
+    args = None
+
     def __init__(self, args: list[str]):
-        self.args = args
+        type(self).args = args
+        type(self).__parse__()
 
-        self.isDebugOn=False
-        self.isShowHelpOn = False
-        self.isSetupOn = False
-        self.isSetupForceOn = False
-        self.repoPath = ""
+        if type(self).isDebugOn:
+            type(self).print_config()
 
-    def parse(self):
+        if type(self).isShowHelpOn or len(type(self).args) == 1:
+            type(self).show_help()
+
+    @classmethod
+    def __parse__(cls):
 
         AsyncLogger.info(f"Parsing input arguments")
 
@@ -23,47 +32,48 @@ class SebaArguments:
 
         while True:
             
-            if it == len(self.args):
+            if it == len(cls.args):
                 break
 
             if it == 0:
                 it = it + 1
                 continue
             
-            if self.args[it] == SebaInputArguments.s_help or self.args[it] == SebaInputArguments.l_help:
-                self.isShowHelpOn = True
+            if cls.args[it] == SebaInputArguments.s_help or cls.args[it] == SebaInputArguments.l_help:
+                cls.isShowHelpOn = True
                 it = it + 1
                 break
 
-            if self.args[it] == SebaInputArguments.s_setup or self.args[it] == SebaInputArguments.l_setup:
-                self.isSetupOn = True
-                if len(self.args)-1 == it:
-                    raise MissingArgumentError(f"Missing argument for {self.args[it]}")
-                self.repoPath = self.args[it+1]
+            if cls.args[it] == SebaInputArguments.s_setup or cls.args[it] == SebaInputArguments.l_setup:
+                cls.isSetupOn = True
+                if len(cls.args)-1 == it:
+                    raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
+                cls.repoPath = cls.args[it+1]
                 it = it + 2
                 continue
 
-            if self.args[it] == SebaInputArguments.l_setup_force:
-                self.isSetupForceOn = True
-                if len(self.args)-1 == it:
-                    raise MissingArgumentError(f"Missing argument for {self.args[it]}")
-                self.repoPath = self.args[it+1]
+            if cls.args[it] == SebaInputArguments.l_setup_force:
+                cls.isSetupForceOn = True
+                if len(cls.args)-1 == it:
+                    raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
+                cls.repoPath = cls.args[it+1]
                 it = it + 2
                 continue
 
-            if self.args[it] == SebaInputArguments.s_debug or self.args[it] == SebaInputArguments.l_debug:
-                self.isDebugOn = True
+            if cls.args[it] == SebaInputArguments.s_debug or cls.args[it] == SebaInputArguments.l_debug:
+                cls.isDebugOn = True
                 it = it + 1
                 continue
 
-            raise UnknownArgumentError(f"Unknown argument: {self.args[it]}")
+            raise UnknownArgumentError(f"Unknown argument: {cls.args[it]}")
     
-    def print_config(self):
+    @classmethod
+    def print_config(cls):
         AsyncLogger.debug(f"SEBA configuration:")
-        AsyncLogger.debug(f"\tIS_SHOW_HELP_ON = {self.isShowHelpOn}")
-        AsyncLogger.debug(f"\tIS_SETUP_ON = {self.isSetupOn}")
-        AsyncLogger.debug(f"\tREPO_PATH = {self.repoPath}")
-        AsyncLogger.debug(f"\tIS_DEBUG_ON = {self.isDebugOn}")
+        AsyncLogger.debug(f"IS_SHOW_HELP_ON = {cls.isShowHelpOn}")
+        AsyncLogger.debug(f"IS_SETUP_ON = {cls.isSetupOn}")
+        AsyncLogger.debug(f"REPO_PATH = {cls.repoPath}")
+        AsyncLogger.debug(f"IS_DEBUG_ON = {cls.isDebugOn}")
 
     @classmethod
     def show_help(cls):
@@ -71,10 +81,10 @@ class SebaArguments:
         AsyncLogger.info(f"Help message for {TextFormat.bold("S")}imulation {TextFormat.bold("E")}nvironmet {TextFormat.bold("B")}uilding {TextFormat.bold("A")}ssitance script")
         AsyncLogger.info(f"")
         AsyncLogger.info(f"Input arguments:")
-        AsyncLogger.info(f"\t{SebaInputArguments.m_help}")
-        AsyncLogger.info(f"\t{SebaInputArguments.m_setup}")
-        AsyncLogger.info(f"\t{SebaInputArguments.m_setup_force}")
-        AsyncLogger.info(f"\t{SebaInputArguments.m_debug}")
+        AsyncLogger.info(f"{SebaInputArguments.m_help}")
+        AsyncLogger.info(f"{SebaInputArguments.m_setup}")
+        AsyncLogger.info(f"{SebaInputArguments.m_setup_force}")
+        AsyncLogger.info(f"{SebaInputArguments.m_debug}")
         cls.__print_dir_template__()
 
     @classmethod
