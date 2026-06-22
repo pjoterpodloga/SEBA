@@ -58,3 +58,10 @@ class SebaInputArguments:
     s_debug = f"-d"
     l_debug = f"--debug"
     m_debug = f"{s_setup}, {l_debug} \t\t\t Showing debug info"
+
+    s_build = f"-b"
+    l_build = f"--build"
+    m_build = f"{s_build}, {l_build} \t\t\t Build simulation directory from files provided in configuration file"
+
+    l_build_force = f"--build_force"
+    m_build_force = f"  , {l_build_force} \t\t\t Forcing build simulation directory"

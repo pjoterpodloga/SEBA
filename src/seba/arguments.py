@@ -10,6 +10,8 @@ class SebaArguments:
     isShowHelpOn = False
     isSetupOn = False
     isSetupForceOn = False
+    isBuildOn = False
+    isBuildForceOn = False
     sebaFile = None
     repoPath = None
     args = None
@@ -24,6 +26,8 @@ class SebaArguments:
         if type(self).isShowHelpOn or len(type(self).args) == 1:
             type(self).show_help()
 
+
+    ### TODO: Add -b, --build, and --build_force
     @classmethod
     def __parse__(cls):
 
@@ -66,6 +70,16 @@ class SebaArguments:
                 it = it + 1
                 continue
 
+            if cls.args[it] == SebaInputArguments.s_build or cls.args[it] == SebaInputArguments.l_build:
+                cls.isBuildOn = True
+                it = it + 1
+                continue
+
+            if cls.args[it] == SebaInputArguments.l_build_force:
+                cls.isBuildForceOn = True
+                it = it + 1
+                continue
+
             if it == 1:
                 cls.sebaFile = cls.args[it]
                 it = it + 1
@@ -84,6 +98,9 @@ class SebaArguments:
         AsyncLogger.debug(f"SEBA configuration:")
         AsyncLogger.debug(f"IS_SHOW_HELP_ON = {cls.isShowHelpOn}")
         AsyncLogger.debug(f"IS_SETUP_ON = {cls.isSetupOn}")
+        AsyncLogger.debug(f"IS_SETUP_FORCE_ON = {cls.isSetupForceOn}")
+        AsyncLogger.debug(f"IS_BUILD_ON = {cls.isBuildOn}")
+        AsyncLogger.debug(f"IS_BUILD_FORCE_ON = {cls.isBuildForceOn}")
         AsyncLogger.debug(f"SEBA_FILE = {cls.sebaFile}")
         AsyncLogger.debug(f"REPO_PATH = {cls.repoPath}")
         AsyncLogger.debug(f"IS_DEBUG_ON = {cls.isDebugOn}")
@@ -98,6 +115,8 @@ class SebaArguments:
         AsyncLogger.info(f"{SebaInputArguments.m_setup}")
         AsyncLogger.info(f"{SebaInputArguments.m_setup_force}")
         AsyncLogger.info(f"{SebaInputArguments.m_debug}")
+        AsyncLogger.info(f"{SebaInputArguments.m_build}")
+        AsyncLogger.info(f"{SebaInputArguments.m_build_force}")
         cls.__print_dir_template__()
 
     @classmethod
