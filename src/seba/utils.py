@@ -459,7 +459,7 @@ class UnknownCornerCommand(Exception):
 class Token:
     DEFAULT_ID = 1
 
-    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n", ":"]
+    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n", ":", ".", "*"]
 
     TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
 
@@ -520,6 +520,15 @@ class Parser:
                 col = 1
 
         return token
+
+    @classmethod
+    def alter_tokens(cls, tokens: list[Token], source: list[int], target: int):
+
+        for it_t, t in enumerate(tokens):
+            if t.type in source:
+                tokens[it_t].type = target
+        
+        return tokens
 
     @classmethod
     def change_tokens(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:

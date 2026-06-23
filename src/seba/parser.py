@@ -5,6 +5,7 @@ from seba.logger import *
 from seba.arguments import *
 from seba.config import *
 from seba.corners import *
+from seba.spice import SebaSpice
 from seba.utils import CornerGenerator, Corner, Token, TokenCorner, Parser
 from seba.utils import WrongNumberConfigCommands, UnknownConfigCommand, MissingNameConfig
 from seba.utils import MissingCorner, DefinitionAfterCornerGen, WrongCornerDefinition
@@ -26,6 +27,7 @@ class SebaParser:
         tokens = Parser.define_tokens(file_content_copy_merged)
         tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["#"]])
+        tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
         tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"]])
         tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
@@ -74,6 +76,22 @@ class SebaParser:
 
         return tokens_list
 
+    def __prepare_testbench__(self) -> list[Token]:
+
+        file_content_copy_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_copy_merged)
+        tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["*"]], [Token.TOKEN_DICT["\n"]])
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["*"]])
+        tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
+        # tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
+        # tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\\"]])
+        tokens = Parser.split_tokens(tokens, [Token.TOKEN_DICT["\n"]])
+
+        return tokens
+
+    def parse_testbench(self) -> list[SebaSpice]:
+        tokens = self.__prepare_testbench__()
     
     def parse_corner_gen(self) -> SebaCorner:
         

@@ -27,6 +27,7 @@ class Seba:
 
         debug_repo_path = None
 
+        file_content = []
         if DEBUG:
             SebaArguments.repoPath = "tmp/test_repo"
             debug_repo_path = SebaArguments.repoPath+"/"+SebaDirectoryTemplate.config_folder.name
@@ -34,9 +35,12 @@ class Seba:
             os.chdir(debug_repo_path)
             AsyncLogger.debug(f"Root direcotry changed to: \"{debug_repo_path}\"")
 
-        file_content = []
-        with open(f"config.debug.seba", "r") as f:
-            file_content = f.readlines()
+            with open(f"config.debug.seba", "r") as f:
+                file_content = f.readlines()
+        else:
+            with open(SebaArguments.sebaFile, "r") as f:
+                file_content = f.readlines()
+            
 
         seba_parser_config = SebaParser(file_content)
         seba_config = seba_parser_config.parse_seba_config()
@@ -44,6 +48,11 @@ class Seba:
 
         seba_parser_corners = SebaParser(seba_reader.corners_file)
         seba_corners = seba_parser_corners.parse_corner_gen()
+
+        seba_parser_testbench = SebaParser(seba_reader.testbench_file)
+        seba_testbench = seba_parser_testbench.parse_testbench()
+
+
         sc  = seba_corners.generate_spice_corners()
         cl  = seba_corners.generate_corner_list()
 

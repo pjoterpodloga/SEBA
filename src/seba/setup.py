@@ -5,6 +5,7 @@ import shutil
 from seba.constants import *
 from seba.logger import *
 from seba.directory import *
+from seba.reader import *
 
 class SebaSetupTool:
     pathExists = None
@@ -74,8 +75,17 @@ class SebaSetupTool:
         ### TODO: Resolve searching directories from default dir
         ### TODO: Add creating mock files for debug purpose
         if DEBUG:
+            config_file = repo_path+"/config/"+"config.debug.seba"
+            control_file = repo_path+"/control/"+"control.debug.spice"
+            testbench_file = repo_path+"/testbench/"+"debug_tb.debug.spice"
+            corners_file = repo_path+"/corners/"+"corner.debug.gen"
+            scripts_file = repo_path+"/scripts/"+"script.debug.py"
+            plot_file = repo_path+"/result_gen/"+"plot.debug.plt"
+            meas_file = repo_path+"/result_gen/"+"measure.debug.meas"
+            extraction_file = repo_path+"/pex/"+"debug.debug.pex.spice"
+
             AsyncLogger.debug("Creating mock files.")
-            with open(repo_path+"/config/"+"config.debug.seba", "w") as f:
+            with open(config_file, "w") as f:
                 f.write("# Mock SEBA config file\n")
                 f.write("NAME\t\tdebug_tb\n")
                 f.write("CONTROL\t\tcontrol.debug.spice\n")
@@ -85,7 +95,7 @@ class SebaSetupTool:
                 f.write("MEAS\t\tmeasure.debug.meas\n")
                 f.write("PLOT\t\tplot.debug.plt\n")
 
-            with open(repo_path+"/control/"+"control.debug.spice", "w") as f:
+            with open(control_file, "w") as f:
                 f.write("* Title: Debug mock control file\n")
                 f.write(".control\n")
                 f.write("run\n")
@@ -94,7 +104,7 @@ class SebaSetupTool:
                 f.write("write debug_tb.raw all\n")
                 f.write(".endc\n")
             
-            with open(repo_path+"/testbench/"+"debug_tb.debug.spice", "w") as f:
+            with open(testbench_file, "w") as f:
                 f.write("* Title: Debug mock testbench file\n")
                 f.write("V1 net1 0 1\n")
                 f.write("R1 net1 0 'xres'\n")
@@ -103,26 +113,38 @@ class SebaSetupTool:
                 f.write(".dc v1 0 1 0.01\n")
                 f.write(".end\n")
 
-            with open(repo_path+"/corners/"+"corner.debug.gen", "w") as f:
+            with open(corners_file, "w") as f:
                 f.write("# Mock corner_gen file\n")
                 f.write("param xres1\n")
                 f.write("param xres2\n")
                 f.write("corner_gen [1, 2, 3, 4, 5] [1, 2, 3, 4, 5]\n")
 
             ### TODO: Add empty debug files
-            with open(repo_path+"/scripts/"+"script.debug.py", "w") as f:
+            with open(scripts_file, "w") as f:
                 f.write("# Mock python script file\n")
 
-            with open(repo_path+"/result_gen/"+"plot.debug.plt", "w") as f:
+            with open(plot_file, "w") as f:
                 f.write("# Mock plot file\n")
 
-            with open(repo_path+"/result_gen/"+"measure.debug.meas", "w") as f:
+            with open(meas_file, "w") as f:
                 f.write("# Mock measure file\n")
 
-            with open(repo_path+"/pex/"+"debug.debug.pex.spice", "w") as f:
+            with open(extraction_file, "w") as f:
                 f.write("* Title: Debug mock pex spice file\n")
 
-
-            
-
         ### TODO: Add git init basic routine for connecting remote repo
+
+    ### TODO: this shouldnt be sebareader, more like sebabuilder, class that holds all assembled files
+    @classmethod
+    def prepare_sim_dir(cls, reader: SebaReader, force=False):
+        
+        sim_dir = "../tmp/simulations/"+reader.config.name
+
+        sim_dir_exists = os.path.exists(sim_dir)
+
+        if sim_dir_exists and force == False:
+            raise Exception("Directory already exists, use \"--build_force\" to remove directory.")
+        
+        if sim_dir_exists or force == True:
+            shutil.rmtree(sim_dir)
+            AsyncLogger.warning("Existing simulation direcotry removed.")
