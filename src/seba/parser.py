@@ -82,6 +82,7 @@ class SebaParser:
         tokens = Parser.define_tokens(file_content_copy_merged)
         tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["*"]], [Token.TOKEN_DICT["\n"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["*"]])
+        tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
         tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
         # tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
