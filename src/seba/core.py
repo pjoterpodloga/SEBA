@@ -23,7 +23,8 @@ class Seba:
 
         if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
             SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
-            cls.__terminate__()
+            if not DEBUG:
+                await cls.__terminate__()
 
         debug_repo_path = None
 
@@ -52,6 +53,8 @@ class Seba:
         seba_parser_testbench = SebaParser(seba_reader.testbench_file)
         seba_testbench = seba_parser_testbench.parse_testbench()
 
+        for x in seba_testbench.get_spice_lines():
+            print(x)
 
         sc  = seba_corners.generate_spice_corners()
         cl  = seba_corners.generate_corner_list()

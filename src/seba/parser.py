@@ -5,7 +5,7 @@ from seba.logger import *
 from seba.arguments import *
 from seba.config import *
 from seba.corners import *
-from seba.spice import SebaSpice
+from seba.spice import *
 from seba.utils import CornerGenerator, Corner, Token, TokenCorner, Parser
 from seba.utils import WrongNumberConfigCommands, UnknownConfigCommand, MissingNameConfig
 from seba.utils import MissingCorner, DefinitionAfterCornerGen, WrongCornerDefinition
@@ -76,7 +76,7 @@ class SebaParser:
 
         return tokens_list
 
-    def __prepare_testbench__(self) -> list[Token]:
+    def __prepare_testbench__(self) -> list[list[Token]]:
 
         file_content_copy_merged = Parser.prepare_file(self.file_content)
         tokens = Parser.define_tokens(file_content_copy_merged)
@@ -91,8 +91,123 @@ class SebaParser:
 
         return tokens
 
-    def parse_testbench(self) -> list[SebaSpice]:
+    def parse_testbench(self) -> SebaSpice:
         tokens = self.__prepare_testbench__()
+
+        se_list = []
+        se = None
+
+        ### TODO: write proper exceptions for error
+
+        for it_tl, tl in enumerate(tokens):
+            if tl[0].value == ".lib":
+                if len(tl) != 3:
+                    raise Exception("Incomplete library definition")
+
+                se = LibraryDefinition(tl[1].value, tl[2].value)
+                se_list.append(se)
+                continue
+            
+            ### TODO: Add expresion handling, should be resolved at token parsing
+            if tl[0].value.upper() == ".PARAM":
+                if len(tl) != 4 or tl[2].value != "=":
+                    raise Exception("Incomplete parameter definition")
+                se = ParameterDefinition(tl[1].value, tl[3].value)
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper() == ".TEMP":
+                if len(tl) != 2:
+                    raise Exception("Incomplete temperatur definition")
+                se = TemperatureDefinition(tl[1].value)
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper().startswith("X"):
+                parameters = []
+                first_parameter = -1
+                for it_t, t in enumerate(tl):
+                    if t.type == Token.TOKEN_DICT["="]:
+                        if it_t == 0 or it_t == len(tl) - 1:
+                            raise Exception("Incomplete device parameters definition")
+                        if first_parameter == -1:
+                            first_parameter = it_t - 1
+                        parameters.append([tl[it_t-1].value, tl[it_t+1].value])
+
+                if first_parameter == -1:
+                    first_parameter = len(tl)
+
+                nets = []
+                for it_t, t in enumerate(tl[1:first_parameter]):
+                    nets.append(t.value)
+
+                se = DeviceDefinition(tl[0].value, nets, parameters)
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper().startswith("R") or \
+               tl[0].value.upper().startswith("L") or \
+               tl[0].value.upper().startswith("C"):
+                
+                nets = []
+                for it_t, t in enumerate(tl[1:len(tl)]):
+                    nets.append(t.value)
+
+                se = DeviceDefinition(tl[0].value, nets, [])
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper() == ".PROBE":
+                if len(tl) != 2:
+                    raise Exception("Incomplete .probe directive")
+                se = ProbeDefinition(tl[1].value)
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper() == ".SAVE":
+                if len(tl) != 2:
+                    raise Exception("Incomplete .save directive")
+                se = SaveDefinition(tl[1].value)
+                se_list.append(se)
+                continue
+
+            ### TODO: add sweep type definition handling
+            if tl[0].value.upper() == ".DC":
+                se = DcAnalysisDefinition(tl[1].value, tl[2].value, tl[3].value, tl[4].value)
+                se_list.append(se)
+
+            if tl[0].value.upper() == ".SUBCKT":
+                nets = []
+                for it_t, t in enumerate(tl[2:]):
+                    nets.append(t.value)
+                se = SubcircuitDefinition(tl[1].value, nets)
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper() == ".GLOBAL":
+                if len(tl) != 2:
+                    raise Exception("Incomplete .global directive definition")
+                se = GlobalNetDefinition(tl[1])
+                se_list.append(se)
+                continue
+
+            if tl[0].value.upper() == ".ENDC":
+                if len(tl) != 1:
+                    raise Exception("Wrong definition of .endc directive")
+                se_list.append(EndSubcircuitDefinition())
+                continue
+
+            if tl[0].value.upper() == ".END":
+                if len(tl) != 1:
+                    raise Exception("Wrong definition of .end directive")
+                se_list.append(EndDefinition())
+                continue
+
+        seba_spice = SebaSpice(se_list)
+
+        return seba_spice
+            
+
     
     def parse_corner_gen(self) -> SebaCorner:
         

@@ -106,10 +106,14 @@ class SebaSetupTool:
             
             with open(testbench_file, "w") as f:
                 f.write("* Title: Debug mock testbench file\n")
+                f.write(".subckt sres net1 net2\n")
+                f.write("Rsubckt net1 net2 1\n")
+                f.write(".endc\n")
                 f.write("V1 net1 0 1\n")
                 f.write("R1 net1 0 'xres'\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
+                f.write(".temp 25\n")
                 f.write(".dc v1 0 1 0.01\n")
                 f.write(".end\n")
 
