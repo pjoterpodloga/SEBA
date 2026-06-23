@@ -53,22 +53,6 @@ class Seba:
         seba_parser_testbench = SebaParser(seba_reader.testbench_file)
         seba_testbench = seba_parser_testbench.parse_testbench()
 
-        for x in seba_testbench.get_spice_lines():
-            print(x)
-
-        sc  = seba_corners.generate_spice_corners()
-        cl  = seba_corners.generate_corner_list()
-
-        try:
-            for x in sc:
-                pass
-                #print(x)
-            for x in cl:
-                pass
-                #print(x)
-        except Exception as ex:
-            AsyncLogger.error(ex)
-
         await cls.__terminate__()
 
 
