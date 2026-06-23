@@ -97,7 +97,7 @@ class SebaParser:
         se_list = []
         se = None
 
-        ### TODO: write proper exceptions for error
+        ### TODO: write proper exceptions for error handling
 
         for it_tl, tl in enumerate(tokens):
             if tl[0].value == ".lib":
@@ -156,7 +156,8 @@ class SebaParser:
                 se = DeviceDefinition(tl[0].value, nets, [])
                 se_list.append(se)
                 continue
-
+            
+            ### TODO: add more probes handling
             if tl[0].value.upper() == ".PROBE":
                 if len(tl) != 2:
                     raise Exception("Incomplete .probe directive")
@@ -164,6 +165,7 @@ class SebaParser:
                 se_list.append(se)
                 continue
 
+            ### TODO: add more save options handling
             if tl[0].value.upper() == ".SAVE":
                 if len(tl) != 2:
                     raise Exception("Incomplete .save directive")
@@ -190,6 +192,10 @@ class SebaParser:
                 se = GlobalNetDefinition(tl[1])
                 se_list.append(se)
                 continue
+            
+            ### TODO: add .options directive handling
+            if tl[0].value.upper() == ".OPTIONS":
+                pass
 
             if tl[0].value.upper() == ".ENDC":
                 if len(tl) != 1:
