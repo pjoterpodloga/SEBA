@@ -103,7 +103,7 @@ class EndSubcircuitDefinition(SpiceDefinition):
         super().__init__()
     
     def spice_line(self) -> str:
-        return f".ENDC"
+        return f".ENDS"
 
 class EndDefinition(SpiceDefinition):
     def __init__(self):
@@ -115,6 +115,30 @@ class EndDefinition(SpiceDefinition):
 class SebaSpice:
     def __init__(self, se: list[SpiceDefinition]):
         self.se = se
+
+        self.param_index_dict = {}
+        self.lib_index_dict = {}
+        self.subckt_index_dict = {}
+        self.ends_index_dict = {}
+
+        subckt_name = None
+
+        for it_se, _se in enumerate(self.se):
+            if type(_se) == ParameterDefinition:
+                self.param_index_dict[_se.name] = it_se
+            if type(_se) == LibraryDefinition:
+                self.lib_index_dict[_se.name] = it_se
+            if type(_se) == SubcircuitDefinition:
+                if subckt_name != None:
+                    raise Exception("Found next subckt definition before .endc directive")
+                self.subckt_index_dict[_se.name] = it_se
+                subckt_name = _se.name
+            if type(_se) == EndSubcircuitDefinition:
+                if subckt_name == None:
+                    raise Exception("Found .endc directive without prio .subckt directive")
+                self.ends_index_dict[subckt_name] = it_se
+                subckt_name = None
+
 
     def get_spice_lines(self):
         lines = []

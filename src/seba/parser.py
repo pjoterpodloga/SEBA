@@ -197,7 +197,7 @@ class SebaParser:
             if tl[0].value.upper() == ".OPTIONS":
                 pass
 
-            if tl[0].value.upper() == ".ENDC":
+            if tl[0].value.upper() == ".ENDS":
                 if len(tl) != 1:
                     raise Exception("Wrong definition of .endc directive")
                 se_list.append(EndSubcircuitDefinition())

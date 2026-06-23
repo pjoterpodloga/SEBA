@@ -61,9 +61,11 @@ class Seba:
 
         try:
             for x in sc:
-                print(x)
+                pass
+                #print(x)
             for x in cl:
-                print(x)
+                pass
+                #print(x)
         except Exception as ex:
             AsyncLogger.error(ex)
 
