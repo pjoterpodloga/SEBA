@@ -1,9 +1,23 @@
 class SpiceDefinition:
     def __init__(self):
-        pass
+        self.name = None
+        self.value = None
 
     def spice_line(self) -> str:
         return f"* Default spice entity"
+    
+class GenericDefinition(SpiceDefinition):
+    def __init__(self, content: list[str]):
+        super().__init__()
+        self.content = content
+
+    def spice_line(self):
+        line = ""
+
+        for c in self.content:
+            line = line + c + " "
+
+        return line
 
 class LibraryDefinition(SpiceDefinition):
     def __init__(self, name: str, value: str):
@@ -98,6 +112,13 @@ class GlobalNetDefinition(SpiceDefinition):
     def spice_line(self) -> str:
         return f".GLOBAL {self.name}"
 
+class ControlDefinition(SpiceDefinition):
+    def __init__(self):
+        super().__init__()
+
+    def spice_line(self):
+        return ".CONTROL"
+
 class EndSubcircuitDefinition(SpiceDefinition):
     def __init__(self):
         super().__init__()
@@ -105,6 +126,13 @@ class EndSubcircuitDefinition(SpiceDefinition):
     def spice_line(self) -> str:
         return f".ENDS"
 
+class EndControlDefinition(SpiceDefinition):
+    def __init__(self):
+        super().__init__()
+
+    def spice_line(self):
+        return ".ENDC"
+    
 class EndDefinition(SpiceDefinition):
     def __init__(self):
         super().__init__()
@@ -112,9 +140,16 @@ class EndDefinition(SpiceDefinition):
     def spice_line(self) -> str:
         return f".END"
 
-class SebaSpice:
+class GenericSpice:
     def __init__(self, se: list[SpiceDefinition]):
         self.se = se
+
+    def get_spice_lines(self):
+        return ["* Generic spice block"]
+
+class SebaTestbench(GenericSpice):
+    def __init__(self, se: list[SpiceDefinition]):
+        super().__init__(se)
 
         self.param_index_dict = {}
         self.lib_index_dict = {}
@@ -147,3 +182,46 @@ class SebaSpice:
             lines.append(se.spice_line())
 
         return lines
+
+class ControlWriteDefinition(SpiceDefinition):
+    def __init__(self, name: str, probes: list[str]):
+        super().__init__()
+        self.name = name
+        self.probes = probes
+    
+    def spice_line(self):
+        line = f"WRITE {self.name}"
+
+        for p in self.probes:
+            line = f"{line} {p}"
+
+        return line
+    
+class ControlSetDefinition(SpiceDefinition):
+    def __init__(self, name: str, value: str):
+        super().__init__()
+        self.name = name
+        self.value = value
+
+    def spice_line(self):
+        return f"SET {self.name}={self.value}"
+
+class SebaControl(GenericSpice):
+    def __init__(self, se: list[SpiceDefinition]):
+        super().__init__(se)
+
+        self.write_index_dict = {}
+
+        for it_se, _se in enumerate(self.se):
+
+            if type(_se) == ControlWriteDefinition:
+                self.write_index_dict[_se.name] = it_se
+    
+    def get_spice_lines(self):        
+        lines = []
+
+        for se in self.se:
+            lines.append(se.spice_line())
+
+        return lines
+    

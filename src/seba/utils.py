@@ -1,4 +1,5 @@
 from seba.constants import AnsiCode as ac
+from seba.spice import *
 
 ### TODO: Add all posible text formating
 class TextFormat:
@@ -399,12 +400,35 @@ class CornerGenerator:
                 result.append(f".{t} {n}={v}")
 
         return result
+    
+    def spice_definition(self, n_corner: int) -> list[SpiceDefinition]:
+        result = []
+
+        for it_c, c in enumerate(self.__resolved_corners__[n_corner]):
+            t = c.type
+            n = c.name
+            v = c.value
+
+            if t == "lib":
+                result.append(LibraryDefinition(n, v))
+            elif t == "param":
+                result.append(ParameterDefinition(n, v))
+            
+        return result
         
     def spice_list(self) -> list[str]:
         result = []
 
         for it_tnoc in range(self.tnoc):
             result.append(self.spice_block(it_tnoc))
+
+        return result
+    
+    def spice_definition_list(self) -> list[SpiceDefinition]:
+        result = []
+
+        for it_tnoc in range(self.tnoc):
+            result.append(self.spice_definition(it_tnoc))
 
         return result
         

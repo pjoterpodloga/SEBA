@@ -110,8 +110,9 @@ class SebaSetupTool:
                 f.write("Rsubckt net1 net2 1\n")
                 f.write(".ends\n")
                 f.write("V1 net1 0 1\n")
-                f.write("XR2 net1 net2 sres\n")
-                f.write("R1 net2 0 'xres'\n")
+                f.write("XR1 net1 net2 sres\n")
+                f.write("R2 net2 0 'xres1'\n")
+                f.write("R3 net2 0 'xres2'\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
                 f.write(".temp 25\n")
@@ -153,3 +154,6 @@ class SebaSetupTool:
         if sim_dir_exists or force == True:
             shutil.rmtree(sim_dir)
             AsyncLogger.warning("Existing simulation direcotry removed.")
+
+        subprocess.run(["mkdir", "-p", sim_dir])
+        AsyncLogger.info(f"Created new simulation directory: {reader.config.name}")

@@ -91,15 +91,56 @@ class SebaParser:
 
         return tokens
 
-    def parse_testbench(self) -> SebaSpice:
+    def __prepare_control__(self) -> list[list[Token]]:
+        file_content_copy_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_copy_merged)
+        tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["*"]], [Token.TOKEN_DICT["\n"]])
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["*"]])
+        tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
+        tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
+        tokens = Parser.split_tokens(tokens, [Token.TOKEN_DICT["\n"]])
+        return tokens
+
+    def parse_control(self) -> SebaControl:
+        tokens = self.__prepare_control__()
+
+        se_list = []
+
+        ### TODO: extend parser for other control options
+
+        for it_t, tl in enumerate(tokens):
+            se = None
+
+            if tl[0].value.upper() == "WRITE":
+                se = ControlWriteDefinition(tl[1].value, [x.value for x in tl[2:]])
+                se_list.append(se)
+                continue
+            
+            if tl[0].value.upper() == "SET":
+                if tl[2].value != "=":
+                    raise Exception("Wrong definition of SET directive in .control block")
+                se = ControlSetDefinition(tl[1].value, tl[3].value)
+                se_list.append(se)
+                continue
+
+            se = GenericDefinition([x.value for x in tl])
+            se_list.append(se)
+
+        seba_control = SebaControl(se_list)
+
+        return seba_control
+
+    def parse_testbench(self) -> SebaTestbench:
         tokens = self.__prepare_testbench__()
 
         se_list = []
-        se = None
 
         ### TODO: write proper exceptions for error handling
 
         for it_tl, tl in enumerate(tokens):
+            se = None
+
             if tl[0].value == ".lib":
                 if len(tl) != 3:
                     raise Exception("Incomplete library definition")
@@ -209,7 +250,7 @@ class SebaParser:
                 se_list.append(EndDefinition())
                 continue
 
-        seba_spice = SebaSpice(se_list)
+        seba_spice = SebaTestbench(se_list)
 
         return seba_spice
             

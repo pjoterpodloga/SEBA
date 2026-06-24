@@ -12,6 +12,7 @@ from seba.setup import SebaSetupTool
 from seba.parser import SebaParser
 from seba.reader import SebaReader
 from seba.corners import SebaCorner
+from seba.assembler import SebaAssembler
 
 class Seba:
     @classmethod
@@ -40,7 +41,7 @@ class Seba:
                 file_content = f.readlines()
         else:
             with open(SebaArguments.sebaFile, "r") as f:
-                file_content = f.readlines()
+                file_content = f.readline()
             
 
         seba_parser_config = SebaParser(file_content)
@@ -52,6 +53,11 @@ class Seba:
 
         seba_parser_testbench = SebaParser(seba_reader.testbench_file)
         seba_testbench = seba_parser_testbench.parse_testbench()
+
+        seba_parser_control = SebaParser(seba_reader.control_file)
+        seba_control = seba_parser_control.parse_control()
+
+        seba_assembler = SebaAssembler(seba_config, seba_corners, seba_testbench, seba_control)
 
         await cls.__terminate__()
 
