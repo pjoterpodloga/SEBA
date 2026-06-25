@@ -142,9 +142,9 @@ class SebaSetupTool:
 
     ### TODO: this shouldnt be sebareader, more like sebabuilder, class that holds all assembled files
     @classmethod
-    def prepare_sim_dir(cls, reader: SebaReader, force=False):
+    def prepare_sim_dir(cls, config: SebaConfig, force=False):
         
-        sim_dir = "../tmp/simulations/"+reader.config.name
+        sim_dir = "../tmp/simulations/"+config.name
 
         sim_dir_exists = os.path.exists(sim_dir)
 
@@ -156,4 +156,4 @@ class SebaSetupTool:
             AsyncLogger.warning("Existing simulation direcotry removed.")
 
         subprocess.run(["mkdir", "-p", sim_dir])
-        AsyncLogger.info(f"Created new simulation directory: {reader.config.name}")
+        AsyncLogger.info(f"Created new simulation directory: {config.name}")
