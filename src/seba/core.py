@@ -42,10 +42,13 @@ class Seba:
         else:
             with open(SebaArguments.sebaFile, "r") as f:
                 file_content = f.readline()
-            
 
         seba_parser_config = SebaParser(file_content)
         seba_config = seba_parser_config.parse_seba_config()
+
+        if SebaArguments.isBuildOn or SebaArguments.isBuildForceOn:
+            SebaSetupTool.prepare_sim_dir(seba_config, SebaArguments.isBuildForceOn)
+
         seba_reader = SebaReader(seba_config)
 
         seba_parser_corners = SebaParser(seba_reader.corners_file)
