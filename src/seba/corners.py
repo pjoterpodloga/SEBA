@@ -31,10 +31,13 @@ class SebaCorner:
 
         corners_generators = self.__get_corners_generators__()
 
-        result = result + corners_generators[0].corner_list_header()
-
         for it_cg, cg in enumerate(corners_generators):
             result = result + cg.corner_list()
+
+        for it_r in range(len(result)):
+            result[it_r] = f"{it_r}: {result[it_r]}"
+
+        result = corners_generators[0].corner_list_header() + result
         
         return result
     
