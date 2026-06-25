@@ -23,7 +23,7 @@ class SebaAssembler:
 
         testbench_list = self.__adjust_corner_spice_definitions__(testbench_list)
         control_list = self.__adjust_corner_write_directive__(control_list)
-        result_spice_files = self.__create_final_spice_files__(testbench_list, control_list)
+        result_spice_files = self.__create_spice_files__(testbench_list, control_list)
 
         self.__write_spice_files__(sim_dir, result_spice_files)
         self.__write_corner_list__(sim_dir, corner_list)
@@ -53,7 +53,7 @@ class SebaAssembler:
 
         return control_list
     
-    def __create_final_spice_files__(self, testbench_list: list[SebaTestbench], control_list: list[SebaControl]) -> list[list[str]]:
+    def __create_spice_files__(self, testbench_list: list[SebaTestbench], control_list: list[SebaControl]) -> list[list[str]]:
         
         result_spice_files = []
 

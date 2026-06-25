@@ -65,3 +65,7 @@ class SebaInputArguments:
 
     l_build_force = f"--build_force"
     m_build_force = f"  , {l_build_force}\t\tForcing build simulation directory"
+
+    s_sim = f"-s"
+    l_sim = f"--simulate"
+    m_sim = f"{s_sim}, {l_sim}\t\tPerfor simulations on builded simulation directory"
