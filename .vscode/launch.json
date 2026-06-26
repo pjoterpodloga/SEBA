@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": "config.template.seba --setup_force tmp/test_repo --debug --build --simulate"
+            "args": "tmp/test_repo/config/config.debug.seba --setup_force tmp/test_repo --debug --debug_files --build --simulate"
         }
     ]
 }

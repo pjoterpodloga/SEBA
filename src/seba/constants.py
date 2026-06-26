@@ -69,3 +69,6 @@ class SebaInputArguments:
     s_sim = f"-s"
     l_sim = f"--simulate"
     m_sim = f"{s_sim}, {l_sim}\t\tPerfor simulations on builded simulation directory"
+
+    l_debug_files = f"--debug_files"
+    m_debug_files = f" , {l_debug_files}\t\tCreate debug files for testing purposes"

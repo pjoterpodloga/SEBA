@@ -23,6 +23,9 @@ class Seba:
 
         SebaArguments(sys.argv)
 
+        if SebaArguments.isShowHelpOn:
+            await cls.__terminate__()
+
         if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
             SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
             if not DEBUG:
@@ -31,21 +34,29 @@ class Seba:
         debug_repo_path = None
 
         file_content = []
-        if DEBUG:
+        if False:#DEBUG:
             SebaArguments.repoPath = "tmp/test_repo"
             debug_repo_path = SebaArguments.repoPath+"/"+SebaDirectoryTemplate.config_folder.name
-            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn)
             os.chdir(debug_repo_path)
             AsyncLogger.debug(f"Root direcotry changed to: \"{debug_repo_path}\"")
 
             with open(f"config.debug.seba", "r") as f:
                 file_content = f.readlines()
-        else:
-            with open(SebaArguments.sebaFile, "r") as f:
-                file_content = f.readline()
+
+        if SebaArguments.isCreateDebugFilesOn:
+            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn, SebaArguments.isCreateDebugFilesOn)
+
+        with open(SebaArguments.sebaFile, "r") as f:
+            file_content = f.readlines()
 
         seba_parser_config = SebaParser(file_content)
         seba_config = seba_parser_config.parse_seba_config()
+
+        config_dir = SebaArguments.sebaFile.split("/")
+        config_dir.pop()
+        config_dir = "/".join(config_dir)
+
+        os.chdir(config_dir)
 
         if SebaArguments.isBuildOn or SebaArguments.isBuildForceOn:
             SebaSetupTool.prepare_sim_dir(seba_config, SebaArguments.isBuildForceOn)

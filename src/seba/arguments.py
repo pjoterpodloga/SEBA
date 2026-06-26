@@ -13,9 +13,10 @@ class SebaArguments:
     isBuildOn = False
     isBuildForceOn = False
     isSimulateOn = False
-    sebaFile = None
-    repoPath = None
-    args = None
+    isCreateDebugFilesOn = False
+    sebaFile: str = None
+    repoPath: str = None
+    args: list[str] = None
 
     def __init__(self, args: list[str]):
         type(self).args = args
@@ -86,6 +87,11 @@ class SebaArguments:
                 it = it + 1
                 continue
 
+            if cls.args[it] == SebaInputArguments.l_debug_files:
+                cls.isCreateDebugFilesOn = True
+                it = it + 1
+                continue
+
             if it == 1:
                 cls.sebaFile = cls.args[it]
                 it = it + 1
@@ -95,9 +101,6 @@ class SebaArguments:
         
         if cls.isSetupOn or cls.isSetupForceOn:
             AsyncLogger.warning("Due to setup or force setup flag set, reseting rest of flags.")
-            
-            if not DEBUG:
-                cls.sebaFile = None
     
     @classmethod
     def print_config(cls):
@@ -108,6 +111,7 @@ class SebaArguments:
         AsyncLogger.debug(f"IS_BUILD_ON = {cls.isBuildOn}")
         AsyncLogger.debug(f"IS_BUILD_FORCE_ON = {cls.isBuildForceOn}")
         AsyncLogger.debug(f"IS_SIMULATE_ON = {cls.isSimulateOn}")
+        AsyncLogger.debug(f"IS_CREATE_DEBUG_FILES_ON = {cls.isCreateDebugFilesOn}")
         AsyncLogger.debug(f"SEBA_FILE = {cls.sebaFile}")
         AsyncLogger.debug(f"REPO_PATH = {cls.repoPath}")
         AsyncLogger.debug(f"IS_DEBUG_ON = {cls.isDebugOn}")
