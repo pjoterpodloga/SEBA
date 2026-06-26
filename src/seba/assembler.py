@@ -74,6 +74,7 @@ class SebaAssembler:
 
             with open(f"{self.config.sim_dir}/{sfn}", 'w') as f:
                 f.write(f"* Title: {self.config.name}")
+                f.write("\n")
                 for fc in sf:
                     f.write(fc)
                     f.write("\n")
