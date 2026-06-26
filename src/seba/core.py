@@ -43,8 +43,7 @@ class Seba:
             with open(f"config.debug.seba", "r") as f:
                 file_content = f.readlines()
 
-        if SebaArguments.isCreateDebugFilesOn:
-            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn, SebaArguments.isCreateDebugFilesOn)
+        SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn, SebaArguments.isCreateDebugFilesOn)
 
         with open(SebaArguments.sebaFile, "r") as f:
             file_content = f.readlines()

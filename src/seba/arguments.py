@@ -130,6 +130,7 @@ class SebaArguments:
         AsyncLogger.info(f"{SebaInputArguments.m_build}")
         AsyncLogger.info(f"{SebaInputArguments.m_build_force}")
         AsyncLogger.info(f"{SebaInputArguments.m_sim}")
+        AsyncLogger.info(f"{SebaInputArguments.m_debug_files}")
 
     @classmethod
     def __print_dir_template__(cls):
