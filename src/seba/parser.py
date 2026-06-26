@@ -188,7 +188,8 @@ class SebaParser:
 
             if tl[0].value.upper().startswith("R") or \
                tl[0].value.upper().startswith("L") or \
-               tl[0].value.upper().startswith("C"):
+               tl[0].value.upper().startswith("C") or \
+               tl[0].value.upper().startswith("V"):
                 
                 nets = []
                 for it_t, t in enumerate(tl[1:len(tl)]):
