@@ -57,7 +57,7 @@ class SebaInputArguments:
     
     s_debug = f"-d"
     l_debug = f"--debug"
-    m_debug = f"{s_setup}, {l_debug}\t\t\tShowing debug info"
+    m_debug = f"{s_debug}, {l_debug}\t\t\tShowing debug info"
 
     s_build = f"-b"
     l_build = f"--build"

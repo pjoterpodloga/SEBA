@@ -115,6 +115,7 @@ class SebaArguments:
     @classmethod
     def show_help(cls):
         
+        cls.__print_dir_template__()
         AsyncLogger.info(f"Help message for {TextFormat.bold("S")}imulation {TextFormat.bold("E")}nvironmet {TextFormat.bold("B")}uilding {TextFormat.bold("A")}ssitance script")
         AsyncLogger.info(f"")
         AsyncLogger.info(f"Input arguments:")
@@ -125,7 +126,6 @@ class SebaArguments:
         AsyncLogger.info(f"{SebaInputArguments.m_build}")
         AsyncLogger.info(f"{SebaInputArguments.m_build_force}")
         AsyncLogger.info(f"{SebaInputArguments.m_sim}")
-        cls.__print_dir_template__()
 
     @classmethod
     def __print_dir_template__(cls):
