@@ -387,6 +387,7 @@ class SebaParser:
                 if len(tl) != 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.name = cmd[1]
+                seba_config.sim_dir = "../tmp/simulations/" + seba_config.name
 
             elif cmd[0].upper() == "CONTROL":
                 if len(tl) != 2:

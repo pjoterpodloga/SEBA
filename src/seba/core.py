@@ -13,6 +13,7 @@ from seba.parser import SebaParser
 from seba.reader import SebaReader
 from seba.corners import SebaCorner
 from seba.assembler import SebaAssembler
+from seba.simulate import SebaSimulate
 
 class Seba:
     @classmethod
@@ -63,7 +64,7 @@ class Seba:
             seba_assembler = SebaAssembler(seba_config, seba_corners, seba_testbench, seba_control)
 
         if SebaArguments.isSimulateOn:
-            pass
+            seba_simulate = SebaSimulate(seba_config)
 
         await cls.__terminate__()
 
