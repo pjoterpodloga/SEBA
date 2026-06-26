@@ -115,6 +115,7 @@ class SebaSetupTool:
                 f.write("R3 net2 0 'xres2'\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
+                f.write(".probe all\n")
                 f.write(".temp 25\n")
                 f.write(".dc v1 0 1 0.01\n")
                 f.write(".end\n")
