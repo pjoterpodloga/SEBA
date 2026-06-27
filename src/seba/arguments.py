@@ -1,8 +1,21 @@
+from pathlib import Path
+
 from seba.constants import DEBUG, SebaInputArguments
 from seba.logger import AsyncLogger
 from seba.directory import SebaDirectoryTemplate
 from seba.utils import UnknownArgumentError, MissingArgumentError
 from seba.utils import TextFormat
+
+def find_project_root(marker="main.py"):
+    p = Path.cwd().resolve()
+
+    for parent in [p] + list(p.parents):
+        if (parent / marker).exists():
+            return parent
+
+    raise RuntimeError("Project root not found")
+
+MAIN_DIR = str(find_project_root())
 
 class SebaArguments:
 
@@ -43,10 +56,7 @@ class SebaArguments:
                 break
 
             if it == 0:
-                executePath = cls.args[it]
-                executePath = executePath.split("/")
-                executePath.pop()
-                cls.executePath = "/".join(executePath)
+                cls.executePath = MAIN_DIR
                 it = it + 1
                 continue
             
