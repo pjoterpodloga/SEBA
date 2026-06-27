@@ -138,6 +138,7 @@ class SebaArguments:
         AsyncLogger.debug(f"IS_CREATE_DEBUG_FILES_ON = {cls.isCreateDebugFilesOn}")
         AsyncLogger.debug(f"SEBA_FILE = {cls.sebaFile}")
         AsyncLogger.debug(f"REPO_PATH = {cls.repoPath}")
+        AsyncLogger.debug(f"EXECUTE_PATH = {cls.executePath}")
         AsyncLogger.debug(f"IS_DEBUG_ON = {cls.isDebugOn}")
 
     @classmethod
