@@ -3,7 +3,8 @@ from seba.logger import *
 class SebaConfig:
 
     def __init__(self, name=None, control=None, tb=None, corners=None, 
-                 script=None, plot=None, meas=None, extraction=None, sim_dir=None):
+                 script=None, plot=None, meas=None, extraction=None, 
+                 sim_dir=None, config_dir=None):
         self.name = name
         self.control = control
         self.testbench = tb
@@ -13,6 +14,7 @@ class SebaConfig:
         self.meas = meas
         self.extraction = extraction
         self.sim_dir = sim_dir
+        self.config_dir = config_dir
 
     def print_config(self):
         AsyncLogger.debug(f"Parsed seba configuration:")
