@@ -26,10 +26,14 @@ class Seba:
         if SebaArguments.isShowHelpOn:
             await cls.__terminate__()
 
-        if SebaArguments.isSetupOn or SebaArguments.isSetupForceOn:
-            SebaSetupTool.setup_repository(SebaArguments.repoPath, SebaArguments.isSetupForceOn, SebaArguments.isCreateDebugFilesOn)
-            if not DEBUG:
-                await cls.__terminate__()
+        if SebaArguments.isSetupOn or\
+            SebaArguments.isSetupForceOn or\
+            SebaArguments.isSetupDebugOn:
+
+            SebaSetupTool.setup_repository(
+                SebaArguments.repoPath, 
+                SebaArguments.isSetupForceOn or SebaArguments.isSetupDebugOn, 
+                SebaArguments.isCreateDebugFilesOn or SebaArguments.isSetupDebugOn)
 
         if SebaArguments.sebaFile != None:
             file_content = []
@@ -41,7 +45,9 @@ class Seba:
 
             os.chdir(seba_config.config_dir)
 
-        if (SebaArguments.isBuildOn or SebaArguments.isBuildForceOn) and SebaArguments.sebaFile != None:
+        if (SebaArguments.isBuildOn or SebaArguments.isBuildForceOn) and\
+            SebaArguments.sebaFile != None:
+
             SebaSetupTool.prepare_sim_dir(seba_config, SebaArguments.isBuildForceOn)
 
             seba_reader = SebaReader(seba_config)
@@ -55,7 +61,8 @@ class Seba:
             seba_parser_control = SebaParser(seba_reader.control_file)
             seba_control = seba_parser_control.parse_control()
 
-            seba_assembler = SebaAssembler(seba_config, seba_corners, seba_testbench, seba_control)
+            seba_assembler = SebaAssembler(seba_config, seba_corners, 
+                                           seba_testbench, seba_control)
 
         if SebaArguments.isSimulateOn and SebaArguments.sebaFile != None:
             os.chdir(seba_config.sim_dir)
