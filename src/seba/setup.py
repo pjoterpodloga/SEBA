@@ -101,7 +101,7 @@ class SebaSetupTool:
                 f.write("run\n")
                 f.write("save all\n")
                 f.write("set filetype=ascii\n")
-                f.write("write debug_tb.raw all\n")
+                f.write("write debug_tb.debug.raw all\n")
                 f.write(".endc\n")
             
             with open(testbench_file, "w") as f:
@@ -115,7 +115,7 @@ class SebaSetupTool:
                 f.write("R3 net2 0 'xres2'\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
-                f.write(".probe all\n")
+                f.write(".save all\n")
                 f.write(".temp 25\n")
                 f.write(".dc v1 0 1 0.01\n")
                 f.write(".end\n")
