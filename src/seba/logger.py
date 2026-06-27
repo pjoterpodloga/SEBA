@@ -1,5 +1,6 @@
-import asyncio
 import sys
+import threading
+import queue
 from datetime import datetime
 from typing import Optional
 import subprocess
@@ -8,18 +9,15 @@ from seba.utils import TextFormat
 
 
 class AsyncLogger:
-    _queue_console: asyncio.Queue = asyncio.Queue()
-    _queue_logfile: asyncio.Queue = asyncio.Queue()
-    _task: Optional[asyncio.Task] = None
+    _queue: queue.Queue = queue.Queue()
+    _thread: Optional[threading.Thread] = None
     _file = None
     _started = False
+    _to_console = True
+    _stdout_lock = threading.Lock()
 
     @staticmethod
-    def get_logger():
-        return AsyncLogger()
-
-    @staticmethod
-    async def start(logfile="SEBA_$ts.log", to_console=True, directory="logs"):
+    def start(logfile="SEBA_$ts.log", to_console=True, directory="logs"):
         if AsyncLogger._started:
             return
 
@@ -28,32 +26,33 @@ class AsyncLogger:
         subprocess.run(["mkdir", "-p", directory], stdout=subprocess.DEVNULL)
 
         if directory.endswith("/"):
-            directory = directory[0:-2]
+            directory = directory[:-1]
 
-        logfile = directory + "/" +logfile.replace("$ts", ts)
+        logfile = f"{directory}/{logfile.replace('$ts', ts)}"
 
         AsyncLogger._file = open(logfile, "a") if logfile else None
         AsyncLogger._to_console = to_console
         AsyncLogger._started = True
 
-        AsyncLogger._task = asyncio.create_task(AsyncLogger._worker())
+        AsyncLogger._thread = threading.Thread(target=AsyncLogger._worker, daemon=True)
+        AsyncLogger._thread.start()
 
     @staticmethod
-    async def stop():
+    def stop():
         if not AsyncLogger._started:
             return
 
-        await AsyncLogger._queue_console.put(None)
-        await AsyncLogger._queue_logfile.put(None)
+        AsyncLogger._queue.put(None)
 
-        if AsyncLogger._task:
-            await AsyncLogger._task
+        if AsyncLogger._thread:
+            AsyncLogger._thread.join()
 
         if AsyncLogger._file:
             AsyncLogger._file.close()
 
         AsyncLogger._started = False
 
+    # ---- API ----
     @staticmethod
     def debug(msg): AsyncLogger._enqueue("DEBUG", msg)
     @staticmethod
@@ -64,37 +63,58 @@ class AsyncLogger:
     def error(msg): AsyncLogger._enqueue("ERROR", msg)
 
     @staticmethod
-    def _enqueue(level, msg):
+    def progress(msg):
+        """Inline output (bez newline, do progress bara)"""
+        AsyncLogger._enqueue("INFO", msg, inline=True)
+
+    # ---- internals ----
+    @staticmethod
+    def _enqueue(level, msg, inline=False):
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         record_logfile = f"[{ts}] [{level}] {msg}"
 
         if level == "DEBUG":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Bg")}\t{msg}"
-        if level == "INFO":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Bb")}\t{msg}"
-        if level == "WARNING":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="By")}\t{msg}"
-        if level == "ERROR":
-            record_console = f"[{ts}] {TextFormat.format(f"[{level}]", fmt="Br")}\t{msg}"
+            prefix = TextFormat.format(f"[{level}]", fmt="Bg")
+        elif level == "INFO":
+            prefix = TextFormat.format(f"[{level}]", fmt="Bb")
+        elif level == "WARNING":
+            prefix = TextFormat.format(f"[{level}]", fmt="By")
+        elif level == "ERROR":
+            prefix = TextFormat.format(f"[{level}]", fmt="Br")
+        else:
+            prefix = f"[{level}]"
+
+        record_console = f"[{ts}] {prefix}\t{msg}"
 
         try:
-            AsyncLogger._queue_console.put_nowait(record_console)
-            AsyncLogger._queue_logfile.put_nowait(record_logfile)
-        except asyncio.QueueFull:
+            AsyncLogger._queue.put_nowait((record_console, record_logfile, inline))
+        except queue.Full:
             pass
 
     @staticmethod
-    async def _worker():
+    def raw(msg: str):
+        if getattr(AsyncLogger, "_to_console", True):
+            sys.stdout.write(msg)
+            sys.stdout.flush()
+            
+    @staticmethod
+    def _worker():
         while True:
-            record_console = await AsyncLogger._queue_console.get()
-            record_logfile = await AsyncLogger._queue_logfile.get()
+            item = AsyncLogger._queue.get()
 
-            if record_console is None:
+            if item is None:
                 break
 
-            if getattr(AsyncLogger, "_to_console", True):
-                print(record_console)
+            record_console, record_logfile, inline = item
 
-            if AsyncLogger._file:
-                AsyncLogger._file.write(record_logfile + "\n")
-                AsyncLogger._file.flush()
+            with AsyncLogger._stdout_lock:
+                if AsyncLogger._to_console:
+                    if inline:
+                        sys.stdout.write(record_console)
+                        sys.stdout.flush()
+                    else:
+                        print(record_console)
+
+                if AsyncLogger._file:
+                    AsyncLogger._file.write(record_logfile + "\n")
+                    AsyncLogger._file.flush()
