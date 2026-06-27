@@ -17,14 +17,14 @@ from seba.simulate import SebaSimulate
 
 class Seba:
     @classmethod
-    async def run(cls):
+    def run(cls):
 
-        await AsyncLogger.start("SEBA_$ts.log", to_console=True, directory="logs")
+        AsyncLogger.start("SEBA_$ts.log", to_console=True, directory="logs")
 
         SebaArguments(sys.argv)
 
         if SebaArguments.isShowHelpOn:
-            await cls.__terminate__()
+            cls.__terminate__()
 
         if SebaArguments.isSetupOn or\
             SebaArguments.isSetupForceOn or\
@@ -69,15 +69,14 @@ class Seba:
             seba_simulate = SebaSimulate(seba_config)
             os.chdir(seba_config.config_dir)
 
-        await cls.__terminate__()
+        cls.__terminate__()
 
 
     @classmethod
-    async def __terminate__(cls, code=0):
+    def __terminate__(cls, code=0):
         AsyncLogger.info("Script terminated")
-        await asyncio.sleep(1)
-        await AsyncLogger.stop()
+        AsyncLogger.stop()
         exit(code)
 
 def run():
-    asyncio.run(Seba.run())
+    Seba.run()
