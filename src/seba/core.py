@@ -40,7 +40,7 @@ class Seba:
             with open(SebaArguments.sebaFile, "r") as f:
                 file_content = f.readlines()
 
-            seba_parser_config = SebaParser(file_content)
+            seba_parser_config = SebaParser(None, file_content)
             seba_config = seba_parser_config.parse_seba_config()
 
             os.chdir(seba_config.config_dir)
@@ -52,13 +52,13 @@ class Seba:
 
             seba_reader = SebaReader(seba_config)
 
-            seba_parser_corners = SebaParser(seba_reader.corners_file)
+            seba_parser_corners = SebaParser(seba_config,seba_reader.corners_file)
             seba_corners = seba_parser_corners.parse_corner_gen()
 
-            seba_parser_testbench = SebaParser(seba_reader.testbench_file)
+            seba_parser_testbench = SebaParser(seba_config,seba_reader.testbench_file)
             seba_testbench = seba_parser_testbench.parse_testbench()
 
-            seba_parser_control = SebaParser(seba_reader.control_file)
+            seba_parser_control = SebaParser(seba_config,seba_reader.control_file)
             seba_control = seba_parser_control.parse_control()
 
             seba_assembler = SebaAssembler(seba_config, seba_corners, 
