@@ -39,11 +39,7 @@ class Seba:
             seba_parser_config = SebaParser(file_content)
             seba_config = seba_parser_config.parse_seba_config()
 
-            config_dir = SebaArguments.sebaFile.split("/")
-            config_dir.pop()
-            config_dir = "/".join(config_dir)
-
-            os.chdir(config_dir)
+            os.chdir(seba_config.config_dir)
 
         if (SebaArguments.isBuildOn or SebaArguments.isBuildForceOn) and SebaArguments.sebaFile != None:
             SebaSetupTool.prepare_sim_dir(seba_config, SebaArguments.isBuildForceOn)
@@ -62,7 +58,9 @@ class Seba:
             seba_assembler = SebaAssembler(seba_config, seba_corners, seba_testbench, seba_control)
 
         if SebaArguments.isSimulateOn and SebaArguments.sebaFile != None:
+            os.chdir(seba_config.sim_dir)
             seba_simulate = SebaSimulate(seba_config)
+            os.chdir(seba_config.config_dir)
 
         await cls.__terminate__()
 
