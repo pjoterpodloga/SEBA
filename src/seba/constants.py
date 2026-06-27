@@ -55,6 +55,9 @@ class SebaInputArguments:
     m_setup_force = f"  , {l_setup_force} <repo_path>\tForcing setup of reposiotory with provided <repo_path>"\
                      "exisitng path will be removed"
     
+    l_setup_debug = f"--setup_debug"
+    m_setup_debug = f" , {l_setup_debug} <repo_path>\tSetup repository with provided <repo_path> for debug purposes"
+
     s_debug = f"-d"
     l_debug = f"--debug"
     m_debug = f"{s_debug}, {l_debug}\t\t\tShowing debug info"

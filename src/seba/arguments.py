@@ -10,6 +10,7 @@ class SebaArguments:
     isShowHelpOn = False
     isSetupOn = False
     isSetupForceOn = False
+    isSetupDebugOn = False
     isBuildOn = False
     isBuildForceOn = False
     isSimulateOn = False
@@ -29,8 +30,6 @@ class SebaArguments:
         if type(self).isShowHelpOn or len(type(self).args) == 1:
             type(self).show_help()
 
-
-    ### TODO: Add -b, --build, and --build_force
     @classmethod
     def __parse__(cls):
 
@@ -72,6 +71,14 @@ class SebaArguments:
                 it = it + 2
                 continue
 
+            if cls.args[it] == SebaInputArguments.l_setup_debug:
+                cls.isSetupDebugOn = True
+                if len(cls.args)-1 == it:
+                    raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
+                cls.repoPath = cls.args[it+1]
+                it = it + 2
+                continue
+
             if cls.args[it] == SebaInputArguments.s_debug or cls.args[it] == SebaInputArguments.l_debug:
                 cls.isDebugOn = True
                 it = it + 1
@@ -103,7 +110,12 @@ class SebaArguments:
                 continue
 
             raise UnknownArgumentError(f"Unknown argument: {cls.args[it]}")
-        
+
+        if (cls.isSetupOn or cls.isSetupForceOn) and cls.isSetupDebugOn:
+            cls.isSetupForceOn = False
+            cls.isSetupOn = False
+            AsyncLogger.warning("--setup or --setup_force cant be executed with --setup_debug,\
+                                those flags will be reseted")
 
         if cls.isSetupOn or cls.isSetupForceOn:
             cls.isBuildOn = False
@@ -119,6 +131,7 @@ class SebaArguments:
         AsyncLogger.debug(f"IS_SHOW_HELP_ON = {cls.isShowHelpOn}")
         AsyncLogger.debug(f"IS_SETUP_ON = {cls.isSetupOn}")
         AsyncLogger.debug(f"IS_SETUP_FORCE_ON = {cls.isSetupForceOn}")
+        AsyncLogger.debug(f"IS_SETUP_DEBUG_ON = {cls.isSetupDebugOn}")
         AsyncLogger.debug(f"IS_BUILD_ON = {cls.isBuildOn}")
         AsyncLogger.debug(f"IS_BUILD_FORCE_ON = {cls.isBuildForceOn}")
         AsyncLogger.debug(f"IS_SIMULATE_ON = {cls.isSimulateOn}")
