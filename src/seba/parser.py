@@ -14,7 +14,9 @@ from seba.utils import CornerDuplication
 
 class SebaParser:
 
-    def __init__(self, file_content: list[str]):
+    def __init__(self, config: SebaConfig, file_content: list[str]):
+
+        self.config = config
 
         if type(file_content) == str:
             self.file_content = [f"{fc}\n" for fc in file_content.split("\n")]
@@ -103,6 +105,9 @@ class SebaParser:
         return tokens
 
     def parse_control(self) -> SebaControl:
+
+        AsyncLogger.info(f"Parsing control file: {self.config.control}")
+
         tokens = self.__prepare_control__()
 
         se_list = []
@@ -132,6 +137,9 @@ class SebaParser:
         return seba_control
 
     def parse_testbench(self) -> SebaTestbench:
+
+        AsyncLogger.info(f"Parsing testbench file: {self.config.testbench}")
+
         tokens = self.__prepare_testbench__()
 
         se_list = []
@@ -258,6 +266,8 @@ class SebaParser:
 
     
     def parse_corner_gen(self) -> SebaCorner:
+
+        AsyncLogger.info(f"Parsing corner gen file: {self.config.corners}")
         
         tokens = self.__prepare_corner_gen__()
 
@@ -362,6 +372,8 @@ class SebaParser:
 
     def parse_seba_config(self) -> SebaConfig:
 
+        AsyncLogger.info(f"Parsing SEBA configuration file: {SebaArguments.sebaFile}")
+
         tokens = self.__prepare_seba_config__()
         
         pm_wrong_num_cmd = lambda tl, fc:\
@@ -378,7 +390,7 @@ class SebaParser:
         seba_config = SebaConfig()
         config_dir = SebaArguments.sebaFile.split("/")
         config_dir.pop()
-        seba_config.config_dir = "/".join(config_dir)
+        seba_config.config_dir = SebaArguments.executePath + "/" + "/".join(config_dir)
 
         for it_tl, tl in enumerate(tokens):
 
@@ -391,7 +403,7 @@ class SebaParser:
                 if len(tl) != 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.name = cmd[1]
-                seba_config.sim_dir = "../tmp/simulations/" + seba_config.name
+                seba_config.sim_dir = seba_config.config_dir + "../tmp/simulations/" + seba_config.name
 
             elif cmd[0].upper() == "CONTROL":
                 if len(tl) != 2:
