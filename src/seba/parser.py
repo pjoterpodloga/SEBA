@@ -376,6 +376,9 @@ class SebaParser:
 
 
         seba_config = SebaConfig()
+        config_dir = SebaArguments.sebaFile.split("/")
+        config_dir.pop()
+        seba_config.config_dir = "/".join(config_dir)
 
         for it_tl, tl in enumerate(tokens):
 
