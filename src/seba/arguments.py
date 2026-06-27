@@ -6,7 +6,7 @@ from seba.utils import TextFormat
 
 class SebaArguments:
 
-    isDebugOn=False
+    isDebugOn = False
     isShowHelpOn = False
     isSetupOn = False
     isSetupForceOn = False
@@ -16,6 +16,7 @@ class SebaArguments:
     isCreateDebugFilesOn = False
     sebaFile: str = None
     repoPath: str = None
+    executePath: str = None
     args: list[str] = None
 
     def __init__(self, args: list[str]):
@@ -43,6 +44,10 @@ class SebaArguments:
                 break
 
             if it == 0:
+                executePath = cls.args[it]
+                executePath = executePath.split("/")
+                executePath.pop()
+                cls.executePath = "/".join(executePath)
                 it = it + 1
                 continue
             
@@ -55,7 +60,7 @@ class SebaArguments:
                 cls.isSetupOn = True
                 if len(cls.args)-1 == it:
                     raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
-                cls.repoPath = cls.args[it+1]
+                cls.repoPath = cls.cls.args[it+1]
                 it = it + 2
                 continue
 
@@ -99,7 +104,13 @@ class SebaArguments:
 
             raise UnknownArgumentError(f"Unknown argument: {cls.args[it]}")
         
+
         if cls.isSetupOn or cls.isSetupForceOn:
+            cls.isBuildOn = False
+            cls.isBuildForceOn = False
+            cls.isCreateDebugFilesOn = False
+            cls.isSimulateOn = False
+            cls.sebaFile = None
             AsyncLogger.warning("Due to setup or force setup flag set, reseting rest of flags.")
     
     @classmethod
