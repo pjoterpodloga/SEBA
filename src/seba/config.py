@@ -28,3 +28,5 @@ class SebaConfig:
             AsyncLogger.debug(f"EXTRACTION = {", ".join(self.extraction)}")
         else:
             AsyncLogger.debug(f"EXTRACTION = {self.extraction}")
+        AsyncLogger.debug(f"SIM_DIR = {self.sim_dir}")
+        AsyncLogger.debug(f"CONFIG_DIR = {self.config_dir}")
