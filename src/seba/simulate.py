@@ -6,6 +6,7 @@ import glob
 import re
 
 from seba.constants import DEBUG
+from seba.logger import AsyncLogger
 from seba.config import SebaConfig
 
 class SebaSimulate:
@@ -28,6 +29,10 @@ class SebaSimulate:
         sim_files = sorted(sim_files, key=lambda x: int(x.split("_")[-1]))
 
         self.__total_sims__ = len(sim_files)
+
+        AsyncLogger.info(f"Starting simulations")
+        AsyncLogger.info(f"Found {self.__total_sims__} spice files to simulate.")
+        time.sleep(1)
 
         self.__sim_threads__ = []
         for _ in range(self.max_parraler_sims):
@@ -72,6 +77,12 @@ class SebaSimulate:
     def progress(self):
         total = self.__total_sims__
 
+        thread_sleep_time = 0.2
+        last_total = 0
+        last_print = 0
+        force_print_interval = 2
+        calculated_force_print_interval = force_print_interval / thread_sleep_time
+
         while True:
             with self.__lock__:
                 done = self.__done__
@@ -82,12 +93,16 @@ class SebaSimulate:
             filled = int(bar_len * percent / 100)
             bar = "#" * filled + "-" * (bar_len - filled)
 
-            print(f"\r[{bar}] {percent:6.2f}% ({done}/{total})", end="", flush=True)
+            if (last_total != total) or calculated_force_print_interval <= last_print:
+                last_total = total
+                last_print = 0
+                AsyncLogger.raw(f"\r[{bar}] {percent:6.2f}% ({done}/{total})")
 
             if done >= total:
                 break
-
-            time.sleep(0.2)
-
-        print()
+            
+            last_print += 1
+            time.sleep(thread_sleep_time)
+        AsyncLogger.raw("\n")
+        AsyncLogger.info("Simulations ended.")
 
