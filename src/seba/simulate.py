@@ -43,8 +43,8 @@ class SebaSimulate:
         self.__progress_thread__ = threading.Thread(target=self.progress)
         self.__progress_thread__.start()
 
-        for sf in sim_files:
-            self.task_queue.put([self.simulator, sf]+self.simulator_arguments)
+        for it_sf, sf in enumerate(sim_files):
+            self.task_queue.put([it_sf, self.simulator, sf]+self.simulator_arguments)
 
         self.task_queue.join()
 
@@ -67,7 +67,7 @@ class SebaSimulate:
             if DEBUG:
                 time.sleep(1)
             else:
-                subprocess.run(item)
+                subprocess.run(item[1:], stdout=f"{item[2]}.log_{item[0]}")
             
             with self.__lock__:
                 self.__done__ += 1
