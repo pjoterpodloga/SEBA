@@ -33,7 +33,7 @@ class SebaSetupTool:
             pass
 
     @classmethod
-    def setup_repository(cls, repo_path, force=False, debug=False):
+    def setup_repository(cls, repo_path, force=False, debug_files=False):
 
         repoExists = cls.check_if_repo_exists(repo_path)
 
@@ -48,10 +48,10 @@ class SebaSetupTool:
             AsyncLogger.warning(f"Removing existing {repo_path} repository or path and replacing it.")
             shutil.rmtree(repo_path, ignore_errors=True)
 
-        cls.__setup_new_directory__(repo_path, debug=debug)
+        cls.__setup_new_directory__(repo_path, debug_files=debug_files)
 
     @classmethod
-    def __setup_new_directory__(cls, repo_path, debug=False):
+    def __setup_new_directory__(cls, repo_path, debug_files=False):
         AsyncLogger.info(f"Setting up repository")
         subprocess.run(["mkdir", "-p", repo_path])
 
@@ -74,7 +74,7 @@ class SebaSetupTool:
 
         ### TODO: Resolve searching directories from default dir
         ### TODO: Add creating mock files for debug purpose
-        if debug:
+        if debug_files:
             config_file = repo_path+"/config/"+"config.debug.seba"
             control_file = repo_path+"/control/"+"control.debug.spice"
             testbench_file = repo_path+"/testbench/"+"debug_tb.debug.spice"
