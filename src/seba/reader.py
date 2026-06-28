@@ -28,28 +28,34 @@ class SebaReader:
     ### TODO: Resolve searching directories from default dir
 
     def __read_control_file__(self):
-        with open("../control/"+self.config.control, "r") as f:
-            self.control_file = f.readlines()
+        if self.config.control != None:
+            with open("../control/"+self.config.control, "r") as f:
+                self.control_file = f.readlines()
     
     def __read_testbench_file__(self):
-        with open("../testbench/"+self.config.testbench, "r") as f:
-            self.testbench_file = f.readlines()
+        if self.config.testbench != None:
+            with open("../testbench/"+self.config.testbench, "r") as f:
+                self.testbench_file = f.readlines()
     
     def __read_corners_file__(self):
-        with open("../corners/"+self.config.corners, "r") as f:
-            self.corners_file = f.readlines()
+        if self.config.corners != None:
+            with open("../corners/"+self.config.corners, "r") as f:
+                self.corners_file = f.readlines()
 
     def __read_script_file__(self):
-        with open("../scripts/"+self.config.script, "r") as f:
-            self.script_file = f.readlines()
+        if self.config.script != None:
+            with open("../scripts/"+self.config.script, "r") as f:
+                self.script_file = f.readlines()
     
     def __read_measure_file__(self):
-        with open("../result_gen/"+self.config.meas, "r") as f:
-            self.measure_file = f.readlines()
+        if self.config.measure != None:
+            with open("../result_gen/"+self.config.measure, "r") as f:
+                self.measure_file = f.readlines()
 
     def __read_plot_file__(self):
-        with open("../result_gen/"+self.config.plot, "r") as f:
-            self.plot_file = f.readlines()
+        if self.config.plot != None:
+            with open("../result_gen/"+self.config.plot, "r") as f:
+                self.plot_file = f.readlines()
 
     def __read_extraction_files__(self):
         if self.config.extraction != None:
