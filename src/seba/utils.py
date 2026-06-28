@@ -483,7 +483,8 @@ class UnknownCornerCommand(Exception):
 class Token:
     DEFAULT_ID = 1
 
-    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]", ",", "\n", ":", ".", "*"]
+    SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]",\
+                     ",", "\n", ":", ".", "*", "\""]
 
     TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
 
@@ -688,7 +689,7 @@ class Parser:
         return tokens
     
     @classmethod
-    def bound_by_token(cls, tokens: list[Token], target: list[int], until: list[int]) -> list[Token]:
+    def bound_by_tokens(cls, tokens: list[Token], target: list[int], until: list[int], merge=False) -> list[Token]:
 
         until_found = False
 
@@ -709,11 +710,13 @@ class Parser:
             if tt in target and until_found:
                 last_ut_token = tokens[it_t]
                 until_found = False
+                if merge:
+                    grouped_tokens = "".join(grouped_tokens)
                 tokens.insert(it_t+1, type(popped_token)(file_id=popped_token.file_id, type=popped_token.type, value=grouped_tokens, line=popped_token.line, column=popped_token.column))
                 grouped_tokens = []
                 continue
 
-            if tt in target and not until_found:
+            if tt in target and tt not in until and not until_found:
                 raise SecondCharacterError(pm_second_character_found(tokens[it_t], last_ut_token, cls.__file_content__[tid]))
                 
 
@@ -722,7 +725,7 @@ class Parser:
                 last_ut_token = tokens[it_t]
                 continue
 
-            if tt in until and until_found:
+            if tt in until and tt not in target and until_found:
                 raise SecondCharacterError(pm_second_character_found(last_ut_token, tokens[it_t], cls.__file_content__[tid]))
 
             if until_found:
@@ -730,7 +733,7 @@ class Parser:
                 grouped_tokens.insert(0, popped_token.value)
 
         return tokens
-    
+
     @classmethod
     def check_surrounding_token(cls, tokens: list[Token], target: list[int], legal_surrounding: list[int]):
         ### TODO: Write body of check surrounding of tokens function
