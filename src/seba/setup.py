@@ -135,6 +135,13 @@ class SebaSetupTool:
 
             with open(meas_file, "w") as f:
                 f.write("# Mock measure file\n")
+                f.write("# meas_name    |   min_spec    |" \
+                        "   max_spec    |   unit    |   " \
+                        "prefix | description\n")
+                f.write("vout\t\t\t\t500\t\t\t\t700\t\t\t\tV\t\t\tm" \
+                        "\t\t\"Output voltage of voltage divider\"\n")
+                f.write("idiv\t\t\t\t0.3\t\t\t\t0.5\t\t\t\tA\t\t\tNone" \
+                        "\t\"Current consumption of voltage divider\"")
 
             with open(extraction_file, "w") as f:
                 f.write("* Title: Debug mock pex spice file\n")
