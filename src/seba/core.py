@@ -68,6 +68,8 @@ class Seba:
                                            seba_testbench, seba_control,
                                            seba_measure)
 
+            seba_assembler.write_all()
+
         if SebaArguments.isSimulateOn and SebaArguments.sebaFile != None:
             os.chdir(seba_config.sim_dir)
             seba_simulate = SebaSimulate(seba_config)

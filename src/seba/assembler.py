@@ -28,10 +28,6 @@ class SebaAssembler:
         
         self.measure_json_file = self.__create_measure_json_file__()
 
-        self.__write_spice_files__()
-        self.__write_corner_list__()
-        self.__write_measure_json__()
-
     def __adjust_corner_spice_definitions__(self):
 
         corner_spice_definition_list = self.corners.generate_spice_definition_corners()
@@ -119,4 +115,7 @@ class SebaAssembler:
         with open(mjfn, "w") as f:
             f.write(self.measure_json_file)
 
-
+    def write_all(self):
+        self.__write_spice_files__()
+        self.__write_corner_list__()
+        self.__write_measure_json__()
