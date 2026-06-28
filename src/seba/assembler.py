@@ -1,17 +1,20 @@
 import copy
+import json
 
 from seba.config import SebaConfig
 from seba.corners import SebaCorner
+from seba.measure import SebaMeasure, Measure
 from seba.spice import *
 
 class SebaAssembler:
     def __init__(self, config: SebaConfig,\
                     corners: SebaCorner, testbench: SebaTestbench,\
-                    control: SebaControl):
+                    control: SebaControl, measure: SebaMeasure):
         self.config = config
         self.corners = corners
         self.testbench = testbench
         self.control = control
+        self.measure = measure
 
         self.number_of_corners = self.corners.tnoc
         self.corner_list = self.corners.generate_corner_list()
@@ -22,10 +25,12 @@ class SebaAssembler:
         self.__adjust_corner_spice_definitions__()
         self.__adjust_corner_write_directive__()
         self.spice_files = self.__create_spice_files__()
+        
+        self.measure_json_file = self.__create_measure_json_file__()
 
         self.__write_spice_files__()
         self.__write_corner_list__()
-        pass
+        self.__write_measure_json__()
 
     def __adjust_corner_spice_definitions__(self):
 
@@ -65,6 +70,23 @@ class SebaAssembler:
 
         return result_spice_files
     
+    def __create_measure_json_file__(self) -> str:
+        data = []
+
+        for m in self.measure.get_measure_list():
+            data.append({
+                "name": m.name,
+                "max" : m.max,
+                "min" : m.min,
+                "unit" : m.unit,
+                "prefix" : m.prefix,
+                "description" : m.desc
+            })
+
+        result = json.dumps(data, ensure_ascii=False, indent=2)
+        
+        return result
+    
     def __write_spice_files__(self):
         
         spice_file_name = self.config.testbench
@@ -88,5 +110,13 @@ class SebaAssembler:
             for fc in self.corner_list:
                 f.write(fc)
                 f.write("\n")
+
+    def __write_measure_json__(self):
+        measure_json_file_name = "measure.json"
+
+        mjfn = f"{self.config.sim_dir}/{measure_json_file_name}"
+
+        with open(mjfn, "w") as f:
+            f.write(self.measure_json_file)
 
 
