@@ -52,17 +52,21 @@ class Seba:
 
             seba_reader = SebaReader(seba_config)
 
-            seba_parser_corners = SebaParser(seba_config,seba_reader.corners_file)
+            seba_parser_corners = SebaParser(seba_config, seba_reader.corners_file)
             seba_corners = seba_parser_corners.parse_corner_gen()
 
-            seba_parser_testbench = SebaParser(seba_config,seba_reader.testbench_file)
+            seba_parser_testbench = SebaParser(seba_config, seba_reader.testbench_file)
             seba_testbench = seba_parser_testbench.parse_testbench()
 
-            seba_parser_control = SebaParser(seba_config,seba_reader.control_file)
+            seba_parser_control = SebaParser(seba_config, seba_reader.control_file)
             seba_control = seba_parser_control.parse_control()
 
+            seba_parser_measure = SebaParser(seba_config, seba_reader.measure_file)
+            seba_measure = seba_parser_measure.parse_measure()
+
             seba_assembler = SebaAssembler(seba_config, seba_corners, 
-                                           seba_testbench, seba_control)
+                                           seba_testbench, seba_control,
+                                           seba_measure)
 
         if SebaArguments.isSimulateOn and SebaArguments.sebaFile != None:
             os.chdir(seba_config.sim_dir)
