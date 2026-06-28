@@ -6,11 +6,14 @@ from seba.arguments import *
 from seba.config import *
 from seba.corners import *
 from seba.spice import *
+from seba.measure import *
 from seba.utils import CornerGenerator, Corner, Token, TokenCorner, Parser
 from seba.utils import WrongNumberConfigCommands, UnknownConfigCommand, MissingNameConfig
 from seba.utils import MissingCorner, DefinitionAfterCornerGen, WrongCornerDefinition
 from seba.utils import EmptyCornerArray, MissingCornerValue, UnknownCornerCommand
 from seba.utils import CornerDuplication
+
+### TODO: Split all parser methods to separate classes based on purpose of parsed files
 
 class SebaParser:
 
@@ -25,8 +28,8 @@ class SebaParser:
             
     def __prepare_seba_config__(self) -> list[list[Token]]:
         
-        file_content_copy_merged = Parser.prepare_file(self.file_content)
-        tokens = Parser.define_tokens(file_content_copy_merged)
+        file_content_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_merged)
         tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["#"]])
         tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
@@ -40,8 +43,8 @@ class SebaParser:
     
     def __prepare_corner_gen__(self) -> list[list[Token]]:
         
-        file_content_copy_merged = Parser.prepare_file(self.file_content)
-        tokens = Parser.define_tokens(file_content_copy_merged)
+        file_content_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_merged)
         tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["#"]])
         tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID, Token.TOKEN_DICT["="]])
@@ -59,7 +62,7 @@ class SebaParser:
             f"{"-"*(t.column - 1)}^"
 
         for it_tl in range(len(tokens_list)):
-            tokens_list[it_tl] = Parser.bound_by_token(tokens_list[it_tl], [Token.TOKEN_DICT["["]], [Token.TOKEN_DICT["]"]])
+            tokens_list[it_tl] = Parser.bound_by_tokens(tokens_list[it_tl], [Token.TOKEN_DICT["["]], [Token.TOKEN_DICT["]"]])
             tokens_list[it_tl] = Parser.delete_tokens(tokens_list[it_tl], [Token.TOKEN_DICT["["], Token.TOKEN_DICT["]"]])
             group_idx = 0
             for it_t in range(len(tokens_list[it_tl])):
@@ -80,8 +83,8 @@ class SebaParser:
 
     def __prepare_testbench__(self) -> list[list[Token]]:
 
-        file_content_copy_merged = Parser.prepare_file(self.file_content)
-        tokens = Parser.define_tokens(file_content_copy_merged)
+        file_content_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_merged)
         tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["*"]], [Token.TOKEN_DICT["\n"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["*"]])
         tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
@@ -94,8 +97,8 @@ class SebaParser:
         return tokens
 
     def __prepare_control__(self) -> list[list[Token]]:
-        file_content_copy_merged = Parser.prepare_file(self.file_content)
-        tokens = Parser.define_tokens(file_content_copy_merged)
+        file_content_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_merged)
         tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["*"]], [Token.TOKEN_DICT["\n"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["*"]])
         tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
@@ -103,6 +106,38 @@ class SebaParser:
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
         tokens = Parser.split_tokens(tokens, [Token.TOKEN_DICT["\n"]])
         return tokens
+
+    def __prepare_measure__(self) -> list[list[Token]]:
+        file_content_merged = Parser.prepare_file(self.file_content)
+        tokens = Parser.define_tokens(file_content_merged)
+        tokens = Parser.change_tokens(tokens, [Token.TOKEN_DICT["#"]], [Token.TOKEN_DICT["\n"]])
+        tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["#"]])
+        tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\\"]])
+        tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID, Token.TOKEN_DICT["."]])
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
+        tokens = Parser.bound_by_tokens(tokens, [Token.TOKEN_DICT["\""]], [Token.TOKEN_DICT["\""]], merge=True)
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\""]])
+        tokens = Parser.split_tokens(tokens, [Token.TOKEN_DICT["\n"]])
+        return tokens
+
+    def parse_measure(self) -> SebaMeasure:
+        tokens = self.__prepare_measure__()
+
+        seba_measure = SebaMeasure()
+
+        for it_tl, tl in enumerate(tokens):
+            if len(tl) != 6:
+                raise Exception("Incorect measure line definition.")
+            
+            meas = Measure(name=tl[0].value, max=tl[1].value,
+                           min=tl[2].value, unit=tl[3].value,
+                           prefix=tl[4].value, desc=tl[5].value)
+            
+            seba_measure.add(meas)
+
+        return seba_measure
 
     def parse_control(self) -> SebaControl:
 
@@ -428,7 +463,7 @@ class SebaParser:
             elif cmd[0].upper() == "MEAS":
                 if len(tl) != 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
-                seba_config.meas = cmd[1]
+                seba_config.measure = cmd[1]
 
             elif cmd[0].upper() == "PLOT":
                 if len(tl) != 2:
