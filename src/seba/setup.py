@@ -166,7 +166,9 @@ class SebaSetupTool:
     def __create_simulations_venv__(cls, repo_path: str):
         AsyncLogger.info("Creating python venv in tmp/simualtions directory.")
         
-        subprocess.run(["env", "-i", "python3", "-m", "venv", f"{repo_path}/tmp/simulations/venv"], check=True)
+        python = os.path.join(sys.base_prefix, "bin", "python3")
+
+        subprocess.run(["env", "-i", python, "-m", "venv", f"{repo_path}/tmp/simulations/venv"], check=True)
         subprocess.run([f"{repo_path}/tmp/simulations/venv/bin/pip3", "install", "pandas", "matplotlib", "numpy"], check=True)
         subprocess.run([f"mkdir", f"{repo_path}/tmp/simulations/res"])
         subprocess.run(["cp", "res/ngspice_utils.py", f"{repo_path}/tmp/simulations/res"])
