@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import shutil
 
@@ -12,7 +13,7 @@ class SebaSetupTool:
     repoExists = None
 
     @classmethod
-    def check_if_repo_exists(cls, repo_path):
+    def check_if_repo_exists(cls, repo_path: str):
 
         if os.path.exists(repo_path):
             cls.pathExists = True
@@ -33,7 +34,7 @@ class SebaSetupTool:
             pass
 
     @classmethod
-    def setup_repository(cls, repo_path, force=False, debug_files=False):
+    def setup_repository(cls, repo_path: str, force=False, debug_files=False):
 
         repoExists = cls.check_if_repo_exists(repo_path)
 
@@ -49,9 +50,10 @@ class SebaSetupTool:
             shutil.rmtree(repo_path, ignore_errors=True)
 
         cls.__setup_new_directory__(repo_path, debug_files=debug_files)
+        cls.__create_simulations_venv__(repo_path)
 
     @classmethod
-    def __setup_new_directory__(cls, repo_path, debug_files=False):
+    def __setup_new_directory__(cls, repo_path: str, debug_files=False):
         AsyncLogger.info(f"Setting up repository")
         subprocess.run(["mkdir", "-p", repo_path])
 
@@ -70,8 +72,6 @@ class SebaSetupTool:
             dftc_content = dftc[1]
             with open(dftc_path, "w") as f:
                 f.write(dftc_content)
-
-        subprocess.run(["cp", "res/ngspice_utils.py", f"{repo_path}/result_gen"])
 
 
         ### TODO: Resolve searching directories from default dir
@@ -137,7 +137,7 @@ class SebaSetupTool:
                 f.write("for rw in raw_files:\n")
                 f.write("\tparse_ngspice_raw(rw)\n")
                 f.write("\tvout = Signal.get_signal(\"v(vout)\")\n")
-                f.write("\tidiv = Signal.get_signal(\"i(R3)\")\n")
+                f.write("\tidiv = Signal.get_signal(\"i(v1)\")\n")
                 f.write("\tvout_at_0p5 = Signal.cross(vout, 0.5)\n")
                 f.write("\tidiv_at_0p5 = Signal.cross(idiv, 0.5)\n")
                 f.write("\tprint(f\"vout @ 0.5V: {get_value_with_prefix(vout_at_0p5)}\")\n")
@@ -160,6 +160,16 @@ class SebaSetupTool:
                 f.write("* Title: Debug mock pex spice file\n")
 
         ### TODO: Add git init basic routine for connecting remote repo
+
+    ### TODO: this should be integrated with default folder utility
+    @classmethod
+    def __create_simulations_venv__(cls, repo_path: str):
+        AsyncLogger.info("Creating python venv in tmp/simualtions directory.")
+        
+        subprocess.run(["env", "-i", "python3", "-m", "venv", f"{repo_path}/tmp/simulations/venv"], check=True)
+        subprocess.run([f"{repo_path}/tmp/simulations/venv/bin/pip3", "install", "pandas", "matplotlib", "numpy"], check=True)
+        subprocess.run([f"mkdir", f"{repo_path}/tmp/simulations/res"])
+        subprocess.run(["cp", "res/ngspice_utils.py", f"{repo_path}/tmp/simulations/res"])
 
     ### TODO: this shouldnt be sebareader, more like sebabuilder, class that holds all assembled files
     @classmethod

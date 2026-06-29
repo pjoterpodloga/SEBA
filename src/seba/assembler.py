@@ -139,4 +139,4 @@ class SebaAssembler:
         self.__write_measure_json__()
         self.__write_script_file__()
         self.__create_res_directory__()
-        self.__copy_ngspice_utils__()
+        #self.__copy_ngspice_utils__()
