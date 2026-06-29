@@ -71,6 +71,8 @@ class SebaSetupTool:
             with open(dftc_path, "w") as f:
                 f.write(dftc_content)
 
+        subprocess.run(["cp", "res/ngspice_utils.py", f"{repo_path}/result_gen"])
+
 
         ### TODO: Resolve searching directories from default dir
         ### TODO: Add creating mock files for debug purpose
