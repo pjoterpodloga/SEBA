@@ -141,7 +141,7 @@ class SebaSetupTool:
                 f.write("\tvout_at_0p5 = Signal.value_at(vout, 0.5)\n")
                 f.write("\tidiv_at_0p5 = Signal.value_at(idiv, 0.5)\n")
                 f.write("\tprint(f\"vout @ 0.5V: {get_value_with_prefix(vout_at_0p5)}\")\n")
-                f.write("\tprint(f\"idiv @ 0.5V: {get_value_with_prefix(idiv)}\")\n")
+                f.write("\tprint(f\"idiv @ 0.5V: {get_value_with_prefix(idiv_at_0p5)}\")\n")
 
             with open(plot_file, "w") as f:
                 f.write("# Mock plot file\n")
