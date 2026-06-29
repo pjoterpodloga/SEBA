@@ -111,8 +111,8 @@ class SebaSetupTool:
                 f.write(".ends\n")
                 f.write("V1 net1 0 1\n")
                 f.write("XR1 net1 net2 sres\n")
-                f.write("R2 net2 0 'xres1'\n")
-                f.write("R3 net2 0 'xres2'\n")
+                f.write("R2 vout 0 'xres1'\n")
+                f.write("R3 vout 0 'xres2'\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
                 f.write(".save all\n")
@@ -129,6 +129,17 @@ class SebaSetupTool:
             ### TODO: Add empty debug files
             with open(scripts_file, "w") as f:
                 f.write("# Mock python script file\n")
+                f.write("from ngspice_utils import *\n")
+                f.write("import glob\n")
+                f.write("raw_files = glob.glob(\"*.raw_*\")\n")
+                f.write("for rw in raw_files:\n")
+                f.write("\tparse_ngspice_raw(rw)\n")
+                f.write("\tvout = Signal.get_signal(\"v(vout)\")\n")
+                f.write("\tidiv = Signal.get_signal(\"i(R3)\")\n")
+                f.write("\tvout_at_0p5 = Signal.cross(vout, 0.5)\n")
+                f.write("\tidiv_at_0p5 = Signal.cross(idiv, 0.5)\n")
+                f.write("\tprint(f\"vout @ 0.5V: {get_value_with_prefix(vout_at_0p5)}\")\n")
+                f.write("\tprint(f\"idiv @ 0.5V: {get_value_with_prefix(idiv)}\")\n")
 
             with open(plot_file, "w") as f:
                 f.write("# Mock plot file\n")
