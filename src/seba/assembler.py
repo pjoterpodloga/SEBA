@@ -123,7 +123,7 @@ class SebaAssembler:
             f.write(self.measure_json_file)
 
     def __write_script_file__(self):
-        script_file_name = "script.py"
+        script_file_name = self.config.script
 
         sfn = f"{self.config.sim_dir}/{script_file_name}"
 
@@ -133,6 +133,17 @@ class SebaAssembler:
     def __copy_ngspice_utils__(self):
         subprocess.run(["cp", "../result_gen/ngspice_utils.py", f"{self.config.sim_dir}/res"])
 
+    def __create_script_wrapper__(self):
+        wrapper_script_file_name = "script_wrapper.sh"
+
+        wsfn = f"{self.config.sim_dir}/{wrapper_script_file_name}"
+
+        with open(wsfn, "w") as f:
+            f.write(f"source ../venv/bin/activate\n")
+            f.write(f"python3 {self.config.script}\n")
+
+        subprocess.run(["chmod", "+x", wsfn])
+
     def write_all(self):
         self.__write_spice_files__()
         self.__write_corner_list__()
@@ -140,3 +151,4 @@ class SebaAssembler:
         self.__write_script_file__()
         self.__create_res_directory__()
         #self.__copy_ngspice_utils__()
+        self.__create_script_wrapper__()
