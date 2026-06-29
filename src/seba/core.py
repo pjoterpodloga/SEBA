@@ -66,7 +66,7 @@ class Seba:
 
             seba_assembler = SebaAssembler(seba_config, seba_corners, 
                                            seba_testbench, seba_control,
-                                           seba_measure)
+                                           seba_measure, seba_reader.script_file)
 
             seba_assembler.write_all()
 

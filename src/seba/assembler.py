@@ -9,7 +9,8 @@ from seba.spice import *
 class SebaAssembler:
     def __init__(self, config: SebaConfig,\
                     corners: SebaCorner, testbench: SebaTestbench,\
-                    control: SebaControl, measure: SebaMeasure):
+                    control: SebaControl, measure: SebaMeasure,
+                    script: list[str]):
         self.config = config
         self.corners = corners
         self.testbench = testbench
@@ -27,6 +28,8 @@ class SebaAssembler:
         self.spice_files = self.__create_spice_files__()
         
         self.measure_json_file = self.__create_measure_json_file__()
+
+        self.script_file = script
 
     def __adjust_corner_spice_definitions__(self):
 
@@ -115,7 +118,16 @@ class SebaAssembler:
         with open(mjfn, "w") as f:
             f.write(self.measure_json_file)
 
+    def __write_script_file__(self):
+        script_file_name = "script.py"
+
+        sfn = f"{self.config.sim_dir}/{script_file_name}"
+
+        with open(sfn, "w") as f:
+            f.writelines(self.script_file)
+
     def write_all(self):
         self.__write_spice_files__()
         self.__write_corner_list__()
         self.__write_measure_json__()
+        self.__write_script_file__()
