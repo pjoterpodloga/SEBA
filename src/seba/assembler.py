@@ -1,5 +1,6 @@
 import copy
 import json
+import subprocess
 
 from seba.config import SebaConfig
 from seba.corners import SebaCorner
@@ -86,6 +87,9 @@ class SebaAssembler:
         
         return result
     
+    def __create_res_directory__(self):
+        subprocess.run(["mkdir", f"{self.config.sim_dir}/res"])
+
     def __write_spice_files__(self):
         
         spice_file_name = self.config.testbench
@@ -126,8 +130,13 @@ class SebaAssembler:
         with open(sfn, "w") as f:
             f.writelines(self.script_file)
 
+    def __copy_ngspice_utils__(self):
+        subprocess.run(["cp", "../result_gen/ngspice_utils.py", f"{self.config.sim_dir}/res"])
+
     def write_all(self):
         self.__write_spice_files__()
         self.__write_corner_list__()
         self.__write_measure_json__()
         self.__write_script_file__()
+        self.__create_res_directory__()
+        self.__copy_ngspice_utils__()
