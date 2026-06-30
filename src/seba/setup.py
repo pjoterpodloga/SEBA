@@ -132,9 +132,13 @@ class SebaSetupTool:
             with open(scripts_file, "w") as f:
                 f.write("# Mock python script file\n")
                 f.write("from ngspice_utils import *\n")
+                f.write("import pandas as pd\n")
                 f.write("import glob\n")
+                f.write("vout_result = [0.]*len(raw_files)\n")
+                f.write("idiv_result = [0.]*len(raw_files)\n")
                 f.write("raw_files = glob.glob(\"*.raw_*\")\n")
                 f.write("for rw in raw_files:\n")
+                f.write("\tcorner_number = int(rw.split(\"_\")[-1])\n")
                 f.write("\tparse_ngspice_raw(rw)\n")
                 f.write("\tvout = Signal.get_signal(\"v(vout)\")\n")
                 f.write("\tidiv = Signal.get_signal(\"i(v1)\")\n")
@@ -142,6 +146,11 @@ class SebaSetupTool:
                 f.write("\tidiv_at_0p5 = Signal.value_at(idiv, 0.5)\n")
                 f.write("\tprint(f\"vout @ 0.5V: {get_value_with_prefix(vout_at_0p5)}\")\n")
                 f.write("\tprint(f\"idiv @ 0.5V: {get_value_with_prefix(idiv_at_0p5)}\")\n")
+                f.write("\tvout_result[corner_number] = vout_at_0p5\n")
+                f.write("\tidiv_result[corner_number] = idiv_at_0p5\n")
+                f.write("data = {\"vout\": vout_result, \"idiv\": idiv_result}\n")
+                f.write("df = pd.DataFrame(data)\n")
+                f.write("df.to_csv(\"measures.csv\")\n")
 
             with open(plot_file, "w") as f:
                 f.write("# Mock plot file\n")
