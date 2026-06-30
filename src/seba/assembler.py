@@ -131,7 +131,7 @@ class SebaAssembler:
             f.writelines(self.script_file)
 
     def __copy_ngspice_utils__(self):
-        subprocess.run(["cp", "../result_gen/ngspice_utils.py", f"{self.config.sim_dir}/res"])
+        subprocess.run(["cp", "../tmp/simulations/res/ngspice_utils.py", f"{self.config.sim_dir}"])
 
     def __create_script_wrapper__(self):
         wrapper_script_file_name = "script_wrapper.sh"
