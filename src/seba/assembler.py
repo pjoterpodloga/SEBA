@@ -139,7 +139,7 @@ class SebaAssembler:
         wsfn = f"{self.config.sim_dir}/{wrapper_script_file_name}"
 
         with open(wsfn, "w") as f:
-            f.write(f"#!/usr/bin/env bash\n")
+            f.write(f"#!/bin/bash\n")
             f.write(f"source ../venv/bin/activate\n")
             f.write(f"python3 {self.config.script}\n")
 
