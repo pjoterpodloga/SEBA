@@ -145,6 +145,11 @@ class SebaAssembler:
 
         subprocess.run(["chmod", "+x", wsfn])
 
+    def __copy_result_html__(self):
+        result_html_file_name = "index.html"
+    
+        subprocess.run(["cp", f"../result_gen/{result_html_file_name}", f"{self.config.sim_dir}"])
+
     def write_all(self):
         self.__write_spice_files__()
         self.__write_corner_list__()
@@ -153,3 +158,4 @@ class SebaAssembler:
         self.__create_res_directory__()
         self.__copy_ngspice_utils__()
         self.__create_script_wrapper__()
+        self.__copy_result_html__()

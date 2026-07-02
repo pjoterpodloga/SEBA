@@ -51,6 +51,7 @@ class SebaSetupTool:
 
         cls.__setup_new_directory__(repo_path, debug_files=debug_files)
         cls.__create_simulations_venv__(repo_path)
+        cls.__copy_utilities__(repo_path)
 
     @classmethod
     def __setup_new_directory__(cls, repo_path: str, debug_files=False):
@@ -181,6 +182,11 @@ class SebaSetupTool:
         subprocess.run([f"{repo_path}/tmp/simulations/venv/bin/pip3", "install", "pandas", "matplotlib", "numpy"], check=True)
         subprocess.run([f"mkdir", f"{repo_path}/tmp/simulations/res"])
         subprocess.run(["cp", "res/ngspice_utils.py", f"{repo_path}/tmp/simulations/res"])
+
+    @classmethod
+    def __copy_utilities__(cls, repo_path: str):
+        subprocess.run(["cp", "res/index.html", f"{repo_path}/result_gen"])
+        pass
 
     ### TODO: this shouldnt be sebareader, more like sebabuilder, class that holds all assembled files
     @classmethod
