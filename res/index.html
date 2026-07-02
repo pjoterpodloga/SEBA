@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Testbench results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .header_content {
+            font-weight: bold;
+        }
+
+        .data_cell {
+            text-align: center;
+        }
+
+        .index-col {
+            background-color: #a2a2a2;
+            font-weight: bold;
+        }
+
+        .above_spec {
+            background-color: #ff7a7a;
+        }
+
+        .below_spec {
+            background-color: #79bbfd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>CSV Viewer</h2>
+
+    <div id="tableContainer"></div>
+
+    <script type="module">
+
+        async function loadMeasureJson() {
+            const res = await fetch('./measure.json')
+                .then(data => data.json())
+                .catch(err => console.error("FETCH ERROR:", err));
+            return res;
+        }
+
+        async function loadMeasureCsv() {
+            const res = await fetch('./measure.csv')
+                .catch(err => console.error("FETCH ERROR:", err))
+            let csvText = await res.text()
+            let rows = parseCSV(csvText)
+            return rows;
+        }
+
+        async function loadCornersList() {
+            const res = await fetch('./corners.list')
+                .catch(err => console.error("FETCH ERROR:", err))
+            let cornersText = await res.text()
+            let corners = parseCornerList(cornersText)
+            return corners
+        }
+
+        function parseCSV(csvText) {
+            const rows = csvText.trim().split('\n').map(r => r.split(','));
+            return rows
+        }
+
+        function getMeasureCsvKeys(measure_csv) {
+            let measure_keys = measure_csv[0].slice(1, measure_csv[0].length)
+            return measure_keys
+        }
+
+        function getMeasureCsvData(measure_csv, number_of_keys) {
+            let measure_values = new Map();
+            for (let it = 1; it < measure_csv.length; it += 1) {
+                let m_index = Number(measure_csv[it][0])
+                let m_values = measure_csv[it].slice(1, number_of_keys + 1)
+                measure_values.set(m_index, m_values)
+            }
+
+            return measure_values
+        }
+
+        function parseCornerList(cornersText) {
+            const rows = cornersText
+                .trim()
+                .split("\n")
+                .map(r => r.split(" ").map(r => r.replace(":", "")))
+            return rows
+        }
+
+        function getCornersKeys(cornersList) {
+            let key = [];
+            for (let it = 0; it < cornersList.length; it += 1) {
+                if (cornersList[it][0] === "param" || cornersList[it][0] === "lib") {
+                    key.push(cornersList[it][1])
+                }
+                else {
+                    break
+                }
+            }
+            return key
+        }
+
+        function getCornersValues(corners_list, number_of_keys) {
+            let values_map = new Map();
+            let keys_quantity = 0
+            for (let it = number_of_keys; it < corners_list.length; it += 1) {
+                let c_index = Number(corners_list[it][0])
+                let c_values = corners_list[it].slice(1, number_of_keys + 1)
+                values_map.set(c_index, c_values)
+            }
+            return values_map
+        }
+
+        function createResultTable(corners_keys, corners_values,
+            measure_json, measure_csv, measure_csv_keys, measure_csv_data,
+            measure_csv_keys_index_map) {
+            let table_header = []
+
+            table_header.push("Corner")
+
+            for (let it = 0; it < corners_keys.length; it += 1) {
+                table_header.push(corners_keys[it])
+            }
+
+            for (let it = 0; it < measure_csv_keys.length; it += 1) {
+                const meas_index = measure_csv_keys_index_map.get(measure_csv_keys[it])
+                const meas_name = measure_csv_keys[it]
+                const meas_unit = measure_json[meas_index].unit
+                let meas_prefix = measure_json[meas_index].prefix
+
+                if (meas_prefix === "None") {
+                    meas_prefix = ""
+                }
+                const meas_content = `${measure_csv_keys[it]} [${meas_prefix}${meas_unit}]`
+                table_header.push(meas_content)
+            }
+
+            const table = document.createElement('table')
+            const tr = document.createElement('tr')
+
+            table_header.forEach((data, i) => {
+                const td = document.createElement('td')
+                td.textContent = data
+                td.classList.add("header_content")
+                td.classList.add("data_cell")
+                tr.appendChild(td)
+            })
+            table.appendChild(tr)
+
+            const prefix_map = new Map()
+            prefix_map.set("G", 1.0e9)
+            prefix_map.set("M", 1.0e6)
+            prefix_map.set("Meg", 1.0e6)
+            prefix_map.set("k", 1.0e3)
+            prefix_map.set("None", 1.0)
+            prefix_map.set("m", 1.0e-3)
+            prefix_map.set("u", 1.0e-6)
+            prefix_map.set("n", 1.0e-9)
+            prefix_map.set("p", 1.0e-12)
+            prefix_map.set("f", 1.0e-15)
+            prefix_map.set("a", 1.0e-18)
+
+            for (let it_r = 0; it_r < corners_values.size; it_r += 1) {
+                const tr = document.createElement('tr')
+                const td_id = document.createElement('td')
+                td_id.textContent = it_r
+                td_id.classList.add("data_cell")
+                tr.appendChild(td_id)
+                for (let it_c = 0; it_c < corners_keys.length; it_c += 1) {
+                    const td = document.createElement('td')
+                    td.textContent = corners_values.get(it_r)[it_c]
+                    td.classList.add("data_cell")
+                    tr.appendChild(td)
+                }
+                for (let it_m = 0; it_m < measure_csv_keys.length; it_m += 1) {
+                    const td = document.createElement('td')
+                    const meas_name = measure_csv_keys[it_m]
+                    const meas_index = measure_csv_keys_index_map.get(meas_name)
+                    const meas_min = measure_json[meas_index].min
+                    const meas_max = measure_json[meas_index].max
+                    const meas_prefix = measure_json[meas_index].prefix
+                    const meas_denominator = prefix_map.get(meas_prefix)
+                    let meas_value = measure_csv_data.get(it_r)[meas_index] / meas_denominator
+                    meas_value = Math.trunc(Number(meas_value) * (1.0e3)) / 1.0e3
+                    td.textContent = meas_value
+
+                    if (meas_value < meas_min) {
+                        td.classList.add('below_spec')
+                    }
+                    if (meas_value > meas_max) {
+                        td.classList.add('above_spec')
+                    }
+
+                    td.classList.add("data_cell")
+                    tr.appendChild(td)
+                }
+                table.appendChild(tr)
+            }
+            return table
+        }
+
+        const measure_json = await loadMeasureJson();
+        const measure_json_name_map = new Map()
+        measure_json.map((r, i) => measure_json_name_map.set(r.name, i))
+
+        const measure_csv = await loadMeasureCsv();
+        const measure_csv_keys = getMeasureCsvKeys(measure_csv);
+        const measure_csv_data = getMeasureCsvData(measure_csv, measure_csv_keys.length)
+        const measure_csv_keys_index_map = new Map()
+        measure_csv_keys.map((r, i) => measure_csv_keys_index_map.set(r, i))
+
+        const corners_list = await loadCornersList();
+        const corners_keys = getCornersKeys(corners_list);
+        const corners_values = getCornersValues(corners_list, corners_keys.length);
+        const corners_keys_index_map = new Map()
+        corners_keys.map((r, i) => corners_keys_index_map.set(r, i))
+
+        console.log(measure_json)
+        console.log(measure_json_name_map)
+        console.log(measure_csv)
+        console.log(measure_csv_keys)
+        console.log(measure_csv_data)
+        console.log(measure_csv_keys_index_map)
+        console.log(corners_list)
+        console.log(corners_keys)
+        console.log(corners_values)
+        console.log(corners_keys_index_map)
+
+        const measure_container = document.getElementById("tableContainer")
+        const table = createResultTable(corners_keys, corners_values,
+            measure_json, measure_csv, measure_csv_keys, measure_csv_data,
+            measure_csv_keys_index_map)
+        measure_container.appendChild(table)
+
+    </script>
+
+</body>
+
+</html>
