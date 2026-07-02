@@ -116,8 +116,8 @@ class SebaParser:
         tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\\"]])
         tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID, Token.TOKEN_DICT["."]])
-        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
         tokens = Parser.bound_by_tokens(tokens, [Token.TOKEN_DICT["\""]], [Token.TOKEN_DICT["\""]], merge=True)
+        tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\""]])
         tokens = Parser.split_tokens(tokens, [Token.TOKEN_DICT["\n"]])
         return tokens
@@ -131,8 +131,8 @@ class SebaParser:
             if len(tl) != 6:
                 raise Exception("Incorect measure line definition.")
             
-            meas = Measure(name=tl[0].value, max=tl[1].value,
-                           min=tl[2].value, unit=tl[3].value,
+            meas = Measure(name=tl[0].value, min=tl[1].value,
+                           max=tl[2].value, unit=tl[3].value,
                            prefix=tl[4].value, desc=tl[5].value)
             
             seba_measure.add(meas)

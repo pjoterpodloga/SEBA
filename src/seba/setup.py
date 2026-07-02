@@ -143,14 +143,14 @@ class SebaSetupTool:
                 f.write("\tvout = Signal.get_signal(\"v(vout)\")\n")
                 f.write("\tidiv = Signal.get_signal(\"i(v1)\")\n")
                 f.write("\tvout_at_0p5 = Signal.value_at(vout, 0.5)\n")
-                f.write("\tidiv_at_0p5 = Signal.value_at(idiv, 0.5)\n")
+                f.write("\tidiv_at_0p5 = np.abs(Signal.value_at(idiv, 0.5))\n")
                 f.write("\tprint(f\"vout @ 0.5V: {get_value_with_prefix(vout_at_0p5)}\")\n")
                 f.write("\tprint(f\"idiv @ 0.5V: {get_value_with_prefix(idiv_at_0p5)}\")\n")
                 f.write("\tvout_result[corner_number] = vout_at_0p5\n")
                 f.write("\tidiv_result[corner_number] = idiv_at_0p5\n")
                 f.write("data = {\"vout\": vout_result, \"idiv\": idiv_result}\n")
                 f.write("df = pd.DataFrame(data)\n")
-                f.write("df.to_csv(\"measures.csv\")\n")
+                f.write("df.to_csv(\"measure.csv\")\n")
 
             with open(plot_file, "w") as f:
                 f.write("# Mock plot file\n")
@@ -160,9 +160,9 @@ class SebaSetupTool:
                 f.write("# meas_name    |   min_spec    |" \
                         "   max_spec    |   unit    |   " \
                         "prefix | description\n")
-                f.write("vout\t\t\t\t500\t\t\t\t700\t\t\t\tV\t\t\tm" \
+                f.write("vout\t\t\t\t200\t\t\t\t300\t\t\t\tV\t\t\tm" \
                         "\t\t\"Output voltage of voltage divider\"\n")
-                f.write("idiv\t\t\t\t0.3\t\t\t\t0.5\t\t\t\tA\t\t\tNone" \
+                f.write("idiv\t\t\t\t0.2\t\t\t\t0.3\t\t\t\tA\t\t\tNone" \
                         "\t\"Current consumption of voltage divider\"")
 
             with open(extraction_file, "w") as f:
