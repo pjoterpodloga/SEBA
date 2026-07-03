@@ -23,9 +23,11 @@ class SebaSimulate:
         self.__done__ = 0
         self.__finished__ = 0
 
-        sim_files = glob.glob(f"{self.config.sim_dir}/{self.config.testbench}_*")
-        sim_files = [f for f in sim_files if re.search(fr"{self.config.sim_dir}/{self.config.testbench}_\d+", f)]
+        pattern = re.compile(fr"{self.config.sim_dir}/{self.config.testbench}_\d+$")
 
+        sim_files = glob.glob(f"{self.config.sim_dir}/{self.config.testbench}_*")
+        sim_files = [f for f in sim_files if pattern.fullmatch(f)]
+        
         sim_files = sorted(sim_files, key=lambda x: int(x.split("_")[-1]))
 
         self.__total_sims__ = len(sim_files)
