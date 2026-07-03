@@ -68,7 +68,7 @@ class SebaSimulate:
                 time.sleep(1)
             else:
                 with open(f"{item[2]}.log_{item[0]}", "w") as f:
-                    subprocess.run(item[1:], stdout=f)
+                    subprocess.run(item[1:], stdout=f, stderr=f)
             
             with self.__lock__:
                 self.__done__ += 1
