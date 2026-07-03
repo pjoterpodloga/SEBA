@@ -69,7 +69,7 @@ class SebaArguments:
                 cls.isSetupOn = True
                 if len(cls.args)-1 == it:
                     raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
-                cls.repoPath = cls.cls.args[it+1]
+                cls.repoPath = cls.args[it+1]
                 it = it + 2
                 continue
 
