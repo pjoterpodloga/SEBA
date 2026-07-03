@@ -286,7 +286,7 @@ class SebaParser:
             if tl[0].value.upper() == ".GLOBAL":
                 if len(tl) != 2:
                     raise Exception("Incomplete .global directive definition")
-                se = GlobalNetDefinition(tl[1])
+                se = GlobalNetDefinition(tl[1].value)
                 se_list.append(se)
                 continue
             
