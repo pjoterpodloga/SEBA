@@ -196,7 +196,7 @@ class SebaParser:
         for it_tl, tl in enumerate(tokens):
             se = None
 
-            if tl[0].value == ".lib":
+            if tl[0].value.upper() == ".LIB":
                 if len(tl) != 3:
                     raise Exception("Incomplete library definition")
 
