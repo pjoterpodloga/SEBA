@@ -91,6 +91,7 @@ class SebaParser:
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["*"]])
         tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
         tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
+        tokens = Parser.bound_by_tokens(tokens, [Token.TOKEN_DICT["'"]], [Token.TOKEN_DICT["'"]], merge=True)
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
         # tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
         # tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\\"]])
