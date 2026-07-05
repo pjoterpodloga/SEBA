@@ -484,7 +484,7 @@ class Token:
     DEFAULT_ID = 1
 
     SEARCH_VALUES = [" ", "\t", "\\", "#", "=", "[", "]",\
-                     ",", "\n", ":", ".", "*", "\""]
+                     ",", "\n", ":", ".", "*", "\"", "'"]
 
     TOKEN_DICT = {x: i + 2 for i, x in enumerate(SEARCH_VALUES)}
 
