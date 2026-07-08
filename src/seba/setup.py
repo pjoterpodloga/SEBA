@@ -172,6 +172,8 @@ class SebaSetupTool:
         ### TODO: Add git init basic routine for connecting remote repo
 
     ### TODO: this should be integrated with default folder utility
+    ### TODO: setting up simulation env should be able by input flags
+    ###       in case repo is being cloned from remote  
     @classmethod
     def __create_simulations_venv__(cls, repo_path: str):
         AsyncLogger.info("Creating python venv in tmp/simualtions directory.")
