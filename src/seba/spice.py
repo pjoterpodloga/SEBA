@@ -147,7 +147,7 @@ class GenericSpice:
     def get_spice_lines(self):
         return ["* Generic spice block"]
 
-class SebaTestbench(GenericSpice):
+class SebaNetlist(GenericSpice):
     def __init__(self, se: list[SpiceDefinition]):
         super().__init__(se)
 
