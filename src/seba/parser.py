@@ -174,9 +174,13 @@ class SebaParser:
                 continue
             
             if tl[0].value.upper() == "SET":
-                if tl[2].value != "=":
-                    raise Exception("Wrong definition of SET directive in .control block")
-                se = ControlSetDefinition(tl[1].value, tl[3].value)
+                if len(tl) == 2:
+                    se = ControlSetDefinition(tl[1].value, None)
+                else:
+                    if tl[2].value != "=":
+                        raise Exception("Wrong definition of SET directive in .control block")
+                    se = ControlSetDefinition(tl[1].value, tl[3].value)
+
                 se_list.append(se)
                 continue
 
@@ -248,7 +252,8 @@ class SebaParser:
             if tl[0].value.upper().startswith("R") or \
                tl[0].value.upper().startswith("L") or \
                tl[0].value.upper().startswith("C") or \
-               tl[0].value.upper().startswith("V"):
+               tl[0].value.upper().startswith("V") or \
+               tl[0].value.upper().startswith("I"):
                 
                 nets = []
                 for it_t, t in enumerate(tl[1:len(tl)]):
