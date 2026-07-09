@@ -118,8 +118,9 @@ class SebaSetupTool:
                 f.write("R3 vout 0 'xres2'\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
+                f.write(".param xtemp=25\n")
                 f.write(".save all\n")
-                f.write(".temp 25\n")
+                f.write(".temp 'xtemp'\n")
                 f.write(".dc v1 0 1 0.01\n")
                 f.write(".end\n")
 

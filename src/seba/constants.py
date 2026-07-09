@@ -1,5 +1,5 @@
 
-DEBUG = True
+DEBUG = False
 
 class AnsiCode:
     reset               = "\033[0m" # Reset all text attributes to default

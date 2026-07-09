@@ -84,7 +84,7 @@ class SebaParser:
 
         return tokens_list
 
-    def __prepare_testbench__(self) -> list[list[Token]]:
+    def __prepare_netlist__(self) -> list[list[Token]]:
 
         file_content_merged = Parser.prepare_file(self.file_content)
         tokens = Parser.define_tokens(file_content_merged)
@@ -93,6 +93,8 @@ class SebaParser:
         tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["."]], Token.DEFAULT_ID)
         tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
         tokens = Parser.bound_by_tokens(tokens, [Token.TOKEN_DICT["'"]], [Token.TOKEN_DICT["'"]], merge=True)
+        tokens = Parser.alter_tokens(tokens, [Token.TOKEN_DICT["'"]], Token.DEFAULT_ID)
+        tokens = Parser.group_tokens(tokens, [Token.DEFAULT_ID])
         tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT[" "], Token.TOKEN_DICT["\t"], Token.TOKEN_DICT[","]])
         # tokens = Parser.delete_after_tokens(tokens, [Token.TOKEN_DICT["\n"]], [Token.TOKEN_DICT["\\"]])
         # tokens = Parser.delete_tokens(tokens, [Token.TOKEN_DICT["\\"]])
@@ -185,11 +187,11 @@ class SebaParser:
 
         return seba_control
 
-    def parse_netlist(self) -> SebaTestbench:
+    def parse_netlist(self) -> SebaNetlist:
 
         AsyncLogger.info(f"Parsing testbench file: {self.config.testbench}")
 
-        tokens = self.__prepare_testbench__()
+        tokens = self.__prepare_netlist__()
 
         se_list = []
 
@@ -216,7 +218,7 @@ class SebaParser:
 
             if tl[0].value.upper() == ".TEMP":
                 if len(tl) != 2:
-                    raise Exception("Incomplete temperatur definition")
+                    raise Exception("Incomplete temperature definition")
                 se = TemperatureDefinition(tl[1].value)
                 se_list.append(se)
                 continue
@@ -308,7 +310,7 @@ class SebaParser:
                 se_list.append(EndDefinition())
                 continue
 
-        seba_spice = SebaTestbench(se_list)
+        seba_spice = SebaNetlist(se_list)
 
         return seba_spice
             
