@@ -34,17 +34,13 @@ class SebaReader:
                 self.control_file = f.readlines()
     
     def __read_netlist_file__(self):
-        if self.config.netlist != None:
-            with open("../netlist/"+self.config.netlist, "r") as f:
-                self.netlist_file = f.readlines()
-
         if self.config.testbench != None:
-            netlist_filename = self.config.testbench.split(".")
-            netlist_filename = "".join(netlist_filename[0:-1])
-            netlist_filename = f"{netlist_filename}.spice"
-            print(netlist_filename)
-            with open("../netlist/"+netlist_filename, "r") as f:
-                self.netlist_file = f.readlines()
+            nlfn = self.config.testbench.split(".")
+            nlfn = "".join(nlfn[0:-1])
+            self.config.netlist = f"{nlfn}.spice"
+            
+        with open("../netlist/"+self.config.netlist, "r") as f:
+            self.netlist_file = f.readlines()
     
     def __generate_netlist_file__(self):
         if self.config.testbench != None:

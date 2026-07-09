@@ -23,9 +23,9 @@ class SebaSimulate:
         self.__done__ = 0
         self.__finished__ = 0
 
-        pattern = re.compile(fr"{self.config.sim_dir}/{self.config.testbench}_\d+$")
+        pattern = re.compile(fr"{self.config.sim_dir}/{self.config.netlist}_\d+$")
 
-        sim_files = glob.glob(f"{self.config.sim_dir}/{self.config.testbench}_*")
+        sim_files = glob.glob(f"{self.config.sim_dir}/{self.config.netlist}_*")
         sim_files = [f for f in sim_files if pattern.fullmatch(f)]
         
         sim_files = sorted(sim_files, key=lambda x: int(x.split("_")[-1]))
