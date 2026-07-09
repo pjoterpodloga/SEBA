@@ -92,7 +92,11 @@ class SebaAssembler:
 
     def __write_spice_files__(self):
         
-        spice_file_name = self.config.testbench
+        if self.config.netlist == None:
+            spice_file_name = self.config.testbench.split(".")
+            spice_file_name = "".join(spice_file_name[0:-1])+".spice"
+        else:
+            spice_file_name = self.config.netlist
 
         for it_sf, sf in enumerate(self.spice_files):
             sfn = f"{spice_file_name}_{it_sf}"
