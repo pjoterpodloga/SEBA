@@ -80,7 +80,7 @@ class SebaSetupTool:
         if debug_files:
             config_file = repo_path+"/config/"+"config.debug.seba"
             control_file = repo_path+"/control/"+"control.debug.spice"
-            testbench_file = repo_path+"/testbench/"+"debug_tb.debug.spice"
+            netlist_tb_file = repo_path+"/netlist/"+"debug_tb.debug.spice"
             corners_file = repo_path+"/corners/"+"corner.debug.gen"
             scripts_file = repo_path+"/scripts/"+"script.debug.py"
             plot_file = repo_path+"/result_gen/"+"plot.debug.plt"
@@ -92,7 +92,7 @@ class SebaSetupTool:
                 f.write("# Mock SEBA config file\n")
                 f.write("NAME\t\tdebug_tb\n")
                 f.write("CONTROL\t\tcontrol.debug.spice\n")
-                f.write("TESTBENCH\tdebug_tb.debug.spice\n")
+                f.write("NETLIST\tdebug_tb.debug.spice\n")
                 f.write("CORNERS\t\tcorner.debug.gen\n")
                 f.write("SCRIPT\t\tscript.debug.py\n")
                 f.write("MEAS\t\tmeasure.debug.meas\n")
@@ -107,7 +107,7 @@ class SebaSetupTool:
                 f.write("write debug_tb.debug.raw all\n")
                 f.write(".endc\n")
             
-            with open(testbench_file, "w") as f:
+            with open(netlist_tb_file, "w") as f:
                 f.write("* Title: Debug mock testbench file\n")
                 f.write(".subckt sres net1 net2\n")
                 f.write("Rsubckt net1 net2 1\n")
