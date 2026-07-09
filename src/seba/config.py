@@ -2,12 +2,13 @@ from seba.logger import *
 
 class SebaConfig:
 
-    def __init__(self, name=None, control=None, tb=None, corners=None, 
-                 script=None, plot=None, meas=None, extraction=None, 
-                 sim_dir=None, config_dir=None):
+    def __init__(self, name=None, control=None, tb=None, netlist=None,
+                 corners=None, script=None, plot=None, meas=None, 
+                 extraction=None, sim_dir=None, config_dir=None):
         self.name = name
         self.control = control
         self.testbench = tb
+        self.netlist = netlist
         self.corners = corners
         self.script = script
         self.plot = plot
@@ -19,6 +20,8 @@ class SebaConfig:
     def print_config(self):
         AsyncLogger.debug(f"Parsed seba configuration:")
         AsyncLogger.debug(f"NAME = {self.name}")
+        AsyncLogger.debug(f"TESTBENCH = {self.testbench}")
+        AsyncLogger.debug(f"NETLIST = {self.netlist}")
         AsyncLogger.debug(f"CONTROL = {self.control}")
         AsyncLogger.debug(f"CORNERS = {self.corners}")
         AsyncLogger.debug(f"SCRIPT = {self.script}")
