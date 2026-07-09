@@ -10,6 +10,7 @@ from seba.measure import *
 from seba.plot import *
 from seba.utils import CornerGenerator, Corner, Token, TokenCorner, Parser
 from seba.utils import WrongNumberConfigCommands, UnknownConfigCommand, MissingNameConfig
+from seba.utils import NetlistTestbenchCollision
 from seba.utils import MissingCorner, DefinitionAfterCornerGen, WrongCornerDefinition
 from seba.utils import EmptyCornerArray, MissingCornerValue, UnknownCornerCommand
 from seba.utils import CornerDuplication
@@ -184,7 +185,7 @@ class SebaParser:
 
         return seba_control
 
-    def parse_testbench(self) -> SebaTestbench:
+    def parse_netlist(self) -> SebaTestbench:
 
         AsyncLogger.info(f"Parsing testbench file: {self.config.testbench}")
 
@@ -463,6 +464,11 @@ class SebaParser:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.testbench = cmd[1]
 
+            elif cmd[0].upper() == "NETLIST":
+                if len(tl) != 2:
+                    raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
+                seba_config.netlist = cmd[1]
+
             elif cmd[0].upper() == "CORNERS":
                 if len(tl) != 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
@@ -493,6 +499,10 @@ class SebaParser:
 
         if seba_config.name == None:
             raise MissingNameConfig(f"Cannot find \"NAME\" directive in configuration file.")
+
+        if  seba_config.testbench != None and\
+            seba_config.netlist != None:
+            raise NetlistTestbenchCollision(f"Cannot provide simultaneously both netlist and testbench files.")
 
         if SebaArguments.isDebugOn or DEBUG:
             seba_config.print_config()
