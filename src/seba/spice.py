@@ -209,7 +209,7 @@ class ControlSetDefinition(SpiceDefinition):
         if (self.value == None):
             result = f"SET {self.name}"
         else:
-            resutl = f"SET {self.name}={self.value}"
+            result = f"SET {self.name}={self.value}"
 
         return result
 
