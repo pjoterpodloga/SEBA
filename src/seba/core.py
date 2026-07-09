@@ -56,7 +56,7 @@ class Seba:
             seba_corners = seba_parser_corners.parse_corner_gen()
 
             seba_parser_testbench = SebaParser(seba_config, seba_reader.testbench_file)
-            seba_testbench = seba_parser_testbench.parse_testbench()
+            seba_testbench = seba_parser_testbench.parse_netlist()
 
             seba_parser_control = SebaParser(seba_config, seba_reader.control_file)
             seba_control = seba_parser_control.parse_control()
