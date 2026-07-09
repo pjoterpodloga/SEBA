@@ -452,6 +452,10 @@ class MissingNameConfig(Exception):
     def __init__(self, *args):
         super().__init__(*args)
 
+class NetlistTestbenchCollision(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
 class WrongCornerDefinition(Exception):
     def __init__(self, *args):
         super().__init__(*args)
