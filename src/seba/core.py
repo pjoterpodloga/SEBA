@@ -55,8 +55,8 @@ class Seba:
             seba_parser_corners = SebaParser(seba_config, seba_reader.corners_file)
             seba_corners = seba_parser_corners.parse_corner_gen()
 
-            seba_parser_testbench = SebaParser(seba_config, seba_reader.testbench_file)
-            seba_testbench = seba_parser_testbench.parse_netlist()
+            seba_parser_netlist = SebaParser(seba_config, seba_reader.netlist_file)
+            seba_netlist = seba_parser_netlist.parse_netlist()
 
             seba_parser_control = SebaParser(seba_config, seba_reader.control_file)
             seba_control = seba_parser_control.parse_control()
@@ -65,7 +65,7 @@ class Seba:
             seba_measure = seba_parser_measure.parse_measure()
 
             seba_assembler = SebaAssembler(seba_config, seba_corners, 
-                                           seba_testbench, seba_control,
+                                           seba_netlist, seba_control,
                                            seba_measure, seba_reader.script_file)
 
             seba_assembler.write_all()

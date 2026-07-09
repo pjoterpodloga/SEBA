@@ -4,7 +4,6 @@ class SebaReader:
     def __init__(self, config: SebaConfig):
         self.config = config
         self.control_file = None
-        self.testbench_file = None
         self.netlist_file = None
         self.corners_file = None
         self.script_file = None
@@ -41,8 +40,9 @@ class SebaReader:
 
         if self.config.testbench != None:
             netlist_filename = self.config.testbench.split(".")
-            netlist_filename = "".join(netlist_filename[0:-2])
+            netlist_filename = "".join(netlist_filename[0:-1])
             netlist_filename = f"{netlist_filename}.spice"
+            print(netlist_filename)
             with open("../netlist/"+netlist_filename, "r") as f:
                 self.netlist_file = f.readlines()
     
