@@ -12,6 +12,8 @@ __pycache__/
 *.py[cod]
 *.pyo
 
+build/
+
 venv/
 .venv/
 env/
