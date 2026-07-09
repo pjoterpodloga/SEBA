@@ -47,10 +47,11 @@ class SebaDirectoryTemplate:
     plot_file = DefaultFile("plot.template.plt", plot_file_content)
     config_folder = Folder("config", [seba_repo_file, seba_config_file, seba_log_folder])
     spfiles_folder = Folder("control", ["<control.spice>"])
-    tb_folder = Folder("testbench", ["<testbench.sch>"])
+    testbench_folder = Folder("testbench", ["<testbench.sch>"])
     circuit_folder = Folder("circuit", ["<circuit.sch>", "<circuit.sym>"])
     layout_folder = Folder("layout", ["<layout.gds>"])
     corners_folder = Folder("corners", [corner_gen_file, "<corner.gen>", corner_list_file])
+    netlist_folder = Folder("netlist", ["<netlist.spice>"])
     pex_folder = TemporaryFolder("pex", ["<circuit.pex.spice>"])
     scripts_folder = Folder("scripts", ["<script.py>"])
     result_gen_folder = Folder("result_gen", [meas_file, "<meas.meas>", plot_file, "<plot.plt>",])
@@ -63,10 +64,10 @@ class SebaDirectoryTemplate:
     pex_tmp_folder = TemporaryFolder("pex_tmp", [])
     tmp_folder = TemporaryFolder("tmp", [simulations_folder, layout_flatten_gds_folder, layout_lvs_folder, layout_drc_folder, pex_tmp_folder])
     backup_folder = TemporaryFolder("backup", ["<backup.zip>"])
-    root_tree = Folder("<repo_name>", [config_folder, spfiles_folder, tb_folder, circuit_folder,
-                                            layout_folder, corners_folder, pex_folder, scripts_folder,
-                                            result_gen_folder, result_folder, logs_folder, tmp_folder,
-                                            backup_folder])
+    root_tree = Folder("<repo_name>", [config_folder, spfiles_folder, testbench_folder, circuit_folder,
+                                            layout_folder, corners_folder, netlist_folder, pex_folder, 
+                                            scripts_folder, result_gen_folder, result_folder, logs_folder, 
+                                            tmp_folder, backup_folder])
     
     gitignore_file_content = "".join(gfc.replace("<repo_name>/", "")+"\n" for gfc in root_tree.generate_gitignore(header="# Default SEBA .gitignore file\n").split("\n"))
     gitignore_file = DefaultFile(".gitignore", gitignore_file_content)
