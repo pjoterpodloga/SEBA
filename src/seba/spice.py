@@ -204,7 +204,14 @@ class ControlSetDefinition(SpiceDefinition):
         self.value = value
 
     def spice_line(self):
-        return f"SET {self.name}={self.value}"
+        result = ""
+        
+        if (self.value == None):
+            result = f"SET {self.name}"
+        else:
+            resutl = f"SET {self.name}={self.value}"
+
+        return result
 
 class SebaControl(GenericSpice):
     def __init__(self, se: list[SpiceDefinition]):
