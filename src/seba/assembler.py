@@ -9,7 +9,7 @@ from seba.spice import *
 
 class SebaAssembler:
     def __init__(self, config: SebaConfig,\
-                    corners: SebaCorner, testbench: SebaTestbench,\
+                    corners: SebaCorner, testbench: SebaNetlist,\
                     control: SebaControl, measure: SebaMeasure,
                     script: list[str]):
         self.config = config
