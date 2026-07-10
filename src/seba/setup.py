@@ -176,9 +176,19 @@ class SebaSetupTool:
     ### TODO: setting up simulation env should be able by input flags
     ###       in case repo is being cloned from remote  
     @classmethod
-    def __create_simulations_venv__(cls, repo_path: str):
+    def __create_simulations_venv__(cls, repo_path: str, skip_venv=False):
         AsyncLogger.info("Creating python venv in tmp/simualtions directory.")
+
+        if skip_venv:
+            AsyncLogger.warning("Skipping creating python venv")
+            return
         
+        cls.__create_venv_subprocess__(repo_path, skip_venv=skip_venv)
+
+    def __create_venv_subprocess__(cls, repo_path, skip_venv=False):
+        if skip_venv:
+            AsyncLogger.warning("Setting up venv in simulation directory skipped.")
+            return
         python = os.path.join(sys.base_prefix, "bin", "python3")
 
         subprocess.run(["env", "-i", python, "-m", "venv", f"{repo_path}/tmp/simulations/venv"], check=True)
