@@ -204,7 +204,7 @@ class SebaSetupTool:
         
         if sim_dir_exists or force == True:
             shutil.rmtree(sim_dir)
-            AsyncLogger.warning("Existing simulation direcotry removed.")
+            AsyncLogger.warning("Existing simulation directory removed.")
 
         subprocess.run(["mkdir", "-p", sim_dir])
         AsyncLogger.info(f"Created new simulation directory: {config.name}")
