@@ -32,8 +32,19 @@ class SebaSimulate:
 
         self.__total_sims__ = len(sim_files)
 
-        AsyncLogger.info(f"Starting simulations")
+        mps = 1
+        if   self.config.proc_quant.upper() == "DEFAULT":
+            mps = 4
+        elif self.config.proc_quant.upper() == "MAX":
+            mps = self.__total_sims__
+        elif self.config.proc_quant != None:
+            mps = int(self.config.proc_quant)
+
+        self.max_parraler_sims = mps
+
+        AsyncLogger.info(f"Starting simulations.")
         AsyncLogger.info(f"Found {self.__total_sims__} spice files to simulate.")
+        AsyncLogger.info(f"Spawning {self.max_parraler_sims} workers.")
         time.sleep(1)
 
         self.__sim_threads__ = []
