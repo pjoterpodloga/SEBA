@@ -58,6 +58,12 @@ class SebaInputArguments:
     l_setup_debug = f"--setup_debug"
     m_setup_debug = f" , {l_setup_debug} <repo_path>\tSetup repository with provided <repo_path> for debug purposes"
 
+    l_skip_venv = f"--skip_venv"
+    m_skip_venv = f"  , {l_skip_venv}\t\tSkip creating venv in simulation directory"
+
+    l_create_venv = f"--create_venv"
+    m_create_venv = f"  , {l_create_venv}\t\Creating venv in simulation directory"
+
     s_debug = f"-d"
     l_debug = f"--debug"
     m_debug = f"{s_debug}, {l_debug}\t\t\tShowing debug info"
