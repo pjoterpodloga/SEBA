@@ -65,28 +65,25 @@ class SebaArguments:
                 it = it + 1
                 break
 
-            if cls.args[it] == SebaInputArguments.s_setup or cls.args[it] == SebaInputArguments.l_setup:
-                cls.isSetupOn = True
-                if len(cls.args)-1 == it:
+            if cls.args[it] == SebaInputArguments.s_repo_path or cls.args[it] == SebaInputArguments.l_repo_path:
+                if len(cls.args) - 1 == it:
                     raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
                 cls.repoPath = cls.args[it+1]
+                it = it + 2
+
+            if cls.args[it] == SebaInputArguments.s_setup or cls.args[it] == SebaInputArguments.l_setup:
+                cls.isSetupOn = True
                 it = it + 2
                 continue
 
             if cls.args[it] == SebaInputArguments.l_setup_force:
                 cls.isSetupForceOn = True
-                if len(cls.args)-1 == it:
-                    raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
-                cls.repoPath = cls.args[it+1]
                 it = it + 2
                 continue
 
             if cls.args[it] == SebaInputArguments.l_setup_debug:
                 cls.isSetupDebugOn = True
-                if len(cls.args)-1 == it:
-                    raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
-                cls.repoPath = cls.args[it+1]
-                it = it + 2
+                it = it + 1
                 continue
 
             if cls.args[it] == SebaInputArguments.s_debug or cls.args[it] == SebaInputArguments.l_debug:

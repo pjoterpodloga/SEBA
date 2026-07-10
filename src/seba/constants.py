@@ -47,9 +47,13 @@ class SebaInputArguments:
     l_help = f"--help"
     m_help = f"{s_help}, {l_help}\t\t\tShow this message"
 
+    s_repo_path = f"-r"
+    l_repo_path = f"--repo_path"
+    m_repo_path = f"{s_repo_path}, {l_repo_path}\t\tSetting up repository path for setup routine"
+
     s_setup = f"-s"
     l_setup = f"--setup"
-    m_setup = f"{s_setup}, {l_setup} <repo_path>\t\tSetup repository with provided <repo_path>"
+    m_setup = f"{s_setup}, {l_setup}\t\tSetup repository with provided {l_repo_path}"
 
     l_setup_force = f"--setup_force"
     m_setup_force = f"  , {l_setup_force} <repo_path>\tForcing setup of reposiotory with provided <repo_path>"\
