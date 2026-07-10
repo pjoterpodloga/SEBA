@@ -6,6 +6,7 @@ import shutil
 from seba.constants import *
 from seba.logger import *
 from seba.directory import *
+from seba.arguments import *
 from seba.reader import *
 
 class SebaSetupTool:
@@ -34,24 +35,37 @@ class SebaSetupTool:
             pass
 
     @classmethod
-    def setup_repository(cls, repo_path: str, force=False, debug_files=False):
+    def setup_repository(cls, settings: SebaArguments):
+
+        repo_path = settings.repoPath
+        setup_force = settings.isSetupForceOn or settings.isSetupDebugOn
+        debug_files = settings.isCreateDebugFilesOn or settings.isSetupDebugOn
+        skip_venv = settings.isSkipVenvOn
 
         repoExists = cls.check_if_repo_exists(repo_path)
 
-        if repoExists and not force:
+        if repoExists and not setup_force:
             AsyncLogger.error(f"To remove existing path pass --setup_force <repo_path> argument.")
             return
         
-        if not repoExists and not force:
+        if not repoExists and not setup_force:
             AsyncLogger.info(f"Setting up new repository: {repo_path}")
 
-        if repoExists and force:
+        if repoExists and setup_force:
             AsyncLogger.warning(f"Removing existing {repo_path} repository or path and replacing it.")
             shutil.rmtree(repo_path, ignore_errors=True)
 
         cls.__setup_new_directory__(repo_path, debug_files=debug_files)
-        cls.__create_simulations_venv__(repo_path)
+        cls.__create_simulations_venv__(repo_path, skip_venv=skip_venv)
         cls.__copy_utilities__(repo_path)
+
+    @classmethod
+    def create_venv_directory(cls, settings: SebaArguments):
+        skip_venv = settings.isSkipVenvOn
+        if os.path.exists(settings.repoPath+"/venv"):
+            AsyncLogger.warning("Venv already exists, use --create_venv_force instead.")
+        else:
+            cls.__create_venv_subprocess__(skip_venv = skip_venv)
 
     @classmethod
     def __setup_new_directory__(cls, repo_path: str, debug_files=False):
@@ -199,20 +213,21 @@ class SebaSetupTool:
     @classmethod
     def __copy_utilities__(cls, repo_path: str):
         subprocess.run(["cp", "res/index.html", f"{repo_path}/result_gen"])
-        pass
 
     ### TODO: this shouldnt be sebareader, more like sebabuilder, class that holds all assembled files
     @classmethod
-    def prepare_sim_dir(cls, config: SebaConfig, force=False):
+    def prepare_sim_dir(cls, config: SebaConfig, settings: SebaArguments):
         
+        build_force = settings.isBuildForceOn
+
         sim_dir = "../tmp/simulations/"+config.name
 
         sim_dir_exists = os.path.exists(sim_dir)
 
-        if sim_dir_exists and force == False:
+        if sim_dir_exists and build_force == False:
             raise Exception("Directory already exists, use \"--build_force\" to remove directory.")
         
-        if sim_dir_exists or force == True:
+        if sim_dir_exists or build_force == True:
             shutil.rmtree(sim_dir)
             AsyncLogger.warning("Existing simulation directory removed.")
 
