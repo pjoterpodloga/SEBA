@@ -14,7 +14,6 @@ class SebaSimulate:
     def __init__(self, config: SebaConfig):
         self.config = config
 
-        self.max_parraler_sims = 4
         self.simulator = "ngspice"
         self.simulator_arguments = ["--batch"]
 
