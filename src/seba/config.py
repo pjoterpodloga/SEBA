@@ -16,6 +16,7 @@ class SebaConfig:
         self.extraction = extraction
         self.sim_dir = sim_dir
         self.config_dir = config_dir
+        self.proc_quant = "1"
 
     def print_config(self):
         AsyncLogger.debug(f"Parsed seba configuration:")
