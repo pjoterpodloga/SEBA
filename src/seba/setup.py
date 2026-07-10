@@ -199,6 +199,7 @@ class SebaSetupTool:
         
         cls.__create_venv_subprocess__(repo_path, skip_venv=skip_venv)
 
+    @classmethod
     def __create_venv_subprocess__(cls, repo_path, skip_venv=False):
         if skip_venv:
             AsyncLogger.warning("Setting up venv in simulation directory skipped.")
