@@ -40,7 +40,7 @@ class Seba:
             with open(SebaArguments.sebaFile, "r") as f:
                 file_content = f.readlines()
 
-            seba_parser_config = SebaParser(None, file_content)
+            seba_parser_config = SebaParser(None, file_content, SebaArguments)
             seba_config = seba_parser_config.parse_seba_config()
 
             os.chdir(seba_config.config_dir)
