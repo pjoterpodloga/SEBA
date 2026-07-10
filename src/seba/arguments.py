@@ -28,6 +28,9 @@ class SebaArguments:
     isBuildForceOn = False
     isSimulateOn = False
     isCreateDebugFilesOn = False
+    isCreateVenvOn = False
+    isSkipVenvOn = False
+    numberOfParralerSims = None
     sebaFile: str = None
     repoPath: str = None
     executePath: str = None
@@ -111,6 +114,18 @@ class SebaArguments:
                 it = it + 1
                 continue
 
+            if cls.args[it] == SebaInputArguments.l_proc_quant:
+                if len(cls.args) - 1 == it:
+                    raise MissingArgumentError(f"Missing argument for {cls.args[it]}")
+                cls.numberOfParralerSims = cls.args[it+1]
+                it = it + 2
+                continue
+
+            if cls.args[it] == SebaInputArguments.l_skip_venv:
+                cls.isSkipVenvOn = True
+                it = it + 1
+                continue
+
             if it == 1:
                 cls.sebaFile = cls.args[it]
                 it = it + 1
@@ -131,6 +146,17 @@ class SebaArguments:
             cls.isSimulateOn = False
             cls.sebaFile = None
             AsyncLogger.warning("Due to setup or force setup flag set, reseting rest of flags.")
+
+        if (cls.isSetupOn or cls.isSetupForceOn or\
+            cls.isSetupDebugOn or cls.isCreateVenvOn) and\
+            cls.repoPath == None:
+
+            cls.isSetupOn = False
+            cls.isSetupForceOn = False
+            cls.isSetupDebugOn = False
+            cls.isCreateVenvOn = False
+            AsyncLogger.warning("Reseting setup flags due to not providing repository path.")
+
     
     @classmethod
     def print_config(cls):
@@ -139,10 +165,13 @@ class SebaArguments:
         AsyncLogger.debug(f"IS_SETUP_ON = {cls.isSetupOn}")
         AsyncLogger.debug(f"IS_SETUP_FORCE_ON = {cls.isSetupForceOn}")
         AsyncLogger.debug(f"IS_SETUP_DEBUG_ON = {cls.isSetupDebugOn}")
+        AsyncLogger.debug(f"IS_SKIP_VENV_ON = {cls.isSkipVenvOn}")
+        AsyncLogger.debug(f"IS_CREATE_VENV_ON = {cls.isCreateVenvOn}")
         AsyncLogger.debug(f"IS_BUILD_ON = {cls.isBuildOn}")
         AsyncLogger.debug(f"IS_BUILD_FORCE_ON = {cls.isBuildForceOn}")
         AsyncLogger.debug(f"IS_SIMULATE_ON = {cls.isSimulateOn}")
         AsyncLogger.debug(f"IS_CREATE_DEBUG_FILES_ON = {cls.isCreateDebugFilesOn}")
+        AsyncLogger.debug(f"NUM_OF_PARRALER_SIMS = {cls.numberOfParralerSims}")
         AsyncLogger.debug(f"SEBA_FILE = {cls.sebaFile}")
         AsyncLogger.debug(f"REPO_PATH = {cls.repoPath}")
         AsyncLogger.debug(f"EXECUTE_PATH = {cls.executePath}")
@@ -158,11 +187,15 @@ class SebaArguments:
         AsyncLogger.info(f"{SebaInputArguments.m_help}")
         AsyncLogger.info(f"{SebaInputArguments.m_setup}")
         AsyncLogger.info(f"{SebaInputArguments.m_setup_force}")
+        AsyncLogger.info(f"{SebaInputArguments.m_setup_debug}")
+        AsyncLogger.info(f"{SebaInputArguments.m_skip_venv}")
+        AsyncLogger.info(f"{SebaInputArguments.m_create_venv}")
         AsyncLogger.info(f"{SebaInputArguments.m_debug}")
         AsyncLogger.info(f"{SebaInputArguments.m_build}")
         AsyncLogger.info(f"{SebaInputArguments.m_build_force}")
         AsyncLogger.info(f"{SebaInputArguments.m_sim}")
         AsyncLogger.info(f"{SebaInputArguments.m_debug_files}")
+        AsyncLogger.info(f"{SebaInputArguments.m_proc_quant}")
 
     @classmethod
     def __print_dir_template__(cls):
