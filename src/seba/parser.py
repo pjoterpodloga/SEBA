@@ -19,9 +19,10 @@ from seba.utils import CornerDuplication
 
 class SebaParser:
 
-    def __init__(self, config: SebaConfig, file_content: list[str]):
+    def __init__(self, config: SebaConfig, file_content: list[str], settings: SebaArguments):
 
         self.config = config
+        self.settings = settings
 
         if type(file_content) == str:
             self.file_content = [f"{fc}\n" for fc in file_content.split("\n")]
@@ -428,7 +429,7 @@ class SebaParser:
 
     def parse_seba_config(self) -> SebaConfig:
 
-        AsyncLogger.info(f"Parsing SEBA configuration file: {SebaArguments.sebaFile}")
+        AsyncLogger.info(f"Parsing SEBA configuration file: {self.settings.sebaFile}")
 
         tokens = self.__prepare_seba_config__()
         
@@ -444,9 +445,9 @@ class SebaParser:
 
 
         seba_config = SebaConfig()
-        config_dir = SebaArguments.sebaFile.split("/")
+        config_dir = self.settings.sebaFile.split("/")
         config_dir.pop()
-        seba_config.config_dir = SebaArguments.executePath + "/" + "/".join(config_dir)
+        seba_config.config_dir = self.settings.executePath + "/" + "/".join(config_dir)
 
         for it_tl, tl in enumerate(tokens):
 
@@ -511,8 +512,10 @@ class SebaParser:
             seba_config.netlist != None:
             raise NetlistTestbenchCollision(f"Cannot provide simultaneously both netlist and testbench files.")
 
-        if SebaArguments.isDebugOn or DEBUG:
+        if self.settings.isDebugOn or DEBUG:
             seba_config.print_config()
 
+        if self.settings.numberOfParralerSims != None:
+            seba_config.proc_quant = self.settings.numberOfParralerSims
 
         return seba_config
