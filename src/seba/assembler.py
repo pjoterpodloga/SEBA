@@ -36,14 +36,23 @@ class SebaAssembler:
 
         corner_spice_definition_list = self.corners.generate_spice_definition_corners()
 
+        lib_keys = list(self.testbench.lib_index_dict.keys())
+        param_keys = list(self.testbench.param_index_dict.keys())
+
         for it_sdl, sdl in enumerate(corner_spice_definition_list):
             for it_sd, sd in enumerate(sdl):
                 if type(sd) == LibraryDefinition:
-                    lib_idx = self.testbench_list[it_sdl].lib_index_dict[sd.name]
-                    self.testbench_list[it_sdl].se[lib_idx] = sd
+                    if sd.name in lib_keys:
+                        lib_idx = self.testbench_list[it_sdl].lib_index_dict[sd.name]
+                        self.testbench_list[it_sdl].se[lib_idx] = sd
+                    else:
+                        self.testbench_list[it_sdl].add_lib(sd)
                 if type(sd) == ParameterDefinition:
-                    param_idx = self.testbench_list[it_sdl].param_index_dict[sd.name]
-                    self.testbench_list[it_sdl].se[param_idx] = sd
+                    if sd.name in param_keys:
+                        param_idx = self.testbench_list[it_sdl].param_index_dict[sd.name]
+                        self.testbench_list[it_sdl].se[param_idx] = sd
+                    else:
+                        self.testbench_list[it_sdl].add_param(sd)
 
     def __adjust_corner_write_directive__(self):
 
@@ -51,7 +60,6 @@ class SebaAssembler:
             for it_se, se in enumerate(c.se):
                 if type(se) == ControlWriteDefinition:
                     self.control_list[it_c].se[it_se].name = self.control_list[it_c].se[it_se].name + f"_{it_c}"
-
     
     def __create_spice_files__(self) -> list[list[str]]:
         
