@@ -75,3 +75,6 @@ class SebaInputArguments:
 
     l_debug_files = f"--debug_files"
     m_debug_files = f"  , {l_debug_files}\t\tCreate debug files for testing purposes"
+
+    l_proc_quant = f"--proc"
+    m_proc_quant = f"  , {l_proc_quant}\t\tDefine how many parraler corners to simulate"
