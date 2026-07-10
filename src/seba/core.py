@@ -30,10 +30,10 @@ class Seba:
             SebaArguments.isSetupForceOn or\
             SebaArguments.isSetupDebugOn:
 
-            SebaSetupTool.setup_repository(
-                SebaArguments.repoPath, 
-                SebaArguments.isSetupForceOn or SebaArguments.isSetupDebugOn, 
-                SebaArguments.isCreateDebugFilesOn or SebaArguments.isSetupDebugOn)
+            SebaSetupTool.setup_repository(SebaArguments)
+
+        if SebaArguments.isCreateVenvOn:
+            SebaSetupTool.create_venv_directory(SebaArguments)
 
         if SebaArguments.sebaFile != None:
             file_content = []
@@ -48,7 +48,7 @@ class Seba:
         if (SebaArguments.isBuildOn or SebaArguments.isBuildForceOn) and\
             SebaArguments.sebaFile != None:
 
-            SebaSetupTool.prepare_sim_dir(seba_config, SebaArguments.isBuildForceOn)
+            SebaSetupTool.prepare_sim_dir(seba_config, SebaArguments)
 
             seba_reader = SebaReader(seba_config)
 
