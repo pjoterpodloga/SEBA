@@ -157,6 +157,10 @@ class SebaArguments:
             cls.isCreateVenvOn = False
             AsyncLogger.warning("Reseting setup flags due to not providing repository path.")
 
+        if (cls.isSkipVenvOn and cls.isCreateVenvOn):
+            cls.isSkipVenvOn = False
+            cls.isCreateVenvOn = False
+            AsyncLogger.warning("Skip and create venv cant be both set. Reseting flags.")
     
     @classmethod
     def print_config(cls):
