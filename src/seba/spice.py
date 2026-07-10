@@ -150,7 +150,9 @@ class GenericSpice:
 class SebaNetlist(GenericSpice):
     def __init__(self, se: list[SpiceDefinition]):
         super().__init__(se)
+        self.__init_dicts__()
 
+    def __init_dicts__(self):
         self.param_index_dict = {}
         self.lib_index_dict = {}
         self.subckt_index_dict = {}
@@ -173,9 +175,21 @@ class SebaNetlist(GenericSpice):
                     raise Exception("Found .endc directive without prio .subckt directive")
                 self.ends_index_dict[subckt_name] = it_se
                 subckt_name = None
+        
+        self.__valid__ = True
 
+    def add_lib(self, lib: LibraryDefinition):
+        self.__valid__ = False
+        self.se.insert(0, lib)
+
+    def add_param(self, param: ParameterDefinition):
+        self.__valid__ = False
+        self.se.insert(0, param)
 
     def get_spice_lines(self):
+        if not self.__valid__:
+            self.__init_dicts__()
+
         lines = []
 
         for se in self.se:
