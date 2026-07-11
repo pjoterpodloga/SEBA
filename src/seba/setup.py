@@ -99,7 +99,7 @@ class SebaSetupTool:
             scripts_file = repo_path+"/scripts/"+"script.debug.py"
             plot_file = repo_path+"/result_gen/"+"plot.debug.plt"
             meas_file = repo_path+"/result_gen/"+"measure.debug.meas"
-            extraction_file = repo_path+"/pex/"+"debug.debug.pex.spice"
+            extraction_file = repo_path+"/pex/"+"ext.debug.pex.spice"
 
             AsyncLogger.debug("Creating mock files.")
             with open(config_file, "w") as f:
@@ -111,6 +111,7 @@ class SebaSetupTool:
                 f.write("SCRIPT\t\tscript.debug.py\n")
                 f.write("MEAS\t\tmeasure.debug.meas\n")
                 f.write("PLOT\t\tplot.debug.plt\n")
+                f.write("EXTRACTION\text.debug.pex.spice\n")
 
             with open(control_file, "w") as f:
                 f.write("* Title: Debug mock control file\n")
@@ -183,6 +184,10 @@ class SebaSetupTool:
 
             with open(extraction_file, "w") as f:
                 f.write("* Title: Debug mock pex spice file\n")
+                f.write(".subckt sres net1 net2\n")
+                f.write("R1subckt net1 net3 1\n")
+                f.write("R2subckt net3 net2 1\n")
+                f.write(".ends\n")
 
         ### TODO: Add git init basic routine for connecting remote repo
 
