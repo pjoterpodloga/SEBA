@@ -12,6 +12,7 @@ from seba.setup import SebaSetupTool
 from seba.parser import SebaParser
 from seba.reader import SebaReader
 from seba.corners import SebaCorner
+from seba.extraction import SebaExtractionMap, SebaExtraction
 from seba.assembler import SebaAssembler
 from seba.simulate import SebaSimulate
 
@@ -64,9 +65,12 @@ class Seba:
             seba_parser_measure = SebaParser(seba_config, seba_reader.measure_file, SebaArguments)
             seba_measure = seba_parser_measure.parse_measure()
 
+            seba_extraction_list = SebaExtractionMap(seba_reader.extraction_files)
+
             seba_assembler = SebaAssembler(seba_config, seba_corners, 
                                            seba_netlist, seba_control,
-                                           seba_measure, seba_reader.script_file)
+                                           seba_measure, seba_reader.script_file,
+                                           seba_extraction_list)
 
             seba_assembler.write_all()
 
