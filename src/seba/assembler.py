@@ -2,24 +2,30 @@ import copy
 import json
 import subprocess
 
+from seba.logger import AsyncLogger
 from seba.config import SebaConfig
 from seba.corners import SebaCorner
 from seba.measure import SebaMeasure, Measure
 from seba.spice import *
+from seba.extraction import SebaExtractionMap, SebaExtraction
 
 class SebaAssembler:
     def __init__(self, config: SebaConfig,\
                     corners: SebaCorner, testbench: SebaNetlist,\
                     control: SebaControl, measure: SebaMeasure,
-                    script: list[str]):
+                    script: list[str], extraction: SebaExtractionMap):
         self.config = config
         self.corners = corners
         self.testbench = testbench
         self.control = control
         self.measure = measure
+        self.script_file = script
+        self.extraction = extraction
 
         self.number_of_corners = self.corners.tnoc
         self.corner_list = self.corners.generate_corner_list()
+
+        self.__adjust_extraction_subckt_definitions__()
 
         self.testbench_list = [copy.deepcopy(self.testbench) for _ in range(self.number_of_corners)]
         self.control_list = [copy.deepcopy(self.control) for _ in range(self.number_of_corners)]
@@ -30,7 +36,17 @@ class SebaAssembler:
         
         self.measure_json_file = self.__create_measure_json_file__()
 
-        self.script_file = script
+
+    def __adjust_extraction_subckt_definitions__(self):
+        subckt_keys = list(self.testbench.subckt_index_dict.keys())
+        ext_subckt_keys = list(self.extraction.subckt_index_map.keys())
+
+        for it_esk, esk in enumerate(ext_subckt_keys):
+            if esk in subckt_keys:
+                ext = self.extraction.get_by_index(it_esk).subckt.se[0]
+                self.testbench.swap_subckt(esk, ext)
+            else:
+                AsyncLogger.warning(f"Subckt not found in testbench netlist, extraction \"{esk}\" skipped.")
 
     def __adjust_corner_spice_definitions__(self):
 
