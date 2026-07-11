@@ -91,18 +91,31 @@ class SaveDefinition(SpiceDefinition):
         return f".SAVE {self.save}"
 
 class SubcircuitDefinition(SpiceDefinition):
-    def __init__(self, name: str, pins):
+    def __init__(self, name: str, pins: list[str], definitions: list[SpiceDefinition]):
         super().__init__()
         self.name = name
         self.pins = pins
+        self.__definitions__ = definitions
+
+    def add_definitions(self, definition: SpiceDefinition):
+        self.__definitions__.append(definition)
+
+    def set_definitions(self, definitions: list[SpiceDefinition]):
+        self.__definitions__ = definitions
 
     def spice_line(self) -> str:
+        lines = []
         line = f".SUBCKT {self.name}"
 
         for p in self.pins:
             line = f"{line} {p}"
         
-        return line
+        lines.append(line)
+
+        for d in self.__definitions__:
+            lines.append(d.spice_line())
+
+        return lines
 
 class GlobalNetDefinition(SpiceDefinition):
     def __init__(self, name: str):
