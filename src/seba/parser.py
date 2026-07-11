@@ -200,6 +200,11 @@ class SebaParser:
 
         se_list = []
 
+        subckt_found = False
+        subckt_content = False
+        ends_found = False
+        subckt_se_list = []
+
         ### TODO: write proper exceptions for error handling
 
         for it_tl, tl in enumerate(tokens):
@@ -208,25 +213,18 @@ class SebaParser:
             if tl[0].value.upper() == ".LIB":
                 if len(tl) != 3:
                     raise Exception("Incomplete library definition")
-
                 se = LibraryDefinition(tl[1].value, tl[2].value)
-                se_list.append(se)
-                continue
             
             ### TODO: Add expresion handling, should be resolved at token parsing
             if tl[0].value.upper() == ".PARAM":
                 if len(tl) != 4 or tl[2].value != "=":
                     raise Exception("Incomplete parameter definition")
                 se = ParameterDefinition(tl[1].value, tl[3].value)
-                se_list.append(se)
-                continue
 
             if tl[0].value.upper() == ".TEMP":
                 if len(tl) != 2:
                     raise Exception("Incomplete temperature definition")
                 se = TemperatureDefinition(tl[1].value)
-                se_list.append(se)
-                continue
 
             if tl[0].value.upper().startswith("X"):
                 parameters = []
@@ -247,8 +245,6 @@ class SebaParser:
                     nets.append(t.value)
 
                 se = DeviceDefinition(tl[0].value, nets, parameters)
-                se_list.append(se)
-                continue
 
             if tl[0].value.upper().startswith("R") or \
                tl[0].value.upper().startswith("L") or \
@@ -261,60 +257,67 @@ class SebaParser:
                     nets.append(t.value)
 
                 se = DeviceDefinition(tl[0].value, nets, [])
-                se_list.append(se)
-                continue
             
             ### TODO: add more probes handling
             if tl[0].value.upper() == ".PROBE":
                 if len(tl) != 2:
                     raise Exception("Incomplete .probe directive")
                 se = ProbeDefinition(tl[1].value)
-                se_list.append(se)
-                continue
 
             ### TODO: add more save options handling
             if tl[0].value.upper() == ".SAVE":
                 if len(tl) != 2:
                     raise Exception("Incomplete .save directive")
                 se = SaveDefinition(tl[1].value)
-                se_list.append(se)
-                continue
 
             ### TODO: add sweep type definition handling
             if tl[0].value.upper() == ".DC":
                 se = DcAnalysisDefinition(tl[1].value, tl[2].value, tl[3].value, tl[4].value)
-                se_list.append(se)
 
             if tl[0].value.upper() == ".SUBCKT":
+                subckt_found = True
                 nets = []
                 for it_t, t in enumerate(tl[2:]):
                     nets.append(t.value)
-                se = SubcircuitDefinition(tl[1].value, nets)
-                se_list.append(se)
-                continue
+                se = SubcircuitDefinition(tl[1].value, nets, None)
 
             if tl[0].value.upper() == ".GLOBAL":
                 if len(tl) != 2:
                     raise Exception("Incomplete .global directive definition")
                 se = GlobalNetDefinition(tl[1].value)
-                se_list.append(se)
-                continue
             
             ### TODO: add .options directive handling
             if tl[0].value.upper() == ".OPTIONS":
                 pass
 
             if tl[0].value.upper() == ".ENDS":
+                ends_found = True
+                subckt_content = False
                 if len(tl) != 1:
-                    raise Exception("Wrong definition of .endc directive")
-                se_list.append(EndSubcircuitDefinition())
-                continue
+                    raise Exception("Wrong definition of .ends directive")
+                se = EndSubcircuitDefinition()
 
             if tl[0].value.upper() == ".END":
                 if len(tl) != 1:
                     raise Exception("Wrong definition of .end directive")
-                se_list.append(EndDefinition())
-                continue
+                se = EndDefinition()
+
+            if se == None:
+                raise Exception("Wrong definition found")
+
+            if subckt_content:
+                subckt_se_list.append(se)
+            else:
+                se_list.append(se)
+
+            if subckt_found and ends_found:
+                se_list[-2].set_definitions(subckt_se_list)
+                subckt_se_list = []
+                subckt_found = False
+                ends_found = False
+
+            if subckt_found:
+                subckt_content = True
 
         seba_spice = SebaNetlist(se_list)
 
