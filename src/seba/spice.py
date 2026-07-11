@@ -206,7 +206,12 @@ class SebaNetlist(GenericSpice):
         lines = []
 
         for se in self.se:
-            lines.append(se.spice_line())
+            spice_line = se.spice_line()
+            if type(spice_line) == list:
+                for sl in spice_line:
+                    lines.append(sl)
+            else:
+                lines.append(spice_line)
 
         return lines
 
