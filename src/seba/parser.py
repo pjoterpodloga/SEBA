@@ -193,8 +193,13 @@ class SebaParser:
         return seba_control
 
     def parse_netlist(self) -> SebaNetlist:
-
         AsyncLogger.info(f"Parsing testbench file: {self.config.testbench}")
+        return self.__parse_netlist__()
+
+    def parse_extraction(self) -> SebaNetlist:
+        return self.__parse_netlist__()
+
+    def __parse_netlist__(self) -> SebaNetlist:
 
         tokens = self.__prepare_netlist__()
 
