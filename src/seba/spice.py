@@ -103,6 +103,9 @@ class SubcircuitDefinition(SpiceDefinition):
     def set_definitions(self, definitions: list[SpiceDefinition]):
         self.__definitions__ = definitions
 
+    def get_definitions(self) -> list[SpiceDefinition]:
+        return self.__definitions__
+
     def spice_line(self) -> str:
         lines = []
         line = f".SUBCKT {self.name}"
@@ -198,6 +201,13 @@ class SebaNetlist(GenericSpice):
     def add_param(self, param: ParameterDefinition):
         self.__valid__ = False
         self.se.insert(0, param)
+
+    def swap_subckt(self, subckt_name: str, extraction: SubcircuitDefinition):
+        self.__valid__ = False
+        sub_index = self.subckt_index_dict[subckt_name]
+        self.se[sub_index].set_definitions(extraction.get_definitions())
+        self.__init_dicts__()
+        pass
 
     def get_spice_lines(self):
         if not self.__valid__:
