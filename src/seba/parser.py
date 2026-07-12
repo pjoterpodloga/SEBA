@@ -308,7 +308,7 @@ class SebaParser:
                 se = EndDefinition()
 
             if se == None:
-                raise Exception("Wrong definition found")
+                se = GenericDefinition([x.value for x in tl])
 
             if subckt_content:
                 subckt_se_list.append(se)
