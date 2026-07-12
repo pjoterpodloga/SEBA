@@ -135,6 +135,7 @@ class SebaSetupTool:
                 f.write(".param xres2=1\n")
                 f.write(".param xtemp=25\n")
                 f.write(".save all\n")
+                f.write(".options rshunt=1G\n")
                 f.write(".temp 'xtemp'\n")
                 f.write(".dc v1 0 1 0.01\n")
                 f.write(".end\n")
