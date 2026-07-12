@@ -1,6 +1,11 @@
 from seba.spice import *
 from seba.parser import *
 
+class SebaExtraction:
+    def __init__(self, file_content: list[str]):
+        parser = SebaParser(None, file_content, None)
+        self.subckt = parser.parse_extraction()
+
 class SebaExtractionMap:
     def __init__(self, extraction_files: list[list[str]]):
         self.__extractions__: list[SebaExtraction] = []
@@ -19,8 +24,3 @@ class SebaExtractionMap:
 
     def get_by_name(self, name: str) -> SebaExtraction:
         return self.__extractions__[self.subckt_index_map[name]]
-
-class SebaExtraction:
-    def __init__(self, file_content: list[str]):
-        parser = SebaParser(None, file_content, None)
-        self.subckt = parser.parse_extraction()
