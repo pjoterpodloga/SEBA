@@ -38,6 +38,9 @@ class SebaAssembler:
 
 
     def __adjust_extraction_subckt_definitions__(self):
+        if not self.extraction.extraction_found:
+            return
+
         subckt_keys = list(self.testbench.subckt_index_dict.keys())
         ext_subckt_keys = list(self.extraction.subckt_index_map.keys())
 

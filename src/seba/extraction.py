@@ -9,11 +9,17 @@ class SebaExtraction:
 class SebaExtractionMap:
     def __init__(self, extraction_files: list[list[str]]):
         self.__extractions__: list[SebaExtraction] = []
-        
-        for ef in extraction_files:
-            self.__extractions__.append(SebaExtraction(ef))
 
         self.subckt_index_map = dict()
+        
+        self.extraction_found = True
+
+        if extraction_files == None:
+            self.extraction_found = False
+            return
+
+        for ef in extraction_files:
+            self.__extractions__.append(SebaExtraction(ef))
         
         for it_ext, ext in enumerate(self.__extractions__):
             subckt = ext.subckt.se[0]
