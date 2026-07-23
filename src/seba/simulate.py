@@ -116,6 +116,7 @@ class SebaSimulate:
             
             last_print += 1
             time.sleep(thread_sleep_time)
+        AsyncLogger.raw(f"\r[{bar}] {percent:6.2f}% ({done}/{total})")
         AsyncLogger.raw("\n")
         AsyncLogger.info("Simulations ended.")
 
