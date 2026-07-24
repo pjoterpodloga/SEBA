@@ -30,6 +30,7 @@ class SebaArguments:
     isCreateDebugFilesOn = False
     isCreateVenvOn = False
     isSkipVenvOn = False
+    isResultGenOn = False
     numberOfParralerSims = None
     sebaFile: str = None
     repoPath: str = None
@@ -126,6 +127,11 @@ class SebaArguments:
                 it = it + 1
                 continue
 
+            if cls.args[it] == SebaInputArguments.l_result_gen:
+                cls.isResultGenOn = True
+                it = it + 1
+                continue
+
             if it == 1:
                 cls.sebaFile = cls.args[it]
                 it = it + 1
@@ -174,6 +180,7 @@ class SebaArguments:
         AsyncLogger.debug(f"IS_BUILD_ON = {cls.isBuildOn}")
         AsyncLogger.debug(f"IS_BUILD_FORCE_ON = {cls.isBuildForceOn}")
         AsyncLogger.debug(f"IS_SIMULATE_ON = {cls.isSimulateOn}")
+        AsyncLogger.debug(f"IS_RESULT_GEN_ON = {cls.isResultGenOn}")
         AsyncLogger.debug(f"IS_CREATE_DEBUG_FILES_ON = {cls.isCreateDebugFilesOn}")
         AsyncLogger.debug(f"NUM_OF_PARRALER_SIMS = {cls.numberOfParralerSims}")
         AsyncLogger.debug(f"SEBA_FILE = {cls.sebaFile}")
@@ -200,6 +207,7 @@ class SebaArguments:
         AsyncLogger.info(f"{SebaInputArguments.m_sim}")
         AsyncLogger.info(f"{SebaInputArguments.m_debug_files}")
         AsyncLogger.info(f"{SebaInputArguments.m_proc_quant}")
+        AsyncLogger.info(f"{SebaInputArguments.m_result_gen}")
 
     @classmethod
     def __print_dir_template__(cls):

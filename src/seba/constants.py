@@ -88,3 +88,6 @@ class SebaInputArguments:
 
     l_proc_quant = f"--proc"
     m_proc_quant = f"  , {l_proc_quant}\t\tDefine how many parraler corners to simulate"
+
+    l_result_gen = f"--result"
+    m_result_gen = f"  , {l_result_gen}\t\tReport results of simulated testbench"
