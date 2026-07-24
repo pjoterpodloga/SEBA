@@ -4,7 +4,7 @@ class SebaConfig:
 
     def __init__(self, name=None, control=None, tb=None, netlist=None,
                  corners=None, script=None, plot=None, meas=None, 
-                 extraction=None, sim_dir=None, config_dir=None):
+                 extraction=None, sim_dir=None, config_dir=None, repo_dir=None):
         self.name = name
         self.control = control
         self.testbench = tb
@@ -16,6 +16,7 @@ class SebaConfig:
         self.extraction = extraction
         self.sim_dir = sim_dir
         self.config_dir = config_dir
+        self.repo_dir = repo_dir
         self.proc_quant = "1"
 
     def print_config(self):
@@ -34,3 +35,4 @@ class SebaConfig:
             AsyncLogger.debug(f"EXTRACTION = {self.extraction}")
         AsyncLogger.debug(f"SIM_DIR = {self.sim_dir}")
         AsyncLogger.debug(f"CONFIG_DIR = {self.config_dir}")
+        AsyncLogger.debug(f"REPO_DIR = {self.repo_dir}")
