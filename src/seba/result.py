@@ -8,7 +8,7 @@ class SebaResult:
     def __init__(self, config: SebaConfig):
         self.config = config
 
-        self.__result_dir__ = config.repo_dir + "/tmp/results/" + config.name
+        self.__result_dir__ = config.repo_dir + "/results/" + config.name
 
     ### TODO: Add proper logger messages
 
