@@ -32,7 +32,7 @@ class SebaResult:
         subprocess.run(["mkdir", "-p", self.__result_dir__])
 
     def __run_script_wrapper__(self):
-        script_name = self.__result_dir__ + "/script_wrapper.sh"
+        script_name = self.config.sim_dir + "/script_wrapper.sh"
         subprocess.run([script_name])
 
     def __copy_result__(self):
