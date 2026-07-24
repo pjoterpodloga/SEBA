@@ -171,8 +171,9 @@ class SebaAssembler:
 
         with open(wsfn, "w") as f:
             f.write(f"#!/bin/bash\n")
-            f.write(f"source ../venv/bin/activate\n")
-            f.write(f"python3 {self.config.script}\n")
+            f.write( "SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\n")
+            f.write(f"cd \"$SCRIPT_DIR\"\n")
+            f.write(f"\"$SCRIPT_DIR/../venv/bin/python\" {self.config.script}\n")
 
         subprocess.run(["chmod", "+x", wsfn])
 
