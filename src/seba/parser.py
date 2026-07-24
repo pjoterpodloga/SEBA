@@ -456,6 +456,8 @@ class SebaParser:
         config_dir = self.settings.sebaFile.split("/")
         config_dir.pop()
         seba_config.config_dir = self.settings.executePath + "/" + "/".join(config_dir)
+        config_dir.pop()
+        seba_config.repo_dir = self.settings.executePath + "/" + "/".join(config_dir)
 
         for it_tl, tl in enumerate(tokens):
 
