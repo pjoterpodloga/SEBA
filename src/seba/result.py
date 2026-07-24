@@ -36,9 +36,9 @@ class SebaResult:
         subprocess.run([script_name])
 
     def __copy_result__(self):
-        measure_json = self.config.sim_dir + "\measure.json"
-        measure_csv = self.config.sim_dir + "\measure.csv"
-        corner_list = self.config.sim_dir + "\corners.list"
+        measure_json = self.config.sim_dir + "/measure.json"
+        measure_csv = self.config.sim_dir + "/measure.csv"
+        corner_list = self.config.sim_dir + "/corners.list"
         subprocess.run(["cp", measure_json, self.__result_dir__])
         subprocess.run(["cp", measure_csv, self.__result_dir__])
         subprocess.run(["cp", corner_list, self.__result_dir__])
