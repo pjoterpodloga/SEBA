@@ -15,6 +15,7 @@ from seba.corners import SebaCorner
 from seba.extraction import SebaExtractionMap, SebaExtraction
 from seba.assembler import SebaAssembler
 from seba.simulate import SebaSimulate
+from seba.result import SebaResult
 
 class Seba:
     @classmethod
@@ -78,6 +79,10 @@ class Seba:
             os.chdir(seba_config.sim_dir)
             seba_simulate = SebaSimulate(seba_config)
             os.chdir(seba_config.config_dir)
+
+        if SebaArguments.isResultGenOn and SebaArguments.sebaFile != None:
+            seba_result = SebaResult(seba_config)
+            seba_result.generate_results()
 
         cls.__terminate__()
 
