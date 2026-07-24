@@ -17,7 +17,7 @@ class SebaResult:
 
         if (dir_exist):
             self.__remove_result_directory__()
-            
+
         self.__create_result_directory__()
         self.__run_script_wrapper__()
         self.__copy_result__()
@@ -29,7 +29,7 @@ class SebaResult:
         shutil.rmtree(self.__result_dir__, ignore_errors=True)
 
     def __create_result_directory__(self):
-        subprocess.run(["mkdir", "-p", self.__result_dir__], stdout="/dev/null")
+        subprocess.run(["mkdir", "-p", self.__result_dir__])
 
     def __run_script_wrapper__(self):
         script_name = self.__result_dir__ + "/script_wrapper.sh"
