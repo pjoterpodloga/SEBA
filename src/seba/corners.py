@@ -1,3 +1,5 @@
+import copy
+
 from seba.utils import CornerGenerator, Corner
 from seba.spice import SpiceDefinition
 
@@ -11,11 +13,89 @@ class SebaCorner:
         for cg in self.__corner_generators__:
             self.tnoc = self.tnoc + cg.tnoc
 
+        self.__generate_corner_mapping__()
+
     def __get_corners_generators__(self) -> list[CornerGenerator]:
         if self.__corner_generators__ == None:
             raise Exception("Corner generator is \"None\"")
         return self.__corner_generators__
     
+    def __generate_corner_mapping__(self):
+        corner_name_value_map = dict()
+
+        corners_list = self.generate_corners()
+
+        for it_cl, cl in enumerate(corners_list):
+            for it_c, c in enumerate(cl):
+                corner_name_value_map_keys = list(corner_name_value_map.keys())
+                if c.name not in corner_name_value_map_keys:
+                    corner_name_value_map[c.name] = dict()
+                corner_name_value_map_keys = list(corner_name_value_map[c.name].keys())
+                if c.value not in corner_name_value_map_keys:
+                    corner_name_value_map[c.name][c.value] = []
+                corner_name_value_map[c.name][c.value].append(it_cl)    
+        
+        self.__corner_reverse_mapping__ = corner_name_value_map
+
+        corner_index_value_map = dict()
+
+        for it_cl, cl in enumerate(corners_list):
+            corner_index_value_map[it_cl] = dict()
+            for it_c, c in enumerate(cl):
+                corner_index_value_map[it_cl][c.name] = c.value
+
+        self.__corner_mapping__ = corner_index_value_map
+    
+    def get_corner_map_from_index(self, index: int):
+        return self.__corner_mapping__[index]
+
+    def get_corner_index_from_map(self, corner: dict) -> list[int]:
+        
+        input_corner_keys = list(corner.keys())
+        existing_corner_keys = list(self.__corner_reverse_mapping__.keys())
+
+        index_list: list[list[int]] = []
+
+        for it_ick, ick in enumerate(input_corner_keys):
+            if ick not in existing_corner_keys:
+                continue
+
+            search_value = corner[ick]
+
+            existing_corner_values = list(self.__corner_reverse_mapping__[ick].keys())
+
+            if search_value in existing_corner_values:
+                index_list.append(self.__corner_reverse_mapping__[ick][search_value])
+
+        if len(index_list) == 1:
+            return index_list[0]
+
+        if len(index_list) < 2:
+            return []
+
+        tmp_index_list = index_list[0]
+
+        for il in index_list[1:]:
+            til = copy.deepcopy(tmp_index_list)
+            tmp_index_list = []
+            for i in il:
+                if i in til:
+                    tmp_index_list.append(i)
+                    
+        result_index_list = sorted(tmp_index_list)
+
+        return result_index_list
+
+    def generate_corners(self) -> list[list[Corner]]:
+        result = []
+
+        corners_generators = self.__get_corners_generators__()
+        
+        for it_cg, cg in enumerate(corners_generators):
+            result.extend(cg.resolve())
+
+        return result
+
     def generate_spice_corners(self) -> list[str]:
         result = []
 
@@ -47,6 +127,6 @@ class SebaCorner:
         corners_generators = self.__get_corners_generators__()
 
         for it_cg, cg in enumerate(corners_generators):
-            result = result + cg.spice_definition_list() 
+            result = result + cg.spice_definition_list()
 
         return result
