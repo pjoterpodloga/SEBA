@@ -100,6 +100,8 @@ class SebaSetupTool:
             plot_file = repo_path+"/result_gen/"+"plot.debug.plt"
             meas_file = repo_path+"/result_gen/"+"measure.debug.meas"
             extraction_file = repo_path+"/pex/"+"ext.debug.pex.spice"
+            variants_folder = repo_path+"/variants/"
+            results_folder = repo_path+"/results/"
 
             AsyncLogger.debug("Creating mock files.")
             with open(config_file, "w") as f:
@@ -108,6 +110,7 @@ class SebaSetupTool:
                 f.write("CONTROL\t\tcontrol.debug.spice\n")
                 f.write("NETLIST\tdebug_tb.debug.spice\n")
                 f.write("CORNERS\t\tcorner.debug.gen\n")
+                f.write("VARIANTS\t\tvariants.debug.json\n")
                 f.write("SCRIPT\t\tscript.debug.py\n")
                 f.write("MEAS\t\tmeasure.debug.meas\n")
                 f.write("PLOT\t\tplot.debug.plt\n")
@@ -127,12 +130,14 @@ class SebaSetupTool:
                 f.write(".subckt sres net1 net2\n")
                 f.write("Rsubckt net1 net2 1\n")
                 f.write(".ends\n")
-                f.write("V1 net1 0 1\n")
+                f.write("V1 net1 0 'xvp'\n")
                 f.write("XR1 net1 vout sres\n")
                 f.write("R2 vout 0 'xres1'\n")
                 f.write("R3 vout 0 'xres2'\n")
+                f.write(".param xvp=1\n")
                 f.write(".param xres1=1\n")
                 f.write(".param xres2=1\n")
+                f.write(".param ydummy=1\n")
                 f.write(".param xtemp=25\n")
                 f.write(".save all\n")
                 f.write(".options rshunt=1G\n")
@@ -142,9 +147,11 @@ class SebaSetupTool:
 
             with open(corners_file, "w") as f:
                 f.write("# Mock corner_gen file\n")
+                f.write("param xtemp\n")
+                f.write("param xvp\n")
                 f.write("param xres1\n")
                 f.write("param xres2\n")
-                f.write("corner_gen [1, 2, 3, 4, 5] [1, 2, 3, 4, 5]\n")
+                f.write("corner_gen [-50, 25, 125] [0.9, 1, 1.1] [1, 2, 3] [1, 2, 3] \n")
 
             ### TODO: Add empty debug files
             with open(scripts_file, "w") as f:
@@ -189,6 +196,9 @@ class SebaSetupTool:
                 f.write("R1subckt net1 net3 1\n")
                 f.write("R2subckt net3 net2 1\n")
                 f.write(".ends\n")
+
+            subprocess.run(["cp", "-f", "res/variants.debug.json", variants_folder])
+            subprocess.run(["cp", "-r", "res/result_tmp_tb", results_folder])
 
         ### TODO: Add git init basic routine for connecting remote repo
 
