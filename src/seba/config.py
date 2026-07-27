@@ -3,21 +3,22 @@ from seba.logger import *
 class SebaConfig:
 
     def __init__(self, name=None, control=None, tb=None, netlist=None,
-                 corners=None, script=None, plot=None, meas=None, 
+                 corners=None, variants=None, script=None, plot=None, meas=None, 
                  extraction=None, sim_dir=None, config_dir=None, repo_dir=None):
-        self.name = name
-        self.control = control
-        self.testbench = tb
-        self.netlist = netlist
-        self.corners = corners
-        self.script = script
-        self.plot = plot
-        self.measure = meas
-        self.extraction = extraction
-        self.sim_dir = sim_dir
-        self.config_dir = config_dir
-        self.repo_dir = repo_dir
-        self.proc_quant = "1"
+        self.name: str = name
+        self.control: str = control
+        self.testbench: str = tb
+        self.netlist: str = netlist
+        self.corners: str = corners
+        self.varinats: str = variants
+        self.script: str = script
+        self.plot: str = plot
+        self.measure: str = meas
+        self.extraction: list[str] = extraction
+        self.sim_dir: str = sim_dir
+        self.config_dir: str = config_dir
+        self.repo_dir: str= repo_dir
+        self.proc_quant: str = "1"
 
     def print_config(self):
         AsyncLogger.debug(f"Parsed seba configuration:")
@@ -26,6 +27,7 @@ class SebaConfig:
         AsyncLogger.debug(f"NETLIST = {self.netlist}")
         AsyncLogger.debug(f"CONTROL = {self.control}")
         AsyncLogger.debug(f"CORNERS = {self.corners}")
+        AsyncLogger.debug(f"VARIANTS = {self.varinats}")
         AsyncLogger.debug(f"SCRIPT = {self.script}")
         AsyncLogger.debug(f"MEAS = {self.measure}")
         AsyncLogger.debug(f"PLOT = {self.plot}")
