@@ -5,17 +5,20 @@ import subprocess
 from seba.logger import AsyncLogger
 from seba.config import SebaConfig
 from seba.corners import SebaCorner
+from seba.variants import SebaVariant
 from seba.measure import SebaMeasure, Measure
 from seba.spice import *
 from seba.extraction import SebaExtractionMap, SebaExtraction
 
 class SebaAssembler:
     def __init__(self, config: SebaConfig,\
-                    corners: SebaCorner, testbench: SebaNetlist,\
-                    control: SebaControl, measure: SebaMeasure,
-                    script: list[str], extraction: SebaExtractionMap):
+                    corners: SebaCorner, variants: SebaVariant,
+                    testbench: SebaNetlist, control: SebaControl, 
+                    measure: SebaMeasure, script: list[str], 
+                    extraction: SebaExtractionMap):
         self.config = config
         self.corners = corners
+        self.variants = variants
         self.testbench = testbench
         self.control = control
         self.measure = measure
@@ -23,6 +26,12 @@ class SebaAssembler:
         self.extraction = extraction
 
         self.number_of_corners = self.corners.tnoc
+
+        self.__corners__ = self.corners.generate_corners()
+
+        self.__adjust_corners_for_variants__()
+
+        ### TODO: Adjust corner list for variants 
         self.corner_list = self.corners.generate_corner_list()
 
         self.__adjust_extraction_subckt_definitions__()
@@ -36,6 +45,14 @@ class SebaAssembler:
         
         self.measure_json_file = self.__create_measure_json_file__()
 
+
+    def __adjust_corners_for_variants__(self):
+
+        for it_c in range(self.number_of_corners):
+            corner_base_map = self.corners.get_corner_map_from_index(it_c)
+            corner_variant_insert = self.variants.get_insert_values_from_map(corner_base_map)
+            self.__corners__[it_c].extend(corner_variant_insert)
+            
 
     def __adjust_extraction_subckt_definitions__(self):
         if not self.extraction.extraction_found:
@@ -53,7 +70,15 @@ class SebaAssembler:
 
     def __adjust_corner_spice_definitions__(self):
 
-        corner_spice_definition_list = self.corners.generate_spice_definition_corners()
+        corner_spice_definition_list = []
+
+        for cl in self.__corners__:
+            tmp_csdl = []
+            for c in cl:
+                tmp_csdl.append(c.spice_definition())
+            corner_spice_definition_list.append(tmp_csdl)
+
+        #self.corners.generate_spice_definition_corners()
 
         lib_keys = list(self.testbench.lib_index_dict.keys())
         param_keys = list(self.testbench.param_index_dict.keys())
