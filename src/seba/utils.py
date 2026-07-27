@@ -294,6 +294,20 @@ class Corner:
         self.name = corner_name
         self.value= corner_value
 
+    def spice_definition(self):
+        result = None
+        
+        t = self.type
+        n = self.name
+        v = self.value
+
+        if t == "lib":
+            result = LibraryDefinition(n, v)
+        elif t == "param":
+            result = ParameterDefinition(n, v)
+
+        return result
+
 class CornerGenerator:
     def __init__(self, corners: list[Corner], values: list[list[str]], grouping: list[int]):
         self.corners = corners
@@ -306,13 +320,10 @@ class CornerGenerator:
 
             raise Exception("Number of corners, value or/and grouping are not the same.")
 
-        for c in corners:
-            pass
-
         total_number_of_corners = 1
         current_group = -1
 
-        self.mod_values = [0]*len(self.values)
+        self.__mod_values__ = [0]*len(self.values)
         last_mod_value = 1
 
         for it in range(len(self.values)-1, -1, -1):
@@ -324,15 +335,15 @@ class CornerGenerator:
                 current_group = self.grouping[it]
 
             if len(v) == 1:
-                self.mod_values[it] = 0
+                self.__mod_values__[it] = 0
             else:
-                self.mod_values[it] = last_mod_value 
+                self.__mod_values__[it] = last_mod_value 
 
         self.tnoc = total_number_of_corners
 
         self.__resolved_corners__ = self.resolve()
 
-    def resolve(self) -> list[Corner]:
+    def resolve(self) -> list[list[Corner]]:
         index_list = [-1]*len(self.corners)
 
         it_gen = 0
@@ -344,7 +355,7 @@ class CornerGenerator:
 
         while it_gen < self.tnoc:
             
-            for it_mv, mv in enumerate(self.mod_values):
+            for it_mv, mv in enumerate(self.__mod_values__):
                 if (mv == 0) or (it_gen == 0):
                     continue
                 if (it_gen % mv) == 0:
@@ -362,7 +373,7 @@ class CornerGenerator:
             resolved_corners.append(corner)
 
         return resolved_corners
-        
+
     def corner_list_header(self) -> list[str]:
         result = []
 
@@ -405,15 +416,7 @@ class CornerGenerator:
         result = []
 
         for it_c, c in enumerate(self.__resolved_corners__[n_corner]):
-            t = c.type
-            n = c.name
-            v = c.value
-
-            if t == "lib":
-                result.append(LibraryDefinition(n, v))
-            elif t == "param":
-                result.append(ParameterDefinition(n, v))
-            
+            result.append(c.spice_definition())
         return result
         
     def spice_list(self) -> list[str]:
@@ -424,7 +427,7 @@ class CornerGenerator:
 
         return result
     
-    def spice_definition_list(self) -> list[SpiceDefinition]:
+    def spice_definition_list(self) -> list[list[SpiceDefinition]]:
         result = []
 
         for it_tnoc in range(self.tnoc):
