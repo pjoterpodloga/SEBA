@@ -28,6 +28,8 @@ class SebaDirectoryTemplate:
                                 "corner_gen [mos_tt]==[mos_tt] [3.3] [25] [0.8] [200e6]\n"\
                                 "corner_gen [mos_ss,mos_sf,mos_fs,mos_ff]==[mos_ss,mos_sf,mos_fs,mos_ff] [2.97,3.6] [-50,125] [0.79,0.81] [200e6]\n"\
     
+    variants_file_content =     "\n"                            
+
     meas_file_content =         "# Example for meas file\n"\
                                 "# meas_name    |   min_spec    |   max_spec    |   unit    |   prefix  |   description\n"\
                                 "vout               400             800             V           m           \"Output voltage\"\n"\
@@ -40,6 +42,7 @@ class SebaDirectoryTemplate:
     seba_repo_file = DefaultFile(".seba", "# Template of SEBA main config file")
     seba_config_file = DefaultFile("config.template.seba", seba_config_file_content)
     corner_gen_file = DefaultFile("croner.template.gen", corner_gen_file_content)
+    variants_file = DefaultFile("variants.template.json", variants_file_content)
     corner_list_file = TemporaryFile("<corner.list>", "", pattern="*.list")
     seba_log_file = TemporaryFile("<seba.log>", "", pattern="*.log")
     seba_log_folder = TemporaryFolder("logs", [seba_log_file])
@@ -51,6 +54,7 @@ class SebaDirectoryTemplate:
     circuit_folder = Folder("circuit", ["<circuit.sch>", "<circuit.sym>"])
     layout_folder = Folder("layout", ["<layout.gds>"])
     corners_folder = Folder("corners", [corner_gen_file, "<corner.gen>", corner_list_file])
+    variants_folder = Folder("variants", [variants_file, "<variants.json>"])
     netlist_folder = Folder("netlist", ["<netlist.spice>"])
     pex_folder = TemporaryFolder("pex", ["<circuit.pex.spice>"])
     scripts_folder = Folder("scripts", ["<script.py>"])
@@ -65,9 +69,9 @@ class SebaDirectoryTemplate:
     tmp_folder = TemporaryFolder("tmp", [simulations_folder, layout_flatten_gds_folder, layout_lvs_folder, layout_drc_folder, pex_tmp_folder])
     backup_folder = TemporaryFolder("backup", ["<backup.zip>"])
     root_tree = Folder("<repo_name>", [config_folder, spfiles_folder, testbench_folder, circuit_folder,
-                                            layout_folder, corners_folder, netlist_folder, pex_folder, 
-                                            scripts_folder, result_gen_folder, result_folder, logs_folder, 
-                                            tmp_folder, backup_folder])
+                                            layout_folder, corners_folder, variants_folder,netlist_folder, 
+                                            pex_folder, scripts_folder, result_gen_folder, result_folder, 
+                                            logs_folder, tmp_folder, backup_folder])
     
     gitignore_file_content = "".join(gfc.replace("<repo_name>/", "")+"\n" for gfc in root_tree.generate_gitignore(header="# Default SEBA .gitignore file\n").split("\n"))
     gitignore_file = DefaultFile(".gitignore", gitignore_file_content)
