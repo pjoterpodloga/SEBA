@@ -1,0 +1,17 @@
+[
+    {
+        "testbench": "result_tmp_tb",
+        "match": [
+            "xvp"
+        ],
+        "replace": [
+            [
+                "xdummy",
+                "ydummy"
+            ]
+        ],
+        "insert": [
+            "i_dummy_2"
+        ]
+    }
+]
