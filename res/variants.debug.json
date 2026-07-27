@@ -2,7 +2,8 @@
     {
         "testbench": "result_tmp_tb",
         "match": [
-            "xvp"
+            "xvp",
+            "xtemp"
         ],
         "replace": [
             [
