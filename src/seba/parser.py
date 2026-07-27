@@ -1,10 +1,12 @@
 from enum import Enum
+import json
 
 from seba.constants import *
 from seba.logger import *
 from seba.arguments import *
 from seba.config import *
 from seba.corners import *
+from seba.variants import *
 from seba.spice import *
 from seba.measure import *
 from seba.plot import *
@@ -328,8 +330,16 @@ class SebaParser:
 
         return seba_spice
             
+    def parser_variant(self) -> SebaVariant:
+        
+        file_content_merge = Parser.prepare_file(self.file_content)
 
-    
+        parsed_variants = json.loads(file_content_merge)
+
+        seba_variant = SebaVariant(self.config, parsed_variants)
+        
+        return seba_variant
+
     def parse_corner_gen(self) -> SebaCorner:
 
         AsyncLogger.info(f"Parsing corner gen file: {self.config.corners}")
@@ -491,6 +501,12 @@ class SebaParser:
                 if len(tl) != 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
                 seba_config.corners = cmd[1]
+
+            ### TODO: Add proper exception class
+            elif cmd[0].upper() == "VARIANTS":
+                if len(tl) != 2:
+                    raise Exception(pm_wrong_num_cmd(pm_wrong_num_cmd(tl[0], self.file_content)))
+                seba_config.varinats = cmd[1]                         
 
             elif cmd[0].upper() == "SCRIPT":
                 if len(tl) != 2:
