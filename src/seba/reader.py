@@ -2,14 +2,15 @@ from seba.config import *
 
 class SebaReader:
     def __init__(self, config: SebaConfig):
-        self.config = config
-        self.control_file = None
-        self.netlist_file = None
-        self.corners_file = None
-        self.script_file = None
-        self.measure_file = None
-        self.plot_file = None
-        self.extraction_files = None
+        self.config: SebaConfig = config
+        self.control_file: list[str] = None
+        self.netlist_file: list[str] = None
+        self.corners_file: list[str] = None
+        self.variants_file: list[str] = None
+        self.script_file: list[str] = None
+        self.measure_file: list[str] = None
+        self.plot_file: list[str] = None
+        self.extraction_files: list[str] = None
 
         self.__read_files__()
 
@@ -18,6 +19,7 @@ class SebaReader:
         self.__generate_netlist_file__()
         self.__read_netlist_file__()
         self.__read_corners_file__()
+        self.__read_variants_file__()
         self.__read_script_file__()
         self.__read_measure_file__()
         self.__read_plot_file__()
@@ -55,6 +57,11 @@ class SebaReader:
         if self.config.corners != None:
             with open("../corners/"+self.config.corners, "r") as f:
                 self.corners_file = f.readlines()
+
+    def __read_variants_file__(self):
+        if self.config.varinats != None:
+            with open("../variants/"+self.config.varinats, "r") as f:
+                self.variants_file = f.readlines()
 
     def __read_script_file__(self):
         if self.config.script != None:
