@@ -2,6 +2,27 @@ from seba.config import SebaConfig
 from seba.corners import SebaCorner
 from seba.utils import *
 
+class Variant:
+    def __init__(self, tb_name: str, match: list[str],
+                 replace: list[list[str]], insert: list[str]):
+        self.tb_name = tb_name
+        self.match = match
+        self.replace = replace
+        self.insert = insert
+
+class Result:
+    def __init__(self, header: list[str], measures: list[list[str]]):
+        self.header = header
+        self.measures = measures
+
+        self.__name_index_map__ = dict()
+
+        for it_h, h in enumerate(header):
+            self.__name_index_map__[h] = it_h
+
+    def get_value_by_name(self, name, row):
+        return self.measures[row][self.__name_index_map__[name]]
+
 class SebaVariant:
     def __init__(self, config: SebaConfig, variant_json):
         self.config = config
@@ -174,24 +195,3 @@ class SebaVariant:
 
     def __check_insert__(self, insert):
         pass
-
-class Variant:
-    def __init__(self, tb_name: str, match: list[str],
-                 replace: list[list[str]], insert: list[str]):
-        self.tb_name = tb_name
-        self.match = match
-        self.replace = replace
-        self.insert = insert
-
-class Result:
-    def __init__(self, header: list[str], measures: list[list[str]]):
-        self.header = header
-        self.measures = measures
-
-        self.__name_index_map__ = dict()
-
-        for it_h, h in enumerate(header):
-            self.__name_index_map__[h] = it_h
-
-    def get_value_by_name(self, name, row):
-        return self.measures[row][self.__name_index_map__[name]]
