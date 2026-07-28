@@ -86,6 +86,28 @@ class SebaCorner:
 
         return result_index_list
 
+
+    ### TODO: Write proper exception
+    def add_variants_corners(self, variant_corners: list[list[Corner]]):
+        if len(variant_corners) != self.tnoc:
+            raise Exception("Wrong number of variant corners.")
+        
+        self.__variants_corners__ = variant_corners
+
+        split_intervals = [0]
+        integrated_interval = 0
+
+        for cg in self.__corner_generators__:
+            integrated_interval = integrated_interval + cg.tnoc
+            split_intervals.append(integrated_interval)
+
+        for it_si in range(len(split_intervals) - 1):
+            interval_start = split_intervals[it_si]
+            interval_end = split_intervals[it_si + 1]
+            vc = self.__variants_corners__[interval_start : interval_end]
+            self.__corner_generators__[it_si].add_variants_corners(vc)
+
+
     def generate_corners(self) -> list[list[Corner]]:
         result = []
 
@@ -121,7 +143,7 @@ class SebaCorner:
         
         return result
     
-    def generate_spice_definition_corners(self) -> list[SpiceDefinition]:
+    def generate_spice_definition_corners(self) -> list[list[SpiceDefinition]]:
         result = []
 
         corners_generators = self.__get_corners_generators__()
