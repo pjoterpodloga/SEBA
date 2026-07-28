@@ -330,7 +330,7 @@ class SebaParser:
 
         return seba_spice
             
-    def parser_variant(self) -> SebaVariant:
+    def parse_variant(self) -> SebaVariant:
 
         if self.file_content == None:
             return None

@@ -59,7 +59,7 @@ class Seba:
             seba_corners = seba_parser_corners.parse_corner_gen()
 
             seba_parser_variants = SebaParser(seba_config, seba_reader.variants_file, SebaArguments)
-            seba_variants = seba_parser_variants.parser_variant()
+            seba_variants = seba_parser_variants.parse_variant()
 
             seba_parser_netlist = SebaParser(seba_config, seba_reader.netlist_file, SebaArguments)
             seba_netlist = seba_parser_netlist.parse_netlist()
