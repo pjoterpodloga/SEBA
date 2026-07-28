@@ -100,7 +100,7 @@ class SebaVariant:
         for it_vc in range(0, corner_list_start):
             fc = file_content[it_vc].replace("\n", "")
             str_split = fc.split(" ")
-            corner_type = str_split[0]
+            corner_type = "param"
             corner_name = str_split[1]
 
             if corner_name not in self.__match_by__:
