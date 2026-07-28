@@ -1,3 +1,5 @@
+import copy
+
 from seba.constants import AnsiCode as ac
 from seba.spice import *
 
@@ -294,7 +296,7 @@ class Corner:
         self.name = corner_name
         self.value= corner_value
 
-    def spice_definition(self):
+    def spice_definition(self) -> SpiceDefinition:
         result = None
         
         t = self.type
@@ -308,11 +310,29 @@ class Corner:
 
         return result
 
+    def corner_definition(self) -> str:
+        result = None
+
+        t = self.type
+        n = self.name
+
+        result = f"{t} {n}"
+
+        return result
+
+### TODO: Refactor list of corner class to CornerArray
+
+class CornerArray:
+    def __init__(self, corners: list[Corner]):
+        self.corners = corners
+
 class CornerGenerator:
     def __init__(self, corners: list[Corner], values: list[list[str]], grouping: list[int]):
         self.corners = corners
         self.values = values
         self.grouping = grouping
+        
+        self.__variant_corners__: list[list[Corner]] = None
 
         if  len(corners) != len(values) or\
             len(corners) != len(grouping) or\
@@ -374,20 +394,37 @@ class CornerGenerator:
 
         return resolved_corners
 
+    ### TODO: Write proper exception
+    def add_variants_corners(self, variant_corners: list[list[Corner]]):
+        if len(variant_corners) != self.tnoc:
+            raise Exception("Wrong number of variant corners.")
+        
+        self.__variant_corners__ = variant_corners
+
     def corner_list_header(self) -> list[str]:
         result = []
 
-        for it_c, c in enumerate(self.corners):
+        corners_merged = copy.deepcopy(self.corners)
+
+        if self.__variant_corners__ != None:
+            corners_merged.extend(self.__variant_corners__[0])
+
+        for it_c, c in enumerate(corners_merged):
             t = c.type
             n = c.name
             result.append(f"{t} {n}")
-            
+
         return result
 
     def corner_line(self, n_corner: int) -> str:
         result = []
 
-        for it_c, c in enumerate(self.__resolved_corners__[n_corner]):
+        corners_merged = copy.deepcopy(self.__resolved_corners__[n_corner])
+
+        if self.__variant_corners__ != None:
+            corners_merged.extend(self.__variant_corners__[n_corner])
+
+        for it_c, c in enumerate(corners_merged):
             v = c.value
 
             if it_c == 0:
@@ -400,7 +437,12 @@ class CornerGenerator:
     def spice_block(self, n_corner: int) -> list[str]:
         result = []
 
-        for it_c, c in enumerate(self.__resolved_corners__[n_corner]):
+        corners_merged = copy.deepcopy(self.__resolved_corners__[n_corner])
+
+        if self.__variant_corners__ != None:
+            corners_merged.extend(self.__variant_corners__[n_corner])
+
+        for it_c, c in enumerate(corners_merged):
             t = c.type
             n = c.name
             v = c.value
@@ -415,7 +457,12 @@ class CornerGenerator:
     def spice_definition(self, n_corner: int) -> list[SpiceDefinition]:
         result = []
 
-        for it_c, c in enumerate(self.__resolved_corners__[n_corner]):
+        corners_merged = copy.deepcopy(self.__resolved_corners__[n_corner])
+
+        if self.__variant_corners__ != None:
+            corners_merged.extend(self.__variant_corners__[n_corner])
+
+        for it_c, c in enumerate(corners_merged):
             result.append(c.spice_definition())
         return result
         
