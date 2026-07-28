@@ -331,6 +331,9 @@ class SebaParser:
         return seba_spice
             
     def parser_variant(self) -> SebaVariant:
+
+        if self.file_content == None:
+            return None
         
         file_content_merge = Parser.prepare_file(self.file_content)
 

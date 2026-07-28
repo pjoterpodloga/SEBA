@@ -47,6 +47,9 @@ class SebaAssembler:
 
     def __adjust_corners_for_variants__(self):
 
+        if self.variants == None:
+            return
+
         variant_corners = []
 
         for it_c in range(self.number_of_corners):
