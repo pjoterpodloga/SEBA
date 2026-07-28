@@ -169,6 +169,7 @@ class SebaNetlist(GenericSpice):
         self.__init_dicts__()
 
     def __init_dicts__(self):
+        self.name_dict = {}
         self.param_index_dict = {}
         self.lib_index_dict = {}
         self.subckt_index_dict = {}
@@ -179,8 +180,10 @@ class SebaNetlist(GenericSpice):
         for it_se, _se in enumerate(self.se):
             if type(_se) == ParameterDefinition:
                 self.param_index_dict[_se.name] = it_se
+                self.name_dict[_se.name] = "param"
             if type(_se) == LibraryDefinition:
                 self.lib_index_dict[_se.name] = it_se
+                self.name_dict[_se.name] = "lib"
             if type(_se) == SubcircuitDefinition:
                 if subckt_name != None:
                     raise Exception("Found next subckt definition before .endc directive")
