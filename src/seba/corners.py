@@ -86,7 +86,6 @@ class SebaCorner:
 
         return result_index_list
 
-
     ### TODO: Write proper exception
     def add_variants_corners(self, variant_corners: list[list[Corner]]):
         if len(variant_corners) != self.tnoc:

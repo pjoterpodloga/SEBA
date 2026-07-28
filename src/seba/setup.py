@@ -231,7 +231,6 @@ class SebaSetupTool:
     def __copy_utilities__(cls, repo_path: str):
         subprocess.run(["cp", "res/index.html", f"{repo_path}/result_gen"])
 
-    ### TODO: this shouldnt be sebareader, more like sebabuilder, class that holds all assembled files
     @classmethod
     def prepare_sim_dir(cls, config: SebaConfig, settings: SebaArguments):
         

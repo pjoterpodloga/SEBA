@@ -31,7 +31,6 @@ class SebaAssembler:
 
         self.__adjust_corners_for_variants__()
 
-        ### TODO: Adjust corner list for variants 
         self.corner_list = self.corners.generate_corner_list()
 
         self.__adjust_extraction_subckt_definitions__()
