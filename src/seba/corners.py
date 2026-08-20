@@ -49,12 +49,15 @@ class SebaCorner:
     def get_corner_map_from_index(self, index: int):
         return self.__corner_mapping__[index]
 
-    def get_corner_index_from_map(self, corner: dict) -> list[int]:
+    def get_corner_index_from_map(self, corner: dict) -> list[list[list[int]] | list[list[str]]]:
         
         input_corner_keys = list(corner.keys())
         existing_corner_keys = list(self.__corner_reverse_mapping__.keys())
 
-        index_list: list[list[int]] = []
+        exisitng_index_list: list[list[int]] = []
+        missing_variants_list: list[list[str]] = []
+
+        abort_search = False
 
         for it_ick, ick in enumerate(input_corner_keys):
             if ick not in existing_corner_keys:
@@ -64,18 +67,24 @@ class SebaCorner:
 
             existing_corner_values = list(self.__corner_reverse_mapping__[ick].keys())
 
-            if search_value in existing_corner_values:
-                index_list.append(self.__corner_reverse_mapping__[ick][search_value])
+            if (search_value in existing_corner_values) and not abort_search:
+                exisitng_index_list.append(self.__corner_reverse_mapping__[ick][search_value])
+            elif (search_value in existing_corner_values) and abort_search:
+                pass
+            else:
+                missing_variants_list.append([ick, search_value])
+                abort_search = True
+                exisitng_index_list = []
 
-        if len(index_list) == 1:
-            return index_list[0]
+        if len(exisitng_index_list) == 1:
+            return [exisitng_index_list[0], missing_variants_list]
 
-        if len(index_list) < 2:
-            return []
+        if len(exisitng_index_list) == 0:
+            return [[], missing_variants_list]
 
-        tmp_index_list = index_list[0]
+        tmp_index_list = exisitng_index_list[0]
 
-        for il in index_list[1:]:
+        for il in exisitng_index_list[1:]:
             til = copy.deepcopy(tmp_index_list)
             tmp_index_list = []
             for i in il:
@@ -84,7 +93,7 @@ class SebaCorner:
                     
         result_index_list = sorted(tmp_index_list)
 
-        return result_index_list
+        return [result_index_list, missing_variants_list]
 
     ### TODO: Write proper exception
     def add_variants_corners(self, variant_corners: list[list[Corner]]):

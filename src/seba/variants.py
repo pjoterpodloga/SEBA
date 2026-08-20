@@ -41,8 +41,11 @@ class SebaVariant:
 
         self.parsed_corners = SebaCorner(self.__parsed_corners__)
 
-    def get_insert_values_from_map(self, corner: dict) -> list[Corner]:
-        meas_idx = self.parsed_corners.get_corner_index_from_map(corner)[0]
+    def get_insert_values_from_map(self, corner: dict) -> list[Corner | list[list[str]]]:
+        map_return_value = self.parsed_corners.get_corner_index_from_map(corner)
+
+        meas_idx = map_return_value[0]
+        missing_variant = map_return_value[1]
 
         insert_corner_values = []
 
@@ -50,10 +53,13 @@ class SebaVariant:
             vi = v.insert
             for i in vi:
                 name = i
-                value = self.__parsed_result_csv__.get_value_by_name(name, meas_idx)
+                if len(meas_idx) == 0:
+                    value = '\'__missing_corner__\''
+                else:
+                    value = self.__parsed_result_csv__.get_value_by_name(name, meas_idx[0])
                 insert_corner_values.append(Corner("param", name, value))
 
-        return insert_corner_values
+        return [insert_corner_values, missing_variant]
 
     def __parse_testbench_measure_csv__(self, variant: Variant):
         tb_name = variant.tb_name

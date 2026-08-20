@@ -54,7 +54,13 @@ class SebaAssembler:
 
         for it_c in range(self.number_of_corners):
             corner_base_map = self.corners.get_corner_map_from_index(it_c)
-            corner_variant_insert = self.variants.get_insert_values_from_map(corner_base_map)
+            map_return_value = self.variants.get_insert_values_from_map(corner_base_map)
+            corner_variant_insert = map_return_value[0]
+            missing_variants = map_return_value[1]
+            if len(missing_variants) != 0:
+                AsyncLogger.error(f"Corner {it_c}. Missing variant.")
+                for it_mv, mv in enumerate(missing_variants):
+                    AsyncLogger.error(f"Variant not found for value {mv[0]}={mv[1]}")
             variant_corners.append(corner_variant_insert)
         self.corners.add_variants_corners(variant_corners)
             
