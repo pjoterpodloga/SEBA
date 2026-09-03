@@ -120,7 +120,7 @@ class SebaCorner:
             self.__corner_generators__[it_si].add_variants_corners(vc)
 
 
-    def generate_corners(self) -> list[list[Corner]]:
+    def generate_corners(self, mc_on:bool = True) -> list[list[Corner]]:
         result = []
 
         corners_generators = self.__get_corners_generators__()
@@ -128,7 +128,7 @@ class SebaCorner:
         for it_cg, cg in enumerate(corners_generators):
             resolved_corners = cg.resolve()
 
-            if self.monte_carlo_seeds == 1:
+            if self.monte_carlo_seeds == 1 or mc_on == False:
                 result.extend(resolved_corners)
             else:
                 for it_rc, rc in enumerate(resolved_corners):
@@ -139,7 +139,7 @@ class SebaCorner:
 
         return result
 
-    def generate_spice_corners(self) -> list[list[str]]:
+    def generate_spice_corners(self, mc_on:bool = True) -> list[list[str]]:
         result = []
 
         corners_generators = self.__get_corners_generators__()
@@ -147,7 +147,7 @@ class SebaCorner:
         for it_cg, cg in enumerate(corners_generators):
             resolved_corners = cg.spice_list()
 
-            if self.monte_carlo_seeds == 1:
+            if self.monte_carlo_seeds == 1 or mc_on == False:
                 result = result + resolved_corners
             else:
                 for it_rc, rc in enumerate(resolved_corners):
@@ -158,7 +158,7 @@ class SebaCorner:
         
         return result
 
-    def generate_corner_list(self) -> list[str]:
+    def generate_corner_list(self, mc_on:bool = True) -> list[str]:
         result = []
 
         corners_generators = self.__get_corners_generators__()
@@ -166,7 +166,7 @@ class SebaCorner:
         for it_cg, cg in enumerate(corners_generators):
             resolved_corners = cg.corner_list()
 
-            if self.monte_carlo_seeds == 1:
+            if self.monte_carlo_seeds == 1 or mc_on == False:
                 result = result + resolved_corners
             else:
                 for it_rc, rc in enumerate(resolved_corners):
@@ -182,7 +182,7 @@ class SebaCorner:
         
         return result
     
-    def generate_spice_definition_corners(self) -> list[list[SpiceDefinition]]:
+    def generate_spice_definition_corners(self, mc_on:bool = True) -> list[list[SpiceDefinition]]:
         result = []
 
         corners_generators = self.__get_corners_generators__()
@@ -190,7 +190,7 @@ class SebaCorner:
         for it_cg, cg in enumerate(corners_generators):
             resolved_corners = cg.spice_definition_list()
 
-            if self.monte_carlo_seeds == 1:
+            if self.monte_carlo_seeds == 1 or mc_on == False:
                 result = result + resolved_corners
             else:
                 for it_rc, rc in enumerate(resolved_corners):
