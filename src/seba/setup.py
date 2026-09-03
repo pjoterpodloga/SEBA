@@ -130,7 +130,7 @@ class SebaSetupTool:
                 f.write(".subckt sres net1 net2\n")
                 f.write("Rsubckt net1 net2 1\n")
                 f.write(".ends\n")
-                f.write("V1 net1 0 'xvp'\n")
+                f.write("V1 net1 0 'xvp' PWL(0 0 1 0 2 'xvp' 3 'xvp')\n")
                 f.write("XR1 net1 vout sres\n")
                 f.write("R2 vout 0 'xres1'\n")
                 f.write("R3 vout 0 'xres2'\n")
@@ -151,7 +151,9 @@ class SebaSetupTool:
                 f.write("param xvp\n")
                 f.write("param xres1\n")
                 f.write("param xres2\n")
-                f.write("corner_gen [-50, 25, 125] [0.9, 1, 1.1] [1, 2, 3] [1, 2, 3] \n")
+                f.write("#monte_carlo 5\n")
+                f.write("#corner_gen [-50, 25, 125] [0.9, 1, 1.1] [1, 2, 3] [1, 2, 3] # PVT debug case\n")
+                f.write("corner_gen [25] [1] [6] [7] # Monte carlo debug case\n")
 
             ### TODO: Add empty debug files
             with open(scripts_file, "w") as f:
