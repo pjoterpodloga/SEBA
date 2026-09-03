@@ -31,7 +31,8 @@ class SebaAssembler:
 
         self.__adjust_corners_for_variants__()
 
-        self.corner_list = self.corners.generate_corner_list()
+        self.corner_list = self.corners.generate_corner_list(mc_on=False)
+        self.corner_list_mc = self.corners.generate_corner_list(mc_on=True)
 
         self.__adjust_extraction_subckt_definitions__()
 
@@ -173,6 +174,16 @@ class SebaAssembler:
                 f.write(fc)
                 f.write("\n")
 
+    def __write_corner_list_mc__(self):
+        corners_list_mc_file_name = "corners_mc.list"
+
+        clmcfn = f"{self.config.sim_dir}/{corners_list_mc_file_name}"
+
+        with open(clmcfn, 'w') as f:
+            for fc in self.corner_list_mc:
+                f.write(fc)
+                f.write("\n")
+
     def __write_measure_json__(self):
         measure_json_file_name = "measure.json"
 
@@ -213,6 +224,7 @@ class SebaAssembler:
     def write_all(self):
         self.__write_spice_files__()
         self.__write_corner_list__()
+        self.__write_corner_list_mc__()
         self.__write_measure_json__()
         self.__write_script_file__()
         self.__create_res_directory__()
