@@ -388,7 +388,10 @@ class SebaParser:
         corners_gen = []
         corners_name = []
 
+        monte_carlo_seeds = None
+
         corner_defenition_finish = False
+        monte_definition_found = False
 
         for it_tl, tl in enumerate(tokens):
             
@@ -406,6 +409,19 @@ class SebaParser:
 
                 corners_name.append(cmd[1])
                 corners_def.append(Corner(cmd[0], cmd[1]))
+
+            elif cmd[0] == "mc" or cmd[0] == "monte_carlo":
+                if len(cmd) != 2:
+                    raise WrongCornerDefinition(pm_wrong_arg_num_corner(tl[0], self.file_content))
+                
+                if corner_defenition_finish:
+                    raise DefinitionAfterCornerGen(pm_wrong_def_corner(tl[0], self.file_content))
+
+                if monte_definition_found:
+                    raise Exception("Monte carlo definition already found.")
+
+                monte_carlo_definition_found = True
+                monte_carlo_seeds = int(cmd[1])
                 
             elif cmd[0] == "corner_gen":
                 if len(cmd)-1 != len(corners_def):
@@ -443,7 +459,7 @@ class SebaParser:
         if len(corners_gen) == 0:
             raise Exception("Corner generator line not found")
 
-        seba_corner = SebaCorner(corners_gen)
+        seba_corner = SebaCorner(corners_gen, monte_carlo_seeds)
 
         return seba_corner
     
