@@ -245,7 +245,7 @@ class SebaSetupTool:
         if sim_dir_exists and build_force == False:
             raise Exception("Directory already exists, use \"--build_force\" to remove directory.")
         
-        if sim_dir_exists or build_force == True:
+        if sim_dir_exists and build_force == True:
             shutil.rmtree(sim_dir)
             AsyncLogger.warning("Existing simulation directory removed.")
 
