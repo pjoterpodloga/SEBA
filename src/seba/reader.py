@@ -64,6 +64,8 @@ class SebaReader:
                 self.variants_file = f.readlines()
 
     def __read_script_file__(self):
+        if self.config.scripts != None:
+            self.script_files = []
         for it_sfn, sfn in enumerate(self.config.scripts):
             if self.config.scripts != None:
                 with open("../scripts/"+sfn, "r") as f:
