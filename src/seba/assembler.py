@@ -193,7 +193,7 @@ class SebaAssembler:
             f.write(self.measure_json_file)
 
     def __write_script_files__(self):
-        for it_sfn, sfn in self.config.scripts:
+        for it_sfn, sfn in enumerate(self.config.scripts):
             sfn = f"{self.config.sim_dir}/{sfn}"
 
             with open(sfn, "w") as f:
