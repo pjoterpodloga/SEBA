@@ -11,7 +11,7 @@ class SebaConfig:
         self.netlist: str = netlist
         self.corners: str = corners
         self.varinats: str = variants
-        self.script: str = script
+        self.scripts: str = script
         self.plot: str = plot
         self.measure: str = meas
         self.extraction: list[str] = extraction
@@ -28,7 +28,7 @@ class SebaConfig:
         AsyncLogger.debug(f"CONTROL = {self.control}")
         AsyncLogger.debug(f"CORNERS = {self.corners}")
         AsyncLogger.debug(f"VARIANTS = {self.varinats}")
-        AsyncLogger.debug(f"SCRIPT = {self.script}")
+        AsyncLogger.debug(f"SCRIPT = {self.scripts}")
         AsyncLogger.debug(f"MEAS = {self.measure}")
         AsyncLogger.debug(f"PLOT = {self.plot}")
         if self.extraction != None:

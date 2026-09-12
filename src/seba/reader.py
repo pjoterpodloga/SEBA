@@ -7,10 +7,10 @@ class SebaReader:
         self.netlist_file: list[str] = None
         self.corners_file: list[str] = None
         self.variants_file: list[str] = None
-        self.script_file: list[str] = None
+        self.script_files: list[list[str]] = None
         self.measure_file: list[str] = None
         self.plot_file: list[str] = None
-        self.extraction_files: list[str] = None
+        self.extraction_files: list[list[str]] = None
 
         self.__read_files__()
 
@@ -64,9 +64,10 @@ class SebaReader:
                 self.variants_file = f.readlines()
 
     def __read_script_file__(self):
-        if self.config.script != None:
-            with open("../scripts/"+self.config.script, "r") as f:
-                self.script_file = f.readlines()
+        for it_sfn, sfn in enumerate(self.config.scripts):
+            if self.config.scripts != None:
+                with open("../scripts/"+self.config.scripts, "r") as f:
+                    self.script_files.append(f.readlines())
     
     def __read_measure_file__(self):
         if self.config.measure != None:

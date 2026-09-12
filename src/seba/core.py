@@ -75,7 +75,7 @@ class Seba:
             seba_assembler = SebaAssembler(config=seba_config, 
                                             corners=seba_corners, variants=seba_variants,
                                             testbench=seba_netlist, control=seba_control,
-                                            measure=seba_measure, script=seba_reader.script_file,
+                                            measure=seba_measure, scripts=seba_reader.script_files,
                                             extraction=seba_extraction_list)
 
             seba_assembler.write_all()

@@ -14,7 +14,7 @@ class SebaAssembler:
     def __init__(self, config: SebaConfig,\
                     corners: SebaCorner, variants: SebaVariant,
                     testbench: SebaNetlist, control: SebaControl, 
-                    measure: SebaMeasure, script: list[str], 
+                    measure: SebaMeasure, scripts: list[list[str]], 
                     extraction: SebaExtractionMap):
         self.config = config
         self.corners = corners
@@ -22,7 +22,7 @@ class SebaAssembler:
         self.testbench = testbench
         self.control = control
         self.measure = measure
-        self.script_file = script
+        self.script_files = scripts
         self.extraction = extraction
 
         self.number_of_corners = self.corners.tnoc
@@ -192,13 +192,12 @@ class SebaAssembler:
         with open(mjfn, "w") as f:
             f.write(self.measure_json_file)
 
-    def __write_script_file__(self):
-        script_file_name = self.config.script
+    def __write_script_files__(self):
+        for it_sfn, sfn in self.config.scripts:
+            sfn = f"{self.config.sim_dir}/{sfn}"
 
-        sfn = f"{self.config.sim_dir}/{script_file_name}"
-
-        with open(sfn, "w") as f:
-            f.writelines(self.script_file)
+            with open(sfn, "w") as f:
+                f.writelines(self.script_files[it_sfn])
 
     def __copy_ngspice_utils__(self):
         subprocess.run(["cp", "../tmp/simulations/res/ngspice_utils.py", f"{self.config.sim_dir}"])
@@ -212,7 +211,8 @@ class SebaAssembler:
             f.write(f"#!/bin/bash\n")
             f.write( "SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\n")
             f.write(f"cd \"$SCRIPT_DIR\"\n")
-            f.write(f"\"$SCRIPT_DIR/../venv/bin/python\" {self.config.script}\n")
+            for s in self.config.scripts:
+                f.write(f"\"$SCRIPT_DIR/../venv/bin/python\" {s}\n")
 
         subprocess.run(["chmod", "+x", wsfn])
 
@@ -226,7 +226,7 @@ class SebaAssembler:
         self.__write_corner_list__()
         self.__write_corner_list_mc__()
         self.__write_measure_json__()
-        self.__write_script_file__()
+        self.__write_script_files__()
         self.__create_res_directory__()
         self.__copy_ngspice_utils__()
         self.__create_script_wrapper__()

@@ -528,9 +528,9 @@ class SebaParser:
                 seba_config.varinats = cmd[1]                         
 
             elif cmd[0].upper() == "SCRIPT":
-                if len(tl) != 2:
+                if len(tl) <= 2:
                     raise WrongNumberConfigCommands(pm_wrong_num_cmd(tl[0], self.file_content))
-                seba_config.script = cmd[1]
+                seba_config.scripts = cmd[1:]
 
             elif cmd[0].upper() == "MEAS":
                 if len(tl) != 2:
